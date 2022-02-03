@@ -19,6 +19,9 @@ struct BulletData
 	int Distance;
 };
 
+enum class BulletDataResult : unsigned int 
+{  DontIgnite , Ignite , Ignite_DistaceFactor };
+
 // the velocities along the axes, or something like that
 using BulletVelocity = Vector3D<double>; // :3 -pd
 
@@ -98,6 +101,26 @@ public:
 	// call only after the target, args, etc., have been set
 	void NukeMaker()
 		{ JMP_THIS(0x46B310); }
+    
+    //4E11F0
+    BulletDataResult* __thiscall BulletStateCheck(BulletData* pData, CoordStruct* Destination)
+    	{ JMP_STD(0x4E11F0);}
+
+    //468BB0
+    bool IsForceToExplode(CoordStruct&loc)
+  	    {JMP_THIS(0x468BB0);}
+
+	static int __fastcall ProjectileMotion(
+		CoordStruct* pCoord, 
+		BulletVelocity* pVel,
+		CoordStruct* pSecondCoord,
+		DirStruct* pDir, 
+		bool bInAir,
+		bool bAirburs, 
+		bool bVeryHigh,
+		bool bLevel)
+
+	{ JMP_STD(0x5B20F0); }
 
 	// helpers
 	CoordStruct GetTargetCoords() const {
@@ -127,7 +150,7 @@ public:
 
 	BulletTypeClass* Type;
 	TechnoClass* Owner;
-	bool unknown_B4;
+	bool IsInaccurate; //B4
 	BulletData Data;
 	bool Bright;
 	DWORD unknown_E4;
@@ -138,7 +161,7 @@ public:
 	AbstractClass* Target;
 	int Speed;
 	int InheritedColor;
-	DWORD unknown_118;
+	DWORD SomeIntIncrement_118;
 	DWORD unknown_11C;
 	double unknown_120;
 	WarheadTypeClass* WH;

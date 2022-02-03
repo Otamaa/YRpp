@@ -5,6 +5,53 @@
 #include <YRPPCore.h>
 #include <Memory.h>
 
+class Buffer
+{
+public:
+	Buffer(char *ptr, int size = 0)
+	{ JMP_THIS(0x43AD00); }
+
+	Buffer(void *ptr = nullptr, int size = 0)
+	{ JMP_THIS(0x43AD40); }
+
+	Buffer(const void * ptr, int size = 0)
+	{ JMP_THIS(0x43AD80); }
+
+	Buffer(int size)
+	{ JMP_THIS(0x43ADC0); }
+
+	Buffer(const Buffer & buffer)
+	{ JMP_THIS(0x43ADF0); }
+
+	~Buffer()
+	{ JMP_THIS(0x43AE50); }
+
+	Buffer & operator = (const Buffer & buffer)
+	{ JMP_THIS(0x43AE10); }
+
+	Buffer& operator = (Buffer&& other) noexcept
+	{
+		*this = other;
+		auto const allocated = other.IsAllocated;
+		other.IsAllocated = false;
+		this->IsAllocated = allocated;
+		return *this;
+	}
+
+	operator void * () const { return BufferPtr; }
+	operator char * () const { return (char *)BufferPtr; }
+
+	void Reset() { JMP_THIS(0x43AE80); }
+	void * Get_Buffer() const { return BufferPtr; }
+	long Get_Size() const { return Size; }
+	bool Is_Valid() const { return BufferPtr != nullptr; }
+
+protected:
+	void * BufferPtr;
+	long Size;
+	bool IsAllocated;
+};
+
 class MemoryBuffer
 {
 public:
@@ -40,6 +87,9 @@ public:
 		}
 	}
 
+	operator void * () const { return Buffer; }
+	operator char * () const { return (char *)Buffer; }
+
 	MemoryBuffer& operator = (MemoryBuffer const& other) noexcept
 	{
 		if(this != &other) {
@@ -66,6 +116,10 @@ public:
 		this->Buffer = nullptr;
 		this->Size = 0;
 	}
+
+	void * Get_Buffer() const { return Buffer; }
+	long Get_Size() const { return Size; }
+	bool Is_Valid() const { return Buffer != nullptr; }
 
 public:
 	void* Buffer{ nullptr };

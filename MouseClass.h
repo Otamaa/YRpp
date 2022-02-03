@@ -4,11 +4,17 @@
 
 class MouseCursor {
 public:
-	static constexpr reference<MouseCursor, 0x82D028u, 86u> const Cursors{};
+	static constexpr size_t DefaultCursorsCount = 86u;
+	static constexpr reference<MouseCursor, 0x82D028u, DefaultCursorsCount> const DefaultCursors{};
 
-	static MouseCursor& GetCursor(MouseCursorType cursor) {
-		return Cursors[static_cast<int>(cursor)];
-	}
+	static MouseCursor& GetDefaultCursor(MouseCursorType cursor)
+		{ return DefaultCursors[static_cast<int>(cursor)]; }
+
+	static MouseCursor& GetCursor(MouseCursorType cursor)
+		{ return DefaultCursors[static_cast<int>(cursor)]; }
+
+	static MouseCursor& GetCursor(size_t cursor)
+		{ return DefaultCursors[cursor]; }
 
 	MouseCursor() = default;
 
@@ -28,6 +34,8 @@ public:
 	MouseHotSpotY HotY{ MouseHotSpotY::Middle };
 };
 
+static_assert(sizeof(MouseCursor) == 0x1C);
+//
 struct TabDataClass
 {
 	int TargetValue;
@@ -63,7 +71,7 @@ public:
 	DWORD unknown_int_5548;
 	BYTE unknown_byte_554C;
 	PROTECTED_PROPERTY(BYTE, align_554D[3]);
-	DWORD unknown_int_5550;
+	DWORD RightclickPressPoint; //5550
 	DWORD unknown_int_5554;
 	BYTE unknown_byte_5548;
 	BYTE unknown_byte_5549;
@@ -76,6 +84,8 @@ class NOVTABLE MouseClass : public ScrollClass
 public:
 	//Static
 	static constexpr constant_ptr<MouseClass, 0x87F7E8u> const Instance{};
+	static constexpr reference<SHPStruct*, 0xABF294u> const ShapeFile{};
+	static constexpr reference<bool, 0xABF2DDu> const ShapeOverride{};
 
 	//Destructor
 	virtual ~MouseClass() RX;
@@ -89,6 +99,7 @@ public:
 	//DisplayClass
 	virtual MouseCursorType GetLastMouseCursor() override RT(MouseCursorType);
 
+public:
 	bool MouseCursorIsMini;
 	PROTECTED_PROPERTY(BYTE, unknown_byte_5559[3]);
 	MouseCursorType MouseCursorIndex;

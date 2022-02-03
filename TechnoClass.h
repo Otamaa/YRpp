@@ -30,7 +30,7 @@ class ObjectTypeClass;
 class ParticleSystemClass;
 class SpawnManagerClass;
 class WaveClass;
-
+class EBolt;
 struct NetworkEvent;
 
 #include <TransitionTimer.h>
@@ -104,6 +104,7 @@ struct VeterancyStruct
 
 	float Veterancy{ 0.0f };
 };
+static_assert(sizeof(VeterancyStruct) == 0x4);
 
 class PassengersClass
 {
@@ -126,10 +127,14 @@ public:
 	int IndexOf(FootClass* candidate) const
 		{ JMP_THIS(0x473500); }
 
+	void Detach(FootClass* candidate) const
+		{ JMP_THIS(0x4734B0);}
+
 	PassengersClass() : NumPassengers(0), FirstPassenger(nullptr) {};
 
 	~PassengersClass() { };
 };
+static_assert(sizeof(PassengersClass) == 0x8);
 
 struct FlashData
 {
@@ -250,7 +255,7 @@ public:
 	virtual void AddPassenger(FootClass* pPassenger) RX;
 	virtual bool CanDisguiseAs(AbstractClass*pTarget) const R0;
 	virtual bool TargetAndEstimateDamage(DWORD dwUnk, DWORD dwUnk2) R0;
-	virtual DWORD vt_entry_3A0() R0;
+	virtual void Stun() RX;//DWORD vt_entry_3A0() R0;
 	virtual bool TriggersCellInset(AbstractClass *pTarget) R0;
 	virtual bool IsCloseEnough(AbstractClass *pTarget, int idxWeapon) const R0;
 	virtual bool IsCloseEnoughToAttack(AbstractClass *pTarget) const R0;
@@ -281,7 +286,7 @@ public:
 	virtual void UpdateCloak(bool bUnk = 1) RX;
 	virtual void CreateGap() RX;
 	virtual void DestroyGap() RX;
-	virtual void vt_entry_41C() RX;
+	virtual void RockingAI(Vector3D<double>* pVelocity, float bFactor = 0.5f, bool bHalf = false) RX;//virtual void vt_entry_41C() RX;
 	virtual void Sensed() RX;
 	virtual void Reload() RX;
 	virtual void vt_entry_428() RX;
@@ -311,7 +316,7 @@ public:
 	virtual bool UpdateIdleAction() R0;
 	virtual void vt_entry_47C(DWORD dwUnk) RX;
 	virtual void SetDestination(AbstractClass* pDest, bool bUnk) RX;
-	virtual bool vt_entry_484(DWORD dwUnk, DWORD dwUnk2) R0;
+	virtual bool EnterIdleMode(bool Initial, int nUnknown) R0;//virtual bool vt_entry_484(DWORD dwUnk, DWORD dwUnk2) R0;
 	virtual void UpdateSight(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3, DWORD dwUnk4, DWORD dwUnk5) RX;
 	virtual void vt_entry_48C(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3, DWORD dwUnk4) RX;
 	virtual bool ForceCreate(CoordStruct& coord, DWORD dwUnk = 0) R0;
@@ -334,6 +339,17 @@ public:
 
 	//non-virtual
 
+		// technically it takes an ecx<this> , but it's not used and ecx is immediately overwritten on entry
+	// draws the mind control line when unit is selected
+	static void DrawALinkTo(int src_X, int src_Y, int src_Z, int dst_X, int dst_Y, int dst_Z, ColorStruct color)
+	{
+		PUSH_VAR32(color); PUSH_VAR32(dst_Z); PUSH_VAR32(dst_Y); PUSH_VAR32(dst_X);
+		PUSH_VAR32(src_Z); PUSH_VAR32(src_Y); PUSH_VAR32(src_X); CALL(0x704E40);
+	}
+
+	void BecomeUntargetable()
+	{ JMP_THIS(0x70D4A0); }
+
 	// (re-)starts the reload timer
 	void StartReloading()
 		{ JMP_THIS(0x6FB080); }
@@ -347,17 +363,17 @@ public:
 		return pType ? pType->get_ID() : nullptr;
 	}
 
-	int TimeToBuild() const
-		{ JMP_THIS(0x6F47A0); }
-
 	bool IsMindControlled() const
 		{ JMP_THIS(0x7105E0); }
 
 	bool CanBePermaMindControlled() const
 		{ JMP_THIS(0x53C450); }
 
-	LaserDrawClass* CreateLaser(ObjectClass *pTarget, int idxWeapon, WeaponTypeClass *pWeapon, const CoordStruct &Coords)
-		{ JMP_THIS(0x6FD210); }
+	LaserDrawClass* CreateLaser(AbstractClass* pTarget, int idxWeapon, WeaponTypeClass* pWeapon, const CoordStruct& Coords)
+	{ JMP_THIS(0x6FD210); }
+
+	EBolt* CreateEbolt(AbstractClass* pTarget, WeaponTypeClass* pWeapon, const CoordStruct& Coords)
+	{ JMP_THIS(0x6FD460); }
 
 	/*
 	 *  Cell->AddThreat(this->Owner, -this->ThreatPosed);
@@ -393,6 +409,9 @@ public:
 		DWORD dwUnk3)
 			{ JMP_THIS(0x6F8960); }
 
+	int EvaluateJustCell(CellStruct& coords) const
+	{ JMP_THIS(0x6F8C10); }
+
 	void Reactivate()
 		{ JMP_THIS(0x70FBE0); }
 
@@ -421,9 +440,9 @@ public:
 	void SetFocus(AbstractClass* pFocus)
 		{ JMP_THIS(0x70C610); }
 
-	void DrawObject(SHPStruct* pSHP, int nFrame, Point2D* pLocation, RectangleStruct* pBounds,
-		int, int, int nZAdjust, ZGradient eZGradientDescIdx, int, int nBrightness, int TintColor,
-		SHPStruct* pZShape, int nZFrame, int nZOffsetX, int nZOffsetY, int);
+	//void DrawObject(SHPStruct* pSHP, int nFrame, Point2D* pLocation, RectangleStruct* pBounds,
+	//	int, int, int nZAdjust, ZGradient eZGradientDescIdx, int, int nBrightness, int TintColor,
+	//	SHPStruct* pZShape, int nZFrame, int nZOffsetX, int nZOffsetY, int);
 
 	int sub_70DE00(int State)
 		{ JMP_THIS(0x70DE00); }
@@ -458,7 +477,34 @@ public:
 		return this->GetIonCannonValue(difficulty);
 	}
 
-	DirStruct TurretFacing() const {
+	MissionControlClass* GetCurrentMissionControl() const
+	{
+		auto test = this->GetCurrentMission();
+		auto name = MissionControlClass::FindName(test);
+		return MissionControlClass::Find(name);
+	}
+
+	double GetCurrentMissionRate() const
+	{
+		auto control = this->GetCurrentMissionControl();
+		auto const doubleval = 900.0; // 0x7E27F8
+		return control->Rate * doubleval;
+
+	}
+
+	//70BCB0
+	CoordStruct* GetTargetCoords(CoordStruct* pBuffer)
+	{ JMP_THIS(0x70BCB0); }
+
+	CoordStruct GetTargetCoords()
+	{
+		CoordStruct pBuffer;
+		this->GetTargetCoords(&pBuffer);
+		return pBuffer;
+	}
+
+	DirStruct TurretFacing() const
+	{
 		DirStruct ret;
 		this->TurretFacing(&ret);
 		return ret;
@@ -469,6 +515,86 @@ public:
 		this->GetRealFacing(&ret);
 		return ret;
 	}
+
+	BulletClass* FireAt(AbstractClass* aTarget, int nWhich) const
+	{ JMP_THIS(0x6FDD50); }
+
+	int CombatDamage(int nWhich = -1) const
+	{ JMP_THIS(0x6F3970); }
+
+	bool MoveOnLinked() const
+	{ JMP_THIS(0x70D8F0); }
+
+	void LocomotorImblued(bool remove) const
+	{ JMP_THIS(0x70FEE0); }
+
+	void ImbueLocomotor(FootClass* pTarget, _GUID LocoId)const
+	{ JMP_THIS(0x710000); }
+
+	void ReleaseCaptureManager() const
+	{
+		if (auto pManager = this->CaptureManager)
+			pManager->FreeAll();
+	}
+
+	void SuspendWorkSlaveManager() const
+	{
+		if (auto pManager = this->SlaveManager)
+			pManager->SuspendWork();
+	}
+
+	void ResumeWorkSlaveManager() const
+	{
+		if (auto pManager = this->SlaveManager)
+			pManager->ResumeWork();
+	}
+
+	void DetechMyTemporal() const
+	{
+		if (this->IsWarpingSomethingOut())
+			if (auto pTemporal = this->TemporalImUsing)
+				pTemporal->LetGo();
+	}
+
+	InfantryTypeClass* GetCrewType() const
+	{ JMP_THIS(0x707D20); }
+
+	void KillCargo(TechnoClass* pSource) const
+	{ JMP_THIS(0x707CB0); }
+
+	int TimeToBuild() const
+	{ JMP_THIS(0x6F47A0); }
+
+	CellStruct* NearbyLocation(CellStruct* pRet, TechnoClass* pOtherTechno)
+	{ JMP_THIS(0x703590); }
+
+	bool MoveOnToLinkedBuilding() const
+	{ JMP_THIS(0x70D8F0); }
+
+	//Gattling stuffs
+	void AdjustGattlingValue(int nHowMuch) const
+	{ JMP_THIS(0x70DE40); }
+
+	int GetCurrentGattlingValue() const
+	{ JMP_THIS(0x70DDF0); }
+
+	int GetCurrentGattlingStage() const
+	{ JMP_THIS(0x70DDC0); }
+
+	void SetGattlingValue(int nInput) const
+	{ JMP_THIS(0x70DE00); }
+
+	void IncreaseGattlingValue(int nInput) const
+	{ JMP_THIS(0x70DE20); }
+
+	void SetGattlingStage(int nInput) const
+	{ JMP_THIS(0x70DDD0); }
+
+	void GattlingAI() const
+	{ JMP_THIS(0x70DE70); }
+	//
+	void DrawExtraInfo(Point2D const& location, Point2D const* originalLocation, RectangleStruct const* bounds)
+	{ DrawExtraInfo(location,*originalLocation,*bounds); }
 
 	//Constructor
 	TechnoClass(HouseClass* pOwner) noexcept
@@ -490,17 +616,17 @@ public:
 	ProgressTimer    Animation; // how the unit animates
 	PassengersClass  Passengers;
 	TechnoClass*     Transporter; // unit carrying me
-	int              unknown_int_120;
+	int              __LastGuardAreaTargetingFrame_120;
 	int              CurrentTurretNumber; // for IFV/gattling/charge turrets
-	int              unknown_int_128;
+	int              __TurretWeapon2_128;
 	AnimClass*       BehindAnim;
 	AnimClass*       DeployAnim;
 	bool             InAir;
-	int              CurrentWeaponNumber; // for IFV/gattling
+	int              CurrentWeaponNumber; // for IFV/gattling 138
 	Rank             CurrentRanking; // only used for promotion detection
 	int              CurrentGattlingStage;
 	int              GattlingValue; // sum of RateUps and RateDowns
-	DWORD            unknown_148;
+	DWORD            __TurretAnimFrame; //148
 	HouseClass*      InitialOwner; // only set in ctor
 	VeterancyStruct  Veterancy;
 	PROTECTED_PROPERTY(DWORD, align_154);
@@ -524,7 +650,7 @@ public:
 	DWORD            DisguiseCreationFrame;
 	TimerStruct      InfantryBlinkTimer; // Rules->InfantryBlinkDisguiseTime , detects mirage firing per description
 	TimerStruct      DisguiseBlinkTimer; // disguise disruption timer
-	bool             unknown_bool_1F8;
+	bool            __UnlimboingInfantry_1F8;
 	TimerStruct      ReloadTimer;
 	DWORD            unknown_208;
 	DWORD            unknown_20C;
@@ -587,7 +713,7 @@ public:
 
 	float            PitchAngle; // not exactly, and it doesn't affect the drawing, only internal state of a dropship
 	TimerStruct      DiskLaserTimer;
-	DWORD            unknown_2F8;
+	DWORD            __ROFCounter_2F8;
 	int              Ammo;
 	int              Value; // set to actual cost when this gets queued in factory, updated only in building's 42C
 
@@ -625,13 +751,13 @@ public:
 	FacingStruct     SecondaryFacing;
 	int              CurrentBurstIndex;
 	TimerStruct      TargetLaserTimer;
-	short            unknown_short_3C8;
-	WORD             unknown_3CA;
+	short            weapon_sound_number_3C8;
+	WORD             __shipsink_3CA;
 	bool             CountedAsOwned; // is this techno contained in OwningPlayer->Owned... counts?
 	bool             IsSinking;
 	bool             WasSinkingAlready; // if(IsSinking && !WasSinkingAlready) { play SinkingSound; WasSinkingAlready = 1; }
-	bool             unknown_bool_3CF;
-	bool             unknown_bool_3D0;
+	bool             __ProtectMe_3CF;
+	bool             IsUseless; //3D0
 	bool             HasBeenAttacked; // ReceiveDamage when not HouseClass_IsAlly
 	bool             Cloakable;
 	bool             IsPrimaryFactory; // doubleclicking a warfac/barracks sets it as primary
@@ -639,8 +765,8 @@ public:
 	bool             IsInPlayfield;
 	RecoilData       TurretRecoil;
 	RecoilData       BarrelRecoil;
-	bool             unknown_bool_418;
-	bool             unknown_bool_419;
+	bool             IsTethered; //418
+	bool             RADIO_26_27_419;
 	bool             IsHumanControlled;
 	bool             DiscoveredByPlayer;
 	bool             DiscoveredByComputer;
@@ -658,14 +784,14 @@ public:
 	TechnoClass*     BeingManipulatedBy; // set when something is being molested by a locomotor such as magnetron
 	                                       // the pointee will be marked as the killer of whatever the victim falls onto
 	HouseClass*      ChronoWarpedByHouse;
-	bool             unknown_bool_430;
+	bool             _Mission_Patrol_430;
 	bool             IsMouseHovering;
-	bool             unknown_bool_432;
+	bool             parasitecontrol_byte432;
 	TeamClass*       OldTeam;
 	bool             CountedAsOwnedSpecial; // for absorbers, infantry uses this to manually control OwnedInfantry count
 	bool             Absorbed; // in UnitAbsorb/InfantryAbsorb or smth, lousy memory
-	bool             unknown_bool_43A;
-	DWORD            unknown_43C;
+	bool             forceattackforcemovefirendlytarget_bool_43A;
+	DWORD            __RadialFireCounter_43C;
 	DynamicVectorClass<int> CurrentTargetThreatValues;
 	DynamicVectorClass<AbstractClass*> CurrentTargets;
 
@@ -675,25 +801,25 @@ public:
 	AudioController  Audio3;
 
 	DWORD            unknown_49C;
-	DWORD            unknown_4A0;
+	DWORD            __IsTurretTurning_4A0;
 
 	AudioController  Audio4;
 
-	bool             unknown_bool_4B8;
+	bool             GattlingAudioPlayed; //4B8
 	DWORD            unknown_4BC;
 
 	AudioController  Audio5;
 
-	bool             unknown_bool_4D4;
+	bool             gattlingsound_4D4;
 	DWORD            unknown_4D8;
 
 	AudioController  Audio6;
 
 	DWORD            QueuedVoiceIndex;
-	DWORD            unknown_4F4;
-	bool             unknown_bool_4F8;
-	DWORD            unknown_4FC;	//gets initialized with the current Frame, but this is NOT a TimerStruct!
-	DWORD            unknown_500;
+	DWORD            __LastVoicePlayed; //4F4
+	bool             deploy_bool_4F8;
+	DWORD            __creationframe_4FC;	//gets initialized with the current Frame, but this is NOT a TimerStruct!
+	BuildingClass*   LinkedBuilding; // 500 BuildingClass*
 	DWORD            EMPLockRemaining;
 	DWORD            ThreatPosed; // calculated to include cargo etc
 	DWORD            ShouldLoseTargetNow;
@@ -702,3 +828,5 @@ public:
 	ObjectTypeClass* Disguise;
 	HouseClass*      DisguisedAsHouse;
 };
+
+static_assert(sizeof(TechnoClass) == 0x520);

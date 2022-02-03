@@ -29,8 +29,17 @@ public:
 	virtual int	Size() const R0;
 
 	//non-virtual
-	void StartMission(ObjectClass* pTarget)
-		{ JMP_THIS(0x41D830); }
+	void StartMission(ObjectClass* pTarget) { JMP_THIS(0x41D830); }
+	void Detach(ObjectClass* pTarget) { JMP_THIS(0x41D540); }
+	void SetUp(ObjectClass* pTarget) { JMP_THIS(0x41D860); }
+	void SetTarget(ObjectClass* pTarget) { JMP_THIS(0x41DA20);}
+	void ResetTarget() { JMP_THIS(0x41DB40); }
+	bool CanStrike(ObjectClass* pTarget) { JMP_THIS(0x41D7E0); }
+
+	//Not sure
+	int AirstrikeClass_41DC60() { JMP_THIS(0x41DC60); }
+	FootClass* RemoveMember(FootClass* FirstObj) { JMP_THIS(0x41DC80); }
+	bool IsDissolved() { JMP_THIS(0x41DD10);}
 
 	//Constructor
 	AirstrikeClass(TechnoClass* pOwner) noexcept
@@ -52,10 +61,10 @@ public:
 	int EliteAirstrikeTeam;	//As in the INI files.
 	int AirstrikeTeamTypeIndex;	//As in the INI files.
 	int EliteAirstrikeTeamTypeIndex;	//As in the INI files.
-	DWORD unknown_34;
+	DWORD CurTeamIndex;       //DWORD unknown_34;
 	DWORD unknown_38;	//unused?
 	bool IsOnMission;	//Is the Aircraft on its way?
-	bool unknown_bool_3D;
+	bool IsOnTeam;		//bool unknown_bool_3D;
 	DWORD TeamDissolveFrame;	//when was the last time this team was invoked and subsequently dissolved
 	int AirstrikeRechargeTime;	//As in the INI files.
 	int EliteAirstrikeRechargeTime;	//As in the INI files.
@@ -65,3 +74,5 @@ public:
 	AircraftTypeClass* EliteAirstrikeTeamType;	//As in the INI files.
 	FootClass* FirstObject;
 };
+
+static_assert(sizeof(AirstrikeClass) == 0x60);

@@ -57,7 +57,7 @@ public:
 	BYTE   unknown_B0;
 	BYTE   unknown_B1;
 	BYTE   unknown_B2;
-	DWORD  unknown_B4;
+	DWORD  RefCount; //B4
 	DWORD  unknown_B8;
 	DWORD  unknown_BC;
 	DWORD  unknown_C0;
@@ -69,8 +69,8 @@ public:
 	DWORD  unknown_DC;
 	DWORD  unknown_E0;
 	float  Velocity;
-	CoordStruct unknown_coords_E8; //Crd2 in CTOR
-	CoordStruct unknown_coords_F4; //Crd1 in CTOR
+	CoordStruct Crd2_E8; //Crd2 in CTOR
+	CoordStruct Crd1_F4; //Crd1 in CTOR
 	CoordStruct unknown_coords_100; //{ 0, 0, 0} in CTOR
 	Vector3D<float> unknown_vector3d_10C;
 	Vector3D<float> unknown_vector3d_118;
@@ -82,6 +82,7 @@ public:
 	BYTE   StartStateAI;
 	BYTE   Translucency;
 	BYTE   unknown_130;
-	BYTE   unknown_131;
+	BYTE   hasremaining; //131
 	PROTECTED_PROPERTY(DWORD,        unused_134); //??
 };
+static_assert(sizeof(ParticleClass) == 0x138);

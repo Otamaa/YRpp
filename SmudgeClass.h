@@ -30,7 +30,7 @@ public:
 	virtual int Size() const R0;
 
 	//Constructor
-	SmudgeClass(SmudgeTypeClass* pType) noexcept
+	SmudgeClass(SmudgeTypeClass* pType , CoordStruct* pcoord, int nOwnerIndex = -1) noexcept
 		: SmudgeClass(noinit_t())
 	{ JMP_THIS(0x6B4A50); }
 

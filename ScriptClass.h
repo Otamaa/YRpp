@@ -31,8 +31,22 @@ public:
 	ScriptActionNode* GetCurrentAction(ScriptActionNode *buffer) const
 		{ JMP_THIS(0x691500); }
 
+	ScriptActionNode GetCurrentAction() const
+	{
+		ScriptActionNode buffer;
+		GetCurrentAction(&buffer);
+		return buffer;
+	}
+
 	ScriptActionNode* GetNextAction(ScriptActionNode *buffer) const
 		{ JMP_THIS(0x691540); }
+
+	ScriptActionNode GetNextAction() const
+	{
+		ScriptActionNode buffer;
+		GetNextAction(&buffer);
+		return buffer;
+	}
 
 	bool Reset()
 		{ this->idxCurrentLine = -1; return true; }
@@ -67,3 +81,4 @@ public:
 	int idxCurrentLine;
 
 };
+static_assert(sizeof(ScriptClass) == 0x30);

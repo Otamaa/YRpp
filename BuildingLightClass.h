@@ -25,8 +25,17 @@ public:
 	virtual ~BuildingLightClass() RX;
 
 	// non-virtual
+	int GetMovementRadius() const
+		{ JMP_THIS(0x436E80); }
+
+	int GetSpotlightRadius() const
+		{ JMP_THIS(0x436DA0); }
+
 	void SetBehaviour(SpotlightBehaviour mode)
 		{ JMP_THIS(0x436BE0); }
+
+	void Func_436A40(ObjectClass* pAttachedTo) const
+		{ JMP_THIS(0x436A40); }
 
 	//Constructor
 	BuildingLightClass(ObjectClass* pOwner) noexcept
@@ -45,8 +54,8 @@ protected:
 public:
 
 	double Speed;
-	CoordStruct field_B8;
-	CoordStruct field_C4;
+	CoordStruct Coord1; //B8
+	CoordStruct Coord2; //C4
 	double Acceleration;
 	bool Direction;
 	SpotlightBehaviour BehaviourMode;

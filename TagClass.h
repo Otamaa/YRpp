@@ -125,3 +125,4 @@ public:
 	bool IsExecuting;
 	PROTECTED_PROPERTY(BYTE, padding_36[2]);
 };
+static_assert(sizeof(TagClass) == 0x38);

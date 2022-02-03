@@ -46,24 +46,24 @@ public:
 	virtual void Enable() RX;
 	virtual unsigned int const GetID() R0;
 	virtual void MarkRedraw() RX;
-	virtual void PeerToPeer(unsigned int Flags, DWORD* pKey, GadgetClass* pSendTo) RX;
+	virtual void PeerToPeer(unsigned int nFlags, DWORD* pKey, GadgetClass* pSendTo) RX;
 	virtual void SetFocus() RX;
 	virtual void KillFocus() RX;
 	virtual bool IsFocused() R0;
 	virtual bool IsListToRedraw() R0;
 	virtual bool IsToRedraw() R0;
-	virtual void SetPosition(int X, int Y) RX;
-	virtual void SetDimension(int Width, int Height) RX;
+	virtual void SetPosition(int nX, int nY) RX;
+	virtual void SetDimension(int nWidth, int nHeight) RX;
 	virtual bool Draw(bool bForced) R0;
 	virtual void OnMouseEnter() RX;
 	virtual void OnMouseLeave() RX;
-	virtual void StickyProcess(GadgetFlag Flags) RX;
-	virtual bool Action(GadgetFlag Flags, DWORD* pKey, KeyModifier Modifier) R0;
-	virtual bool Clicked(DWORD* pKey, GadgetFlag Flags, int X, int Y, KeyModifier Modifier) R0; // Clicked On
+	virtual void StickyProcess(GadgetFlag nFlags) RX;
+	virtual bool Action(GadgetFlag nFlags, DWORD* pKey, KeyModifier Modifier) R0;
+	virtual bool Clicked(DWORD* pKey, GadgetFlag nFlags, int nX, int nY, KeyModifier Modifier) R0; // Clicked On
 
 	//Non virtual
-	GadgetClass& operator=(GadgetClass& const another) { JMP_THIS(0x4B5780); }
-	GadgetClass* ExtractGadgetAt(int X, int Y) { JMP_THIS(0x4E15A0); }
+	GadgetClass& operator=(GadgetClass& another) { JMP_THIS(0x4B5780); }
+	GadgetClass* ExtractGadgetAt(int nX, int nY) { JMP_THIS(0x4E15A0); }
 
 	//Statics
 	static int __fastcall GetColorScheme() { JMP_STD(0x4E12D0); }

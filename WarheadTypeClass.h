@@ -82,7 +82,7 @@ public:
 	bool    PenetratesBunker;
 	bool    Wood;
 	bool    Tiberium;
-	bool    unknown_bool_149;
+	bool    IsOrganic; //149
 	bool    Sparky;
 	bool    Sonic;
 	bool    Fire;
@@ -126,3 +126,4 @@ public:
 	int     MinDebris;
 	PROTECTED_PROPERTY(DWORD, unused_1CC); //???
 };
+static_assert(sizeof(WarheadTypeClass) == 0x1D0);

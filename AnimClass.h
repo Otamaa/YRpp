@@ -41,8 +41,9 @@ public:
 	virtual int AnimExtras() R0; // tumbling for IsMeteor and Bouncer anims
 	virtual int GetEnd() const R0; //End tag from the AnimType
 
-	void SetOwnerObject(ObjectClass *pOwner)
-		{ JMP_THIS(0x424B50); }
+	void SetOwnerObject(ObjectClass *pOwner) { JMP_THIS(0x424B50); }
+	void SetHouse(HouseClass* pOwner) { this->Owner = pOwner; }
+	void SetBullet(BulletClass* pBullet) { this->AttachedBullet = pBullet; }
 
 	void Pause() {
 		this->Paused = true;
@@ -50,10 +51,44 @@ public:
 		this->PausedAnimFrame = this->Animation.Value;
 	}
 
+	AnimTypeClass* GetAnimType() const
+		{ return Type; }
+
+	AnimTypeClass* GetEndAnimType() const
+		{ JMP_THIS(0x425510); }
+
 	void Unpause() {
 		this->Paused = false;
 		this->Unpaused = true;
 	}
+
+	void Middle_() const
+		{ JMP_THIS(0x424F00); }
+
+	void Start_() const
+		{ JMP_THIS(0x424CE0); }
+
+	BounceClass::Status BounceAI() const { JMP_THIS(0x423930); }
+
+	void FlamingGuy_AI() const { JMP_THIS(0x425670); }
+	
+	CoordStruct* FlamingGuy_Coords(CoordStruct* pbuffer) const
+	{ JMP_THIS(0x425D10); }
+
+	bool FlamingGuy_Allowed(CellStruct* pCell) const
+	{ JMP_THIS(0x4260F0);}
+
+	void Make_Invisible() { Invisible = true; }
+	void Make_Visible() { Invisible = false; }
+
+	void Func_426300(CoordStruct* pCoord) const
+		{ JMP_THIS(0x426300); }
+
+	void Func_426270(CoordStruct* pCoord) const
+		{ JMP_THIS(0x426270); }
+
+	void RemoveThis() const
+	{ JMP_THIS(0x4255B0); }
 
 	//Constructor
 	// TODO fix
@@ -102,8 +137,8 @@ public:
 	BlitterFlags AnimFlags; // argument that's 0x600 most of the time
 	bool HasExtras; // enables IsMeteor and Bouncer special behavior (AnimExtras)
 	byte RemainingIterations; // defaulted to deleteAfterIterations, when reaches zero, UnInit() is called
-	byte unknown_196;
-	byte unknown_197;
+    byte __lighting__celldraw_196;
+    byte __ToDelete_197;
 	bool IsPlaying;
 	bool IsFogged;
 	bool FlamingGuyExpire; // finish animation and remove
@@ -115,3 +150,4 @@ public:
 	AudioController Audio3;
 	AudioController Audio4;
 };
+static_assert(sizeof(AnimClass) == 0x1C8);

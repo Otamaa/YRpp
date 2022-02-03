@@ -66,6 +66,13 @@ class Blitter : public BlitterCore {
 	byte *Data; // LightConvertClass's byte buffer
 };
 
+class BlitTransXlatAlphaZRead : public BlitterCore
+{
+public:
+	short *Buffer;
+	short *Alpha;
+};
+
 class RLEBlitterCore {
 	public:
 		RLEBlitterCore() = default;

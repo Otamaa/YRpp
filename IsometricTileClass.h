@@ -49,3 +49,5 @@ protected:
 public:
 	IsometricTileTypeClass* Type;
 };
+
+static_assert(sizeof(IsometricTileClass) == 0xB0);

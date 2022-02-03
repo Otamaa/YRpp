@@ -24,6 +24,12 @@ struct BuildingAnimFrameStruct
 	int FrameDuration;
 };
 
+struct FoundationOutlineStruct
+{
+	CellStruct Data[30];
+};
+static_assert(sizeof(FoundationOutlineStruct) == 0x78);
+
 class NOVTABLE BuildingTypeClass : public TechnoTypeClass
 {
 public:
@@ -31,6 +37,8 @@ public:
 
 	//Array
 	ABSTRACTTYPE_ARRAY(BuildingTypeClass, 0xA83C68u);
+
+	static constexpr reference<int, 0x89DDB8u> const HeightInLeptons{};
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
@@ -53,19 +61,59 @@ public:
 	virtual SHPStruct* LoadBuildup() R0;
 
 	//non-virtual
-	bool IsVehicle() const
-		{ JMP_THIS(0x465D40); }
+	unsigned int GetDeployFacing_() const
+		{ JMP_THIS(0x465D70); }
 
 	short GetFoundationWidth() const
 		{ JMP_THIS(0x45EC90); }
 	short GetFoundationHeight(bool bIncludeBib) const
 		{ JMP_THIS(0x45ECA0); }
 
-	bool CanPlaceHere(CellStruct* cell, HouseClass* owner) const
-		{ JMP_THIS(0x464AC0); }
+	bool IsVehicle() const
+		{ JMP_THIS(0x465D40); }
 
 	bool IsUndeployable() const
 		{ JMP_THIS(0x465D40); }
+
+	//
+	void UnInitUnderRoofDoorAnim() const
+		{ JMP_THIS(0x465C70); }
+
+	void UnInitRoofDeployingAnim() const
+		{ JMP_THIS(0x465C30); }
+
+	void UnInitRubble() const
+		{ JMP_THIS(0x465BF0); }
+
+	void UnInitUnderDoorAnim() const
+		{ JMP_THIS(0x465BB0); }
+
+	void UnInitDeployAnim() const
+		{ JMP_THIS(0x465B70); }
+
+	void UnInitBibShape() const
+		{ JMP_THIS(0x465B30); }
+
+	void UnInitBuildup() const
+		{ JMP_THIS(0x465AF0); }
+	//
+
+	//
+	void InitBuildingAnim() const
+		{ JMP_THIS(0x45E8B0); }
+
+	void LoadShapeData() const
+		{ JMP_THIS(0x45F230); }
+
+	void LoadVoxelData() const
+		{ JMP_THIS(0x45FA90); }
+	// 
+	
+	bool CanLeaveRubble(RectangleStruct* pRect) const
+		{ JMP_THIS(0x45F160); }
+
+	bool CanLeaveRubble_(RectangleStruct* pRect) const
+		{ JMP_THIS(0x45F1D0); }
 
 	// helpers
 	bool HasSuperWeapon(int index) const {
@@ -87,6 +135,15 @@ public:
 	const BuildingAnimStruct& GetBuildingAnim(BuildingAnimSlot slot) const {
 		return this->BuildingAnim[static_cast<int>(slot)];
 	}
+
+	CoordStruct GetFixUpCoords() const
+	{
+		CoordStruct Buffer;
+		auto Coo = this->GetCoords();
+		this->vt_entry_6C(&Buffer, &Coo);
+		return Buffer;
+	}
+
 
 	//Constructor
 	BuildingTypeClass(const char* pID) noexcept
@@ -141,7 +198,7 @@ public:
 	CoordStruct TargetCoordOffset;
 	CoordStruct ExitCoord;
 	CellStruct* FoundationOutside;
-	int field_ED8;
+	int StartFacing; //ED8
 	int DeployFacing;
 	int PowerBonus;
 	int PowerDrain;
@@ -311,5 +368,6 @@ public:
 	char TheaterSpecificID [0x13];
 	int NumberOfDocks;
 	VectorClass<CoordStruct> DockingOffsets;
-private: DWORD align_1794;
+	PRIVATE_PROPERTY(DWORD, align_1794);
+
 };

@@ -45,6 +45,9 @@ public:
 	bool CanExistOnVictimCell() const
 		{ JMP_THIS(0x62AB40); }
 
+	CoordStruct DetachFromVictim(CoordStruct* Where) const
+		{JMP_THIS(0x62AC30);}
+
 	//Constructor
 	ParasiteClass(FootClass* pOwner = nullptr) noexcept
 		: ParasiteClass(noinit_t())

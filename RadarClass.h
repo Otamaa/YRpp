@@ -9,6 +9,16 @@ public:
 
 	//Static
 	static constexpr constant_ptr<RadarClass, 0x87F7E8u> const Instance{};
+	static constexpr constant_ptr<RadarClass, 0x87F7E8u> const Global{};
+
+	//this only few , there is a lot of Radar stuff around .data
+	//only add needed one atm
+	static constexpr reference<float, 0x880C70u> const RadarSizeFactor_{};
+	static constexpr reference<float, 0x880C74u> const RadarZoomFactor_{};
+	static constexpr reference<int, 0x880C78u> const Radar_dword1490_x{};
+	static constexpr reference<int, 0x880C7Cu> const Radar_dword1494_y{};
+	static constexpr reference<int, 0x880C80u> const Radar_dword1498_z{};
+	static constexpr reference<RectangleStruct, 0x880C84u> const Radar_Rect149C{};
 
 	//Destructor
 	virtual ~RadarClass() RX;
@@ -49,8 +59,8 @@ public:
 	DWORD unknown_1204;
 	DWORD unknown_1208;
 	RectangleStruct unknown_rect_120C;
-	DWORD unknown_121C;
-	DWORD unknown_1220;
+	Surface* unknown_121C;
+	Surface* unknown_1220;
 	DynamicVectorClass<CellStruct> unknown_cells_1124;
 	DWORD unknown_123C;
 	DWORD unknown_1240;

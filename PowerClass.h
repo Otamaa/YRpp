@@ -22,15 +22,15 @@ protected:
 	//===========================================================================
 
 public:
-	bool unknown_bool_150C;
+	bool IsToRedraw; //150C
 	PROTECTED_PROPERTY(BYTE, align_150D[3])
-	TimerStruct unknown_timer_1510;
-	DWORD unknown_151C;
-	TimerStruct unknown_timer_1520;
-	DWORD unknown_152C;
-	DWORD unknown_1530;
-	DWORD unknown_1534;
-	bool unknown_bool_1538;
+	TimerStruct _TopBarBlinkDelayTimer; //1510
+	DWORD _TopBarBlinkCountdown; //151C
+	TimerStruct _BarUpdateTimer; //1520
+	DWORD _GreenBars;  //152C
+	DWORD _YellowBars; //1530
+	DWORD _RedBars; //1534
+	bool _BarsAreUpdating; //1538
 	PROTECTED_PROPERTY(BYTE, align_1539[3])
 	int PowerOutput;
 	int PowerDrain;

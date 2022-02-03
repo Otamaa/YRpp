@@ -83,6 +83,7 @@ class RulesClass
 public:
 	//Static
 	static constexpr reference<RulesClass*, 0x8871E0u> Instance{};
+	static constexpr reference<RulesClass*, 0x8871E0u> Global{}; //compatibility
 
 	// call this for the first INI file only
 	void Init(CCINIClass *pINI)
@@ -671,10 +672,10 @@ public:
 	float				 OccupyDamageMultiplier;
 	float				 OccupyROFMultiplier;
 	int				 OccupyWeaponRange;
-	int				 BunkerDamageMultiplier;
-	float				 BunkerROFMultiplier;
+	float				 BunkerDamageMultiplier; //F4C , int
+	float				 BunkerROFMultiplier; //F50
 	int				 BunkerWeaponRangeBonus;
-	float				 OpenToppedDamageMultiplier;
+	float				 OpenToppedDamageMultiplier; //F58
 	int				 OpenToppedRangeBonus;
 	int				 OpenToppedWarpDistance;
 	float				 FallingDamageMultiplier;
@@ -824,7 +825,7 @@ public:
 	Powerup			 WaterCrate;
 	int				 CrateMinimum;
 	int				 CrateMaximum;
-	int				 unknown_int_1478;	//defaults to 0x2000
+	int				 LZScanRadius;	//defaults to 0x2000 ,1478
 	AnimTypeClass*			 DropZoneAnim;
 	int				 MinMoney;
 	int				 Money;
@@ -909,7 +910,7 @@ public:
 	double			 RepairRate;
 	double			 URepairRate;
 	double			 IRepairRate;
-	double			 unknown_double_16F8;	//1.875
+	double			 ConditionGreen;
 	double			 ConditionYellow;
 	double			 ConditionRed;
 	double			 IdleActionFrequency;
@@ -1015,3 +1016,5 @@ public:
 	float				 DirectRockingCoefficient;
 	float				 FallBackCoefficient;
 };
+
+static_assert(sizeof(RulesClass) == 0x18C0);

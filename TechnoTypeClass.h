@@ -55,6 +55,9 @@ struct WeaponStruct
 	int               BarrelThickness;
 	bool              TurretLocked;
 
+	static bool __cdecl IsValid(WeaponStruct* WpStructe)
+		{ JMP_STD(0x70E240); }
+
 	WeaponStruct() : WeaponType(nullptr),
 		FLH(CoordStruct::Empty),
 		BarrelLength(0),
@@ -65,33 +68,14 @@ struct WeaponStruct
 	bool operator == (const WeaponStruct& pWeap) const
 		{ return false; }
 };
+static_assert(sizeof(WeaponStruct) == 0x1C);
 
 class NOVTABLE TechnoTypeClass : public ObjectTypeClass
 {
 public:
-	static constexpr constant_ptr<DynamicVectorClass<TechnoTypeClass*>, 0xA8EB00u> const Array{};
 
-	static __declspec(noinline) TechnoTypeClass* __fastcall Find(const char* pID)
-	{
-		for(auto pItem : *Array) {
-			if(!_strcmpi(pItem->ID, pID)) {
-				return pItem;
-			}
-		}
-		return nullptr;
-	}
-
-	static __declspec(noinline) int __fastcall FindIndex(const char* pID)
-	{
-		for(int i = 0; i < Array->Count; ++i) {
-			if(!_strcmpi(Array->Items[i]->get_ID(), pID)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	static auto const MaxWeapons = 18;
+	ABSTRACTTYPE_ARRAY_NOALLOC(TechnoTypeClass, 0xA8EB00u);
+	static constexpr auto MaxWeapons = 18;
 
 	//IPersistStream
 	virtual HRESULT __stdcall Load(IStream* pStm) R0;
@@ -152,14 +136,27 @@ public:
 		return 0u != (test & bitHouseType);
 	}
 
-	// weapon related
-	WeaponStruct& GetWeapon(size_t const index, bool const elite) {
-		return elite ? this->EliteWeapon[index] : this->Weapon[index];
-	}
+	bool IsTwoShooter() const
+		{ JMP_THIS(0x712130); }
 
-	WeaponStruct const& GetWeapon(size_t const index, bool const elite) const {
-		return elite ? this->EliteWeapon[index] : this->Weapon[index];
-	}
+	// weapon related
+	WeaponStruct& GetWeapon(size_t const index, bool const elite) 
+		{ return elite ? this->GetEliteWeapon(index) : this->GetWeapon(index); }
+
+	WeaponStruct const& GetWeapon(size_t const index, bool const elite) const 
+		{ return elite ? this->GetEliteWeapon(index) : this->GetWeapon(index); }
+
+	WeaponStruct& GetWeapon(size_t const index)
+		{ JMP_THIS(0x7177C0); }
+
+	WeaponStruct const& GetWeapon(size_t const index) const
+		{ JMP_THIS(0x7177C0); }
+
+	WeaponStruct& GetEliteWeapon(size_t const index)
+		{ JMP_THIS(0x7177E0); }
+
+	WeaponStruct const& GetEliteWeapon(size_t const index) const
+		{ JMP_THIS(0x7177E0);}
 
 	//Constructor
 	TechnoTypeClass(const char* id, SpeedType speedtype) noexcept
@@ -189,16 +186,16 @@ public:
 	double          TargetDistanceCoefficient;
 	double          ThreatAvoidanceCoefficient;
 	int             SlowdownDistance;
-	DWORD align_2FC;
-	double          unknown_double_300;
+	DWORD           align_2FC;
+	double          DeaccelerationFactor; //300
 	double          AccelerationFactor;
 	int             CloakingSpeed;
 	TypeList<VoxelAnimTypeClass*> DebrisTypes;
 	TypeList<int> DebrisMaximums;
 	_GUID           Locomotor;
 	DWORD align_35C;
-	double          unknown_double_360;
-	double          unknown_double_368;
+	double          voxelscaley; //360
+	double          voxelscalex; //368
 	double          Weight;
 	double          PhysicalSize;
 	double          Size;
@@ -272,8 +269,8 @@ public:
 	int             MindClearedSound;
 	MovementZone    MovementZone;
 	int             GuardRange;
-	int             MinDebris;
 	int             MaxDebris;
+	int             MinDebris;
 	TypeList<AnimTypeClass*> DebrisAnims;
 	int             Passengers;
 	bool            OpenTopped;
@@ -404,11 +401,7 @@ public:
 	bool            unknown_bool_CB4; //always false?
 	TurretControl   BarrelAnimData;
 	bool            unknown_bool_CC8; //always false?
-
-protected:
-	BYTE align_CC9, align_CCA, align_CCB;
-
-public:
+	PROTECTED_PROPERTY(BYTE, align_CC_[3]);
 	bool            Repairable;
 	bool            Crewed;
 	bool            Naval;
@@ -509,3 +502,4 @@ public:
 	void*           Palette; //no... idea....
 	DWORD           align_DF4;
 };
+static_assert(sizeof(TechnoTypeClass) == 0xDF8);

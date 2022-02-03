@@ -27,8 +27,8 @@ public:
 	char	Letter[0x2];			//e.g. "T" -> Theater specific IDs (GTCNST, NTWEAP, YTBARRACKS)
 
 	//unused, was probably lighting stuff once
-	float	RadarTerrainBrightness;		//0.0 to 1.0
-	float	unknown_float_5C;
+	float	RadarTerrainBrightness;		//0.0 to 1.0 BrightnessAtMinLevel
+	float	RadarTerrainBrightnessAtMaxLevel; //5c
 	float	unknown_float_60;
 	float	unknown_float_64;
 	int		unknown_int_68;

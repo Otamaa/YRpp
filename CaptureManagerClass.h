@@ -16,6 +16,8 @@ struct ControlNode
 	TimerStruct LinkDrawTimer;
 };
 
+static_assert(sizeof(ControlNode) == 0x14);
+
 class NOVTABLE CaptureManagerClass : public AbstractClass
 {
 public:
@@ -67,6 +69,14 @@ public:
 		{ JMP_THIS(0x4723B0); }
 	HouseClass* GetOriginalOwner(TechnoClass *Unit) const
 		{ JMP_THIS(0x4722F0); }
+	bool DetachTarget(TechnoClass* pTarget)
+		{ JMP_THIS(0x471F90); }
+	int ControlCount()
+		{ return ControlNodes.Count; }
+	bool CanControlOnlyOne()
+		{ return MaxControlNodes == 1; }
+	bool SetOriginalOwnerToCivilian()
+		{ JMP_THIS(0x472330); }
 
 	//Constructor
 	CaptureManagerClass(TechnoClass* pOwner, int nMaxControlNodes, bool bInfiniteControl) noexcept
@@ -92,3 +102,5 @@ public:
 	TechnoClass* Owner;
 	int OverloadDamageDelay; // Decremented every frame. If it reaches zero, OverloadDamage is applied.
 };
+
+static_assert(sizeof(CaptureManagerClass) == 0x50);

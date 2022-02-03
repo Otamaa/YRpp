@@ -6,12 +6,22 @@
 
 #include <TechnoTypeClass.h>
 
-struct SubSequenceStruct
+struct DoStruct
+{
+	BYTE Interrupt;	// Can it be interrupted?
+	BYTE IsMobile;		// Can it move while doing this?
+	BYTE RandomStart;	// Should animation be "randomized"?
+	BYTE Rate;		// Frame rate.
+};
+
+static_assert(sizeof(DoStruct) == 0x4);
+
+struct DoInfoStruct
 {
 	int StartFrame;
 	int CountFrames;
 	int FacingMultiplier;
-	SequenceFacing Facing;
+	DoTypeFacing Facing;
 	int SoundCount;
 	int Sound1StartFrame;
 	int Sound1Index; // VocClass
@@ -19,17 +29,27 @@ struct SubSequenceStruct
 	int Sound2Index; // VocClass
 };
 
-struct SequenceStruct
+static_assert(sizeof(DoInfoStruct) == 0x24);
+static_assert(sizeof(DoType) == 0x4);
+
+struct DoControls
 {
-	SubSequenceStruct& GetSequence(Sequence sequence) {
-		return this->Sequences[static_cast<int>(sequence)];
+	static constexpr reference<DoStruct, 0x7EAF7Cu, 42> const MasterArray { };
+
+	DoInfoStruct& GetSequence(DoType sequence) {
+		return this->Sequences[(int)sequence];
 	}
 
-	const SubSequenceStruct& GetSequence(Sequence sequence) const {
-		return this->Sequences[static_cast<int>(sequence)];
+	const DoInfoStruct& GetSequence(DoType sequence) const {
+		return this->Sequences[(int)sequence];
 	}
 
-	SubSequenceStruct Sequences[42];
+	static DoStruct& GetSequenceData(DoType sequence)
+	{
+		return MasterArray[(int)sequence];
+	}
+
+	DoInfoStruct Sequences[42];
 };
 
 class NOVTABLE InfantryTypeClass : public TechnoTypeClass
@@ -79,7 +99,7 @@ public:
 	PipIndex OccupyPip;
 	WeaponStruct OccupyWeapon;
 	WeaponStruct EliteOccupyWeapon;
-	SequenceStruct* Sequence;
+	DoControls* Sequence;
 	int FireUp;
 	int FireProne;
 	int SecondaryFire;
@@ -112,5 +132,7 @@ public:
 	bool DeployedCrushable;
 	bool UseOwnName;
 	bool JumpJetTurn;
-private: DWORD align_ECC;
+	PRIVATE_PROPERTY(DWORD, align_ECC);
 };
+
+static_assert(sizeof(InfantryTypeClass) == 0xED0);

@@ -83,8 +83,10 @@ public:
 		return false;
 	}
 
-	bool Select(Randomizer &random, T* pOut) const {
-		if(!this->TotalWeight) {
+	bool Select(Random2Class &random, T* pOut) const 
+	{
+		if(!this->TotalWeight)
+		{
 			return false;
 		}
 
@@ -92,14 +94,15 @@ public:
 		return this->Select(static_cast<unsigned int>(value), pOut);
 	}
 
-	T Select(unsigned int index, T default = T()) const {
-		this->Select(index, &default);
-		return default;
+	T Select(unsigned int index, T nDefault = T()) const {
+		this->Select(index, &nDefault);
+		return nDefault;
 	}
 
-	T Select(Randomizer &random, T default = T()) const {
-		this->Select(random, &default);
-		return default;
+	T Select(Random2Class &random, T nDefault = T()) const
+	{
+		this->Select(random, &nDefault);
+		return nDefault;
 	}
 
 private:

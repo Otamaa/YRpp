@@ -45,6 +45,9 @@ public:
 	static signed int __fastcall FindIndexOfName(const char *name)
 		{ JMP_STD(0x5117D0); }
 
+	static signed int __fastcall FindIndexOfNameShiftToTheRightOnce(const char* pName)
+		{ JMP_STD(0x48DEB0); }
+
 	//Constructor
 	HouseTypeClass(const char* pID) noexcept
 		: HouseTypeClass(noinit_t())

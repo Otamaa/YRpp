@@ -18,6 +18,18 @@ public:
 	static RadBeam* __fastcall Allocate(RadBeamType mode)
 		{ JMP_STD(0x659110); }
 
+	static RadBeam* ManualAllocate(RadBeamType mode)
+	{
+		if (auto pBeam = GameCreate<RadBeam>(mode))
+		{
+			RadBeam::Array()->AddItem(pBeam);
+			pBeam->unknown_18 = (mode != RadBeamType::RadBeam) ? 20.0 : 10.0;
+			return pBeam;
+		}
+
+		return nullptr;
+	}
+
 	void SetColor(const ColorStruct &color)
 		{ this->Color = color; }
 
@@ -27,6 +39,8 @@ public:
 	void SetCoordsTarget(const CoordStruct &loc)
 		{ this->TargetLocation = loc; }
 
+	RadBeam(RadBeamType mode)
+		{ JMP_THIS(0x6593F0); }
 	//===========================================================================
 	//===== Properties ==========================================================
 	//===========================================================================

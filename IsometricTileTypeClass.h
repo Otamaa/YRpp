@@ -2,6 +2,14 @@
 
 #include <ObjectTypeClass.h>
 
+struct TileInsert
+{
+	int Next;
+	int Previous;
+};
+
+static_assert(sizeof(TileInsert) == 0x8);
+
 class NOVTABLE IsometricTileTypeClass : public ObjectTypeClass
 {
 public:
@@ -9,6 +17,8 @@ public:
 
 	//Array
 	static constexpr constant_ptr<DynamicVectorClass<IsometricTileTypeClass*>, 0xA8ED28u> const Array{};
+	static constexpr constant_ptr<DynamicVectorClass<LightConvertClass*>, 0x87F698u> const TileDrawers{};
+	static constexpr reference<SHPStruct*, 0xAA1060u, 0x4u> const SlopeZshape {};
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
@@ -43,6 +53,9 @@ public:
 		: IsometricTileTypeClass(noinit_t())
 	{ JMP_THIS(0x5447C0); }
 
+	static LightConvertClass* __fastcall SetupLightConvert(int r, int g, int b)
+		{ JMP_STD(0x544E70); }
+
 protected:
 	explicit __forceinline IsometricTileTypeClass(noinit_t) noexcept
 		: ObjectTypeClass(noinit_t())
@@ -53,12 +66,12 @@ protected:
 	//===========================================================================
 
 public:
-	int ArrayIndex;
+	int ArrayTypeIndex;
 	int MarbleMadnessTile;
 	int NonMarbleMadnessTile;
-	DWORD unk_2A0;
-	DynamicVectorClass<Color16Struct*> unk_2A4;
-	DWORD unk_2BC;
+	DWORD ArrayIndex; //2A0
+	DynamicVectorClass<Color16Struct*> RadarImage; //2A4
+	DWORD NextTileTypeInSet; //2BC
 	int ToSnowTheater;
 	int ToTemperateTheater;
 	int TileAnimIndex; //Tile%02dAnim, actually an AnimTypeClass array index...
@@ -66,18 +79,18 @@ public:
 	int TileYOffset; //Tile%02dYOffset
 	int TileAttachesTo; //Tile%02dAttachesTo, iso tile index?
 	int TileZAdjust; //Tile%02dZAdjust
-	DWORD unk_2DC; //0xBF
+	DWORD maskint2DC; //0xBF
 	bool Morphable;
 	bool ShadowCaster;
 	bool AllowToPlace; //default true
 	bool RequiredByRMG;
-	DWORD unk_2E4;
-	DWORD unk_2E8;
+	DWORD TileWidth; //2E4
+	DWORD TileHeight; //2E8
 	DWORD unk_2EC;
-	int unk_2F0; //default 1, no idea
-	bool unk_2F4; //like always true
+	int TilesInSequence; //default 1, no idea 2F0
+	bool IsFileLoaded; //like always true 2F4
 	char FileName[0xE]; // WARNING! Westwood strncpy's 0xE bytes into this buffer without NULL terminating it.
 	bool AllowBurrowing;
 	bool AllowTiberium;
-	DWORD unk_308;
+	DWORD TilesLoadedMaybe_; //308
 };

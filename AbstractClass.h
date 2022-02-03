@@ -106,18 +106,16 @@ public:
 	virtual HouseClass* GetOwningHouse() const R0;
 	virtual int GetArrayIndex() const R0;
 	virtual bool IsDead() const R0;
-	virtual CoordStruct* GetCoords(CoordStruct* pCrd) const R0;
+	virtual CoordStruct* GetCoords(CoordStruct* pCrd) const R0; //center coords
 	virtual CoordStruct* GetDestination(CoordStruct* pCrd, TechnoClass* pDocker = nullptr) const R0; // where this is moving, or a building's dock for a techno. iow, a rendez-vous point
 	virtual bool IsOnFloor() const R0;
 	virtual bool IsInAir() const R0;
-	virtual CoordStruct* GetAltCoords(CoordStruct* pCrd) const R0;
+	virtual CoordStruct* GetAltCoords(CoordStruct* pCrd) const R0; //GetCoords__
 	virtual void Update() RX;
 
 	//non-virtual
 	static void __fastcall AnnounceExpiredPointer(AbstractClass* pAbstract, bool removed = true)
 		{ JMP_THIS(0x7258D0); }
-
-	static void __fastcall RemoveAllInactive() JMP_STD(0x725C70);
 
 	void AnnounceExpiredPointer(bool removed = true) {
 		AnnounceExpiredPointer(this, removed);
@@ -145,6 +143,11 @@ public:
 	bool operator < (const AbstractClass &rhs) const {
 		return this->UniqueID < rhs.UniqueID;
 	}
+	bool _IsEqualTo(const AbstractClass& rhs) const { JMP_THIS(0x588C10); }
+	bool _IsEqualTo(const AbstractClass * rhs) const { JMP_THIS(0x588C10); }
+
+	static void __fastcall RemoveAllInactive() JMP_STD(0x725C70);
+	static int __fastcall GetbuildCat(AbstractType abstractID, int idx) JMP_STD(0x5004E0);
 
 	//Constructor
 	AbstractClass() noexcept
@@ -168,3 +171,4 @@ public:
 	bool Dirty;		// for IPersistStream.
 	PROTECTED_PROPERTY(BYTE, padding_21[0x3]);
 };
+static_assert(sizeof(AbstractClass) == 0x24);

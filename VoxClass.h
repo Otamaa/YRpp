@@ -82,3 +82,4 @@ public:
 	bool LoadFromINI(CCINIClass *pINI)
 		{ JMP_THIS(0x752DB0) }
 };
+static_assert(sizeof(VoxClass) == 0x54);

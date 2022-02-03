@@ -13,7 +13,10 @@ class IonBlastClass
 public:
 	static constexpr constant_ptr<DynamicVectorClass<IonBlastClass*>, 0xAA0118u> const Array{};
 
-	static void UpdateAll()
+	static void __fastcall DrawAll()
+		{ JMP_STD(0x53D850); }
+
+	static void __fastcall UpdateAll()
 		{ JMP_STD(0x53D310); }
 
 	void Update()

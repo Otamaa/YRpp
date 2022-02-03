@@ -4,7 +4,7 @@
 
 #include <LocomotionClass.h>
 
-class NOVTABLE RocketLocomotionClass : public LocomotionClass
+class __declspec(uuid("B7B49766-E576-11d3-9BD9-00104B972FE8")) RocketLocomotionClass : public LocomotionClass
 {
 public:
 	//IUnknown
@@ -37,6 +37,11 @@ public:
 	virtual	int Size() R0;
 
 	//RocketLocomotionClass
+	double GetCurrentAngle() const 
+	{ JMP_THIS(0x662240); }
+
+	bool IsInDelay() const
+	{ JMP_THIS(0x661F90); }
 
 	//Constructor
 	RocketLocomotionClass()
@@ -66,3 +71,4 @@ public:
 	DWORD unknown_58;
 	DWORD unknown_5C;
 };
+static_assert(sizeof(RocketLocomotionClass) == 0x60);

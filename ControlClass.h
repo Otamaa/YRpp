@@ -11,7 +11,7 @@ public:
 
 	//GadgetClass
 	virtual ControlClass* ExtractGadget(unsigned int nID) R0;
-	virtual void PeerToPeer(unsigned int Flags, DWORD* pKey, ControlClass* pSendTo) RX;
+	virtual void PeerToPeer(unsigned int nFlags, DWORD* pKey, ControlClass* pSendTo) RX;
 
 	//ControlClass
 	virtual void MakePeer(ControlClass const& target) RX;
@@ -24,7 +24,7 @@ public:
 	ControlClass(unsigned int nID, int nX, int nY, int nWidth, int nHeight, GadgetFlag eFlag, bool bSticky) noexcept
 		: ControlClass(noinit_t()) { JMP_THIS(0x48E520); }
 
-	ControlClass(ControlClass& another) noexcept
+	ControlClass(ControlClass& nAnother) noexcept
 		: ControlClass(noinit_t()) { JMP_THIS(0x48E570); }
 
 protected:

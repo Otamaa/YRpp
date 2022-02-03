@@ -20,16 +20,13 @@ public:
 	// constructors
 	BounceClass() = default;
 
-	BounceClass(const CoordStruct& coords, double elasticity, double gravity,
-		double maxVelocity, const Vector3D<float>& velocity, double angularVelocity)
-	{
-		this->Initialize(coords, elasticity, gravity, maxVelocity, velocity, angularVelocity);
-	}
-
-	void Initialize(const CoordStruct& coords, double elasticity, double gravity,
-			double maxVelocity, const Vector3D<float>& velocity, double angularVelocity)
+	void Init(CoordStruct& coords, double elasticity, double gravity,
+			double maxVelocity, Vector3D<float>* velocity, double angularVelocity)
 		{ JMP_THIS(0x4397E0); }
 
+	void Init(CoordStruct* coords, double elasticity, int nUnused1,
+		int nUnused2, double velocity, double angularVelocity)
+		{ JMP_THIS(0x439690); }
 	CoordStruct* GetCoords(CoordStruct* pBuffer) const
 		{ JMP_THIS(0x4399A0); }
 
@@ -38,6 +35,9 @@ public:
 		this->GetCoords(&buffer);
 		return buffer;
 	}
+
+	double Distance() const 
+	  { JMP_THIS(0x439A10); }
 
 	Matrix3D* GetDrawingMatrix(Matrix3D* pBuffer) const
 		{ JMP_THIS(0x4399E0); }
@@ -60,3 +60,4 @@ public:
 	Quaternion AngularVelocity; // second quaternion as per-frame delta
 };
 
+static_assert(sizeof(BounceClass) == 0x50);

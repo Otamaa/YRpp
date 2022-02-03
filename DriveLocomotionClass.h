@@ -4,7 +4,7 @@
 
 #include <LocomotionClass.h>
 
-class NOVTABLE DriveLocomotionClass : public LocomotionClass, public IPiggyback
+class __declspec(uuid("4A582741-9839-11d1-B709-00A024DDAFD1")) DriveLocomotionClass : public LocomotionClass, public IPiggyback
 {
 public:
 	// TODO stub virtuals implementations
@@ -37,7 +37,7 @@ public:
 	double movementspeed_50;
 	DWORD TrackNumber;
 	int TrackIndex;
-	bool IsOnShortTrack;
+	BYTE IsOnShortTrack;
 	BYTE field_61;
 	bool IsRotating;
 	bool IsDriving;

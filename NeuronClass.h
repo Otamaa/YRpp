@@ -54,9 +54,31 @@ class BrainClass
 public:
 	virtual ~BrainClass() RX;
 
-	BrainClass()
-		{ THISCALL(0x43A600); }
+	BrainClass() noexcept  : BrainClass(noinit_t())
+		{ JMP_THIS(0x43A600); }
 
+	void Clear()
+		{ JMP_THIS(0x43A670); }
+
+	void Reset(int ndword_1C,int nMaxBrainCount)
+		{ JMP_THIS(0x43A6B0); }
+
+	bool Add(NeuronClass* pNeuron)
+		{ JMP_THIS(0x43A700); }
+
+	//save
+	//load
+protected:
+	explicit __forceinline BrainClass(noinit_t) noexcept
+	{ }
+
+public:
 	//Properties
-	VectorClass<NeuronClass*> Neurons;	//???
+	VectorClass<NeuronClass*> Neurons;
+	int BrainCount;
+	void* ptr_18;
+	int dword_1C;
+	int MaxBrainCount;
 };
+
+static_assert(sizeof(BrainClass) == 0x24);

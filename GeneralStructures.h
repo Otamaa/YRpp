@@ -6,13 +6,40 @@
 #include <YRMathVector.h>
 #include <GeneralDefinitions.h> // need eDirection for FacingStruct
 #include <BasicStructures.h>
-
 #include <string.h>
+#include <Fixed.h>
 
 //used for cell coordinates/vectors
 using CellStruct = Vector2D<short>;
 using Point2D = Vector2D<int>;
-using CoordStruct = Vector3D<int>;
+using Point2DByte = Vector2D<BYTE>;
+using Point3D = Vector3D<int>;
+//using FloatVelocity = Vector3D<float>;
+
+struct SWRange {
+	SWRange(float widthOrRange = -1.0f, int height = -1) : WidthOrRange(widthOrRange), Height(height) {}
+	SWRange(int widthOrRange, int height = -1) : WidthOrRange(static_cast<float>(widthOrRange)), Height(height) {}
+
+	float range() const {
+		return this->WidthOrRange;
+	}
+
+	int width() const {
+		return static_cast<int>(this->WidthOrRange);
+	}
+
+	int height() const {
+		return this->Height;
+	}
+
+	bool empty() const {
+		return this->WidthOrRange < 0.0
+			&& this->Height < 0;
+	}
+
+	float WidthOrRange;
+	int Height;
+};
 
 //used for timed events, time measured in frames!
 class TimerStruct
@@ -133,8 +160,10 @@ struct DirStruct
 	explicit DirStruct(double rad) : DirStruct() {
 		this->radians(rad);
 	}
+	explicit DirStruct(double nVelZ, double nVelDistanceXY) : DirStruct()
+		{ this->radians(Math::atan2(nVelZ, nVelDistanceXY)); }
 
-	DirStruct(size_t bits, value_type value)
+	explicit DirStruct(size_t bits, value_type value)
 		: DirStruct(static_cast<value_type>(TranslateFixedPoint(bits, 16, static_cast<unsigned_type>(value), 0)))
 	{ }
 
@@ -243,6 +272,13 @@ struct DirStruct
 		this->value<Bits>(static_cast<value_type>(Max / 4 - value));
 	}
 
+	// pThis.Value >= (pDir2.Value - pDir3.Value)
+	bool CompareToTwoDir(DirStruct* pBaseDir, DirStruct* pDirFrom)
+		{ JMP_THIS(0x5B2990); }
+
+	bool Func_5B29C0(DirStruct* pDir2, DirStruct* pDir3)
+		{ JMP_THIS(0x5B29C0);}
+	
 private:
 	value_type Value;
 	unsigned_type unused_2;
@@ -269,6 +305,24 @@ struct FacingStruct
 		this->ROT.value<8>(value);
 	}
 
+	bool IsRotating() const
+	{ JMP_THIS(0x4C9480); }
+
+	int turn_timeLeft()
+	{
+		return this->Timer.GetTimeLeft();
+	}
+
+	int turn_timerStartTime()
+	{
+		return this->Timer.StartTime;
+	}
+
+	void stop_turn()
+	{
+		this->Timer.Stop();
+	}
+
 	bool in_motion() const {
 		return this->turn_rate() > 0 && this->Timer.GetTimeLeft();
 	}
@@ -277,7 +331,7 @@ struct FacingStruct
 		return this->Value;
 	}
 
-	DirStruct current() const {
+	DirStruct current(bool flip = false, int offset = 0) const {
 		auto ret = this->Value;
 
 		if(this->in_motion()) {
@@ -285,12 +339,17 @@ struct FacingStruct
 			auto num_steps = static_cast<short>(this->num_steps());
 
 			if(num_steps > 0) {
-				auto steps_left = this->Timer.GetTimeLeft();
+				auto steps_left = this->Timer.GetTimeLeft() - offset;
 				ret.value(static_cast<short>(ret.value() - steps_left * diff / num_steps));
 			}
 		}
 
 		return ret;
+	}
+
+	DirStruct next(bool flip = false)
+	{
+		return current(flip, 1);
 	}
 
 	bool set(const DirStruct& value) {
@@ -306,16 +365,16 @@ struct FacingStruct
 		return ret;
 	}
 
-	bool turn(const DirStruct& value) {
+	bool turn(const DirStruct& value, bool flip = false) {
 		if(this->Value == value) {
 			return false;
 		}
 
-		this->Initial = this->current();
+		this->Initial = this->current(flip);
 		this->Value = value;
 
 		if(this->turn_rate() > 0) {
-			this->Timer.Start(this->num_steps());
+			this->Timer.Start(this->num_steps(flip));
 		}
 
 		return true;
@@ -326,7 +385,26 @@ private:
 		return static_cast<short>(this->Value.value() - this->Initial.value());
 	}
 
-	int num_steps() const {
+	int difference(bool flip)
+	{
+		int v = this->Value.value();
+		if (v < 0)
+			v = 65536 - -v;
+		int i = this->Initial.value();
+		if (i < 0)
+			i = 65536 - -i;
+		int a = v - i;
+		int b = this->Value.value() - this->Initial.value();
+		int diff = std::abs(a) < std::abs(b) ? a : b;
+		if (!flip)
+		{
+			return diff;
+		}
+		int flipDiff = 65536 - std::abs(diff);
+		return diff < 0 ? flipDiff : -flipDiff;
+	}
+
+	int num_steps(bool flip = false) const {
 		return abs(this->difference()) / this->turn_rate();
 	}
 
@@ -334,6 +412,27 @@ private:
 	DirStruct Initial; // rotation started here
 	TimerStruct Timer; // counts rotation steps
 	DirStruct ROT; // Rate of Turn. INI Value * 256
+};
+
+// the velocities along the axes, or something like that
+class VelocityClass final : public Vector3D<double>
+{
+public:
+
+	DirStruct* GetDirectionFromXY(DirStruct* pRetDir)
+	{ JMP_THIS(0x41C2E0); }
+
+	void SetIfZeroXY()
+	{ JMP_THIS(0x41C460); }
+
+	double DistanceXY()
+	{ return MagnitudeXY(); }
+
+	double Distance()
+	{ return Magnitude(); }
+
+	void Func_5B2A30(Fixed* pFixed)
+	{ JMP_THIS(0x5B2A30);}
 };
 
 struct SomeVoxelCache {

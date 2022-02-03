@@ -27,12 +27,28 @@ public:
 	void AddDetector(TechnoClass *Detector)
 		{ JMP_THIS(0x439080); }
 
+	void AddBomb(BombClass* pBomb)
+		{ JMP_THIS(0x439030); }
+
 	// duh
 	void RemoveDetector(TechnoClass *Detector)
 		{ JMP_THIS(0x4390D0); }
 
 	void PointerGotInvalid(AbstractClass* pInvalid)
 		{ JMP_THIS(0x439150); }
+
+	void Clear()
+		{ JMP_THIS(0x439110); }
+
+	void Detach(TechnoClass* Owner)
+		{ JMP_THIS(0x439150); }
+
+	//CStreamClass *stream
+	HRESULT Save(void* stream)
+		{ JMP_THIS(0x4391C0); }
+
+	HRESULT Load(void* stream)
+	    { JMP_THIS(0x439260); }
 
 protected:
 	//===========================================================================
@@ -45,3 +61,5 @@ public:
 	DynamicVectorClass<TechnoClass *> Detectors;		//all the BombSight'ed objects currently on the map
 	int UpdateDelay; // defaults to 100, some iterators set it to 1
 };
+
+static_assert(sizeof(BombListClass) == 0x34);

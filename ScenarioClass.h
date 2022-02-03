@@ -106,7 +106,7 @@ public:
 	int HomeCell; //CellStruct?
 	int AltHomeCell; //CellStruct?
 	int UniqueID; //defaults to 1,000,000 - random salt for this game's communications
-	Randomizer Random; //218
+	Random2Class Random; //218
 	DWORD Difficulty1;
 	DWORD Difficulty2; // 2 - Difficulty1
 	TimerStruct ElapsedTimer;

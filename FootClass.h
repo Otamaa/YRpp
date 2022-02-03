@@ -127,6 +127,18 @@ public:
 	bool MoveToWeed(int radius)
 		{ JMP_THIS(0x4DDB90); }
 
+	bool LiberateMember(int idx = -1, byte count = 0u)
+	{
+		if (this->BelongsToATeam())
+		{
+			this->Team->LiberateMember(this, idx, count);
+			return true;
+		}
+
+		return false;
+	}
+	CellStruct GetRandomDirection(FootClass* pFoot);
+
 	//Constructor
 	FootClass(HouseClass* owner) noexcept
 		: FootClass(noinit_t())
@@ -149,73 +161,76 @@ public:
 	short           unknown_short_528;
 	short           unknown_short_52A;
 	DWORD           unknown_52C;	//unused?
-	DWORD           unknown_530;
+	DWORD           ThreatAvoidanceCoefficient; //530
 	DWORD           unknown_534;
 	int				WalkedFramesSoFar;
-	bool            unknown_bool_53C;
-	DWORD           unknown_540;
+	bool            __PlayingMovingSound; //53C
+	DWORD           __MovingSoundDelay; //540
 
 	AudioController Audio7;
 
 	CellStruct      CurrentMapCoords;
 	CellStruct      LastMapCoords; // ::UpdatePosition uses this to remove threat from last occupied cell, etc
 	CellStruct      LastJumpjetMapCoords; // which cell was I occupying previously? only for jumpjets
-	CellStruct      CurrentJumpjetMapCoords; // which cell am I occupying? only for jumpjets
-	CoordStruct     unknown_coords_568;
+	CellStruct      CurrentJumpjetMapCoords; // which cell am I occupying? only for jumpjets 564
+	CoordStruct     CurrentMechPos; //unknown_coords_568 5B0832
 	PROTECTED_PROPERTY(DWORD,   unused_574);
 	double          SpeedPercentage;
 	double          SpeedMultiplier;
-	DynamicVectorClass<AbstractClass*> unknown_abstract_array_588;
+	DynamicVectorClass<AbstractClass*> NavQueue2; //unknown_abstract_array_588
 	DWORD           unknown_5A0;
 	AbstractClass*  Destination; // possibly other objects as well
 	AbstractClass*  LastDestination;
-	DynamicVectorClass<AbstractClass*> unknown_abstract_array_5AC;
-	int             unknown_int_5C4;
-	DWORD           unknown_5C8;
-	DWORD           unknown_5CC;
+	DynamicVectorClass<AbstractClass*> NavQueue; //unknown_abstract_array_5AC
+	int             state5C4;
+	DWORD           target5C8_CandidateTarget;
+	DWORD           ___CandidateTarget_5CC;
 	BYTE            unknown_5D0;	//unused?
-	bool            unknown_bool_5D1;
+	bool            newtargetassigned_5D1;
 	TeamClass*      Team;
 	FootClass*      NextTeamMember;        //next unit in team
 	DWORD           unknown_5DC;
 	int             PathDirections[24]; // list of directions to move in next, like tube directions
 	TimerStruct     PathDelayTimer;
-	int             unknown_int_64C;
-	TimerStruct     unknown_timer_650;
+	int             TryTryAgain; //64C
+	TimerStruct     BaseAttackTimer; //650
 	TimerStruct       SightTimer;
 	TimerStruct       BlockagePathTimer;
 	YRComPtr<ILocomotion> Locomotor;
-	CoordStruct       unknown_point3d_678;
+	CoordStruct       __HeadTo; //_678
 	signed char       TubeIndex;	//I'm in this tunnel
 	bool              unknown_bool_685;
 	signed char       WaypointIndex; // which waypoint in my planning path am I following?
-	bool              unknown_bool_687;
-	bool              unknown_bool_688;
+	bool              IsToScatter; //678
+	bool              IsScanLimited; //688
 	bool              IsTeamLeader;
 	bool              ShouldScanForTarget;
-	bool              unknown_bool_68B;
-	bool              unknown_bool_68C;
-	bool              unknown_bool_68D;
-	bool              unknown_bool_68E;
+	bool              IsPlanningToLook; //68B
+	bool              IsDeploying;	//68C
+	bool              IsFiring;	//68D
+	bool               __AssignNewThreat; //68E
 	bool              ShouldEnterAbsorber; // orders the unit to enter the closest bio reactor
 	bool              ShouldEnterOccupiable; // orders the unit to enter the closest battle bunker
 	bool              ShouldGarrisonStructure; // orders the unit to enter the closest neutral building
 	FootClass*        ParasiteEatingMe; // the tdrone/squid that's eating me
-	DWORD             unknown_698;
+	DWORD             __ParasiteFireBlock_698;
 	ParasiteClass*    ParasiteImUsing;	// my parasitic half, nonzero for, eg, terror drone or squiddy
 	TimerStruct       ParalysisTimer; // for squid victims
 	bool              unknown_bool_6AC;
 	bool              IsAttackedByLocomotor; // the unit's locomotor is jammed by a magnetron
 	bool              IsLetGoByLocomotor; // a magnetron attacked this unit and let it go. falling, landing, or sitting on the ground
-	bool              unknown_bool_6AF;
-	bool              unknown_bool_6B0;
-	bool              unknown_bool_6B1;
-	bool              unknown_bool_6B2;
-	bool              unknown_bool_6B3;
-	bool              unknown_bool_6B4;
-	bool              unknown_bool_6B5;
+	//byte              byte6AD;//
+	//byte			  byte6AE; //
+	bool              IsRotating; //6AF
+	bool              IsUnloading; //6B0
+	bool              IsNavQueueLoop;//6B1
+	bool              IsScattering;//6B2
+	bool              isidle_6B3;
+	bool              height_subtract_6B4;
+	bool              iscrusher_6B5;
 	bool              FrozenStill; // frozen in first frame of the proper facing - when magnetron'd or warping
-	bool              unknown_bool_6B7;
-	bool              unknown_bool_6B8;
+	bool              IsPathBlocked; //6B7
+	bool              removed;//6B8
 	PROTECTED_PROPERTY(DWORD,   unused_6BC);	//???
 };
+static_assert(sizeof(FootClass) == 0x6C0);

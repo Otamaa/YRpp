@@ -32,6 +32,9 @@ public:
 		return this->RadioLinks[idx];
 	}
 
+	TechnoClass* const& GetRadioContact(int idx = 0) const {
+		JMP_THIS(0x65AD30);
+	}
 	// whether any link is pLink
 	bool ContainsLink(TechnoClass const* pLink) const
 		{ JMP_THIS(0x65AD50); }
@@ -75,3 +78,4 @@ public:
 	RadioCommand LastCommands[3]; // new command updates these
 	VectorClass<TechnoClass*> RadioLinks;	//Docked units etc
 };
+static_assert(sizeof(RadioClass) == 0xF0);

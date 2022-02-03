@@ -35,8 +35,10 @@ public:
 	static const auto AbsDerivateID = AbstractFlags::Object;
 
 	//global arrays
-	static constexpr reference<DynamicVectorClass<ObjectClass*>, 0xA8ECB8u> const CurrentObjects{};
-
+	static constexpr constant_ptr<DynamicVectorClass<ObjectClass*>, 0xA8ECB8u> const CurrentObjects{};
+	static DynamicVectorClass<ObjectClass*>* const CurrentObjectsR;
+	static constexpr reference<DynamicVectorClass<ObjectClass*>*, 0x87F778u> const Logics{};
+	static constexpr constant_ptr<DynamicVectorClass<ObjectClass*>, 0x8A0360u> const ObjectsInLayers {};
 	//IPersistStream
 	virtual HRESULT __stdcall Load(IStream* pStm) R0;
 
@@ -50,7 +52,7 @@ public:
 	virtual bool IsSelectable() const R0;
 	virtual VisualType VisualCharacter(VARIANT_BOOL SpecificOwner, HouseClass * WhoIsAsking) const RT(VisualType);
 	virtual SHPStruct* GetImage() const R0;
-	virtual Action MouseOverCell(CellStruct const& cell, bool checkFog = false, bool ignoreForce = false) const RT(Action);
+	virtual Action MouseOverCell(CellStruct const* cell, bool checkFog = false, bool ignoreForce = false) const RT(Action);
 	virtual Action MouseOverObject(ObjectClass const* pObject, bool ignoreForce = false) const RT(Action);
 	virtual Layer InWhichLayer() const RT(Layer);
 	virtual bool IsSurfaced() R0; // opposed to being submerged
@@ -97,7 +99,7 @@ public:
 	virtual CoordStruct* GetDockCoords(CoordStruct* pCrd, TechnoClass* docker) const R0;
 
 	// stupid! guess what happens again?
-	virtual CoordStruct* GetCenterCoord(CoordStruct* pCrd) const R0;
+	virtual CoordStruct* GetCenterCoord(CoordStruct* pCrd) const R0; //GetPosition_2
 	virtual CoordStruct* GetFLH(CoordStruct *pDest, int idxWeapon, CoordStruct BaseCoords) const R0;
 	virtual CoordStruct* GetExitCoords(CoordStruct* pCrd, DWORD dwUnk) const R0;
 	virtual int GetYSort() const R0;
@@ -126,9 +128,9 @@ public:
 	virtual void DropAsBomb() RX;
 	virtual void MarkAllOccupationBits(const CoordStruct& coords) RX;
 	virtual void UnmarkAllOccupationBits(const CoordStruct& coords) RX;
-	virtual void UnInit() RX;
-	virtual void Reveal() RX; // uncloak when object is bumped, damaged, detected, ...
-	virtual KickOutResult KickOutUnit(TechnoClass* pTechno, CellStruct Cell) RT(KickOutResult);
+	virtual void UnInit() RX;  // RemoveThis_DeleteThis 0xF8
+	virtual void Reveal() RX; // uncloak when object is bumped, damaged, detected, ... , DoShimmer  0xFC
+	virtual KickOutResult KickOutUnit(TechnoClass* pTechno, CellStruct Cell) RT(KickOutResult); //Exit Object 0x100
 	virtual bool DrawIfVisible(RectangleStruct *pBounds, bool EvenIfCloaked, DWORD dwUnk3) const R0;
 	virtual CellStruct const* GetFoundationData(bool includeBib = false) const R0;
 	virtual void DrawBehind(Point2D* pLocation, RectangleStruct* pBounds) const RX;
@@ -144,8 +146,9 @@ public:
 	virtual void MarkForRedraw() RX;
 	virtual bool CanBeSelected() const R0;
 	virtual bool CanBeSelectedNow() const R0;
-	virtual bool vt_entry_140(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3, DWORD dwUnk4) R0;
-	virtual bool ClickedAction(Action Action, ObjectClass *Target, bool bUnk) R0;
+	//virtual bool vt_entry_140(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3, DWORD dwUnk4) R0;
+	virtual bool CellClickedAction(Action action, CellStruct* pCell, CellStruct* pCell1, bool bUnk) R0; //vt_entry_140
+	virtual bool ObjectClickedAction(Action action, ObjectClass* pTarget, bool bUnk) R0;
 	virtual void Flash(int Duration) RX;
 	virtual bool Select() R0;
 	virtual void Deselect() RX;
@@ -193,18 +196,42 @@ public:
 	virtual bool IsNotWarping() const R0;
 	virtual LightConvertClass *GetRemapColour() const R0;
 
-	// technically it takes an ecx<this> , but it's not used and ecx is immediately overwritten on entry
-	// draws the mind control line when unit is selected
-	static void DrawALinkTo(int src_X, int src_Y, int src_Z, int dst_X, int dst_Y, int dst_Z, ColorStruct color)
-		{ PUSH_VAR32(color); PUSH_VAR32(dst_Z); PUSH_VAR32(dst_Y); PUSH_VAR32(dst_X);
-		  PUSH_VAR32(src_Z); PUSH_VAR32(src_Y); PUSH_VAR32(src_X); CALL(0x704E40); }
-
 	int DistanceFrom(AbstractClass *that) const
 		{ JMP_THIS(0x5F6440); }
 
+	int DistanceFromSquared(AbstractClass* pThat)const
+		{ JMP_THIS(0x5F6360); }
 
+	int DistanceFromSquared(const CoordStruct* pThat)const
+		{ JMP_THIS(0x5F6560); }
+
+	DirStruct* GetDirectionOverObject(DirStruct* pBuffer, AbstractClass* Target) const
+	    { JMP_THIS(0x5F3DB0); }
+
+	DirStruct GetDirectionOverObject(AbstractClass* Target) const
+	{
+		DirStruct pBuffer;
+		this->GetDirectionOverObject(&pBuffer, Target);
+
+		return pBuffer;
+	}
+
+	CoordStruct* GetLocationCoords(CoordStruct* pRet) const
+	{    //return this->Location
+		JMP_THIS(0x5F65A0); }
+
+	CoordStruct GetLocationCoords() const
+	{    
+		CoordStruct nBuff;
+		GetLocationCoords(&nBuff);
+		return nBuff;
+	}
+
+	double GetHealthPercentage_() const;
+		
+	//game original func
 	double GetHealthPercentage() const
-		{ return static_cast<double>(this->Health) / this->GetType()->Strength; }
+		{ JMP_THIS(0x5F5C60); }
 
 	bool IsRedHP() const
 		{ JMP_THIS(0x5F5CD0); }
@@ -215,14 +242,20 @@ public:
 	bool IsGreenHP() const
 		{ JMP_THIS(0x5F5D90); }
 
+	bool IsDead() const
+		{ JMP_THIS(0x5F6690); }
+
+	bool IsGreenToYellowHP() const;
+
+	bool IsFullHP() const;
+
+	bool IsThisBreathing()const { JMP_THIS(0x6EF9E0); }
+
 	HealthState GetHealthStatus() const
 		{ JMP_THIS(0x5F5DD0); }
 
-	void BecomeUntargetable()
-		{ JMP_THIS(0x70D4A0); }
-
-	void ReplaceTag(TagClass* pTag)
-		{ JMP_THIS(0x5F5B4C); }
+	void ReplaceTag(TagClass* pTag) //AttachTrigger
+		{ JMP_THIS(0x5F5B50); }
 
 	int GetCellLevel() const
 		{ JMP_THIS(0x5F5F00); }
@@ -233,9 +266,23 @@ public:
 		return ret;
 	}
 
-	CellStruct GetMapCoordsAgain() const {
+	CellStruct GetDestinationMapCoords() const {
 		CellStruct ret;
 		this->GetMapCoordsAgain(&ret);
+		return ret;
+	}
+
+	CoordStruct GetDockCoords(TechnoClass* docker) const
+	{
+		CoordStruct ret;
+		this->GetDockCoords(&ret, docker);
+		return ret;
+	}
+
+	CoordStruct GetCenterCoord() const
+	{
+		CoordStruct ret;
+		this->GetCenterCoord(&ret);
 		return ret;
 	}
 
@@ -244,6 +291,11 @@ public:
 		this->GetFLH(&ret, 0, base);
 		return ret;
 	}
+
+	bool IsOnMyView() const;
+	
+	void AdjustStrength(double nMult) const
+		{ JMP_THIS(0x5F5C80); }
 
 	//Constructor
 	ObjectClass()  noexcept
@@ -298,3 +350,5 @@ public:
 	CoordStruct        Location; //Absolute current 3D location (in leptons)
 	LineTrail*         LineTrailer;
  };
+
+static_assert(sizeof(ObjectClass) == 0xAC);

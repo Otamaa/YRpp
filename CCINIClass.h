@@ -6,6 +6,9 @@
 #include <CCFileClass.h>
 #include <IndexClass.h>
 #include <Helpers/CompileTime.h>
+#include <PKey.h>
+#include <TRect.h>
+#include <CoordStruct.h>
 
 struct ColorStruct;
 class TechnoTypeClass;
@@ -19,6 +22,7 @@ public:
 		char* Value;
 		INIComment* Next;
 	};
+	static_assert(sizeof(INIComment) == 0x8);//
 
 	class INIEntry : public Node<INIEntry>
 	{
@@ -33,6 +37,7 @@ public:
 			int PostIndentCursor;
 			int CommentCursor;
 	};
+	static_assert(sizeof(INIEntry) == 0x28);//
 
 	class INISection : public Node<INISection>
 	{
@@ -44,7 +49,8 @@ public:
 			List<INIEntry*> Entries;
 			IndexClass <unsigned int, INIEntry*> EntryIndex;
 			INIComment* Comments;
-	};
+	};	
+	static_assert(sizeof(INISection) == 0x44);//
 
 	INIClass()
 		{ JMP_THIS(0x535AA0); }
@@ -64,47 +70,73 @@ public:
 	INISection* GetSection(const char* pSection)
 		{ JMP_THIS(0x526810); }
 
+	INIEntry* GetKey(const char* pSection , const char* pKey)
+		{ JMP_THIS(0x526B10); }
+
 	int GetKeyCount(const char* pSection) //Get the amount of keys in a section.
 		{ JMP_THIS(0x526960); }
 	const char* GetKeyName(const char* pSection, int nKeyIndex) //Get the name of a key number in a section.
 		{ JMP_THIS(0x526CC0); }
 
+	bool Is_Loaded() const { return !Sections.IsEmpty(); }
+	bool Is_Present(const char *pSection, const char *pKey = nullptr)
+	{
+		if (pKey == nullptr)
+		{
+			return GetSection(pSection);
+		}
+
+		return GetKey(pSection, pKey) != nullptr;
+	}
+
 	//Reads an ANSI string. Returns the string's length.
-	int ReadString(const char* pSection, const char* pKey, const char* pDefault, char* pBuffer, size_t szBufferSize)
+	int ReadString(const char* pSection, const char* pKey, const char* pndefault, char* pBuffer, size_t szBufferSize)
 		{ JMP_THIS(0x528A10); }
+
+	inline int ReadString(const char *pSection, const char *pKey, char *pBuffer, size_t szBufferSize)
+		{ return ReadString(pSection, pKey, "", pBuffer, szBufferSize); }
+
 	//Writes an ANSI string.
 	bool WriteString(const char* pSection, const char* pKey, const char* pString)
 		{ JMP_THIS(0x528660); }
 
 	//Reads an escaped Unicode string. Returns the string's length.
-	int ReadUnicodeString(const char* pSection, const char* pKey, const wchar_t* pDefault, wchar_t* pBuffer, size_t szBufferSize)
+	int ReadUnicodeString(const char* pSection, const char* pKey, const wchar_t* pndefault, wchar_t* pBuffer, size_t szBufferSize)
 		{ JMP_THIS(0x528F00); }
 	//Writes an escaped Unicode string.
 	bool WriteUnicodeString(const char* pSection, const char* pKey, const wchar_t* pString)
 		{ JMP_THIS(0x528E00); }
 
 	//Reads an boolean value.
-	bool ReadBool(const char* pSection, const char* pKey, bool bDefault)
+	bool ReadBool(const char* pSection, const char* pKey, bool bndefault)
 		{ JMP_THIS(0x5295F0); }
 	//Writes an boolean value.
 	bool WriteBool(const char* pSection, const char* pKey, bool bValue)
 		{ JMP_THIS(0x529560); }
 
 	//Reads an integer value.
-	int ReadInteger(const char* pSection, const char* pKey, int nDefault)
+	int ReadInteger(const char* pSection, const char* pKey, int nndefault)
 		{ JMP_THIS(0x5276D0); }
+
+	inline int ReadIntegerClamp(const char *pSection, const char *pKey, int nMin, int nMax, int nndefault = 0)
+		{ return Math::clamp(ReadInteger(pSection, pKey, nndefault), nMin, nMax);}
+
 	//Writes an integer value.
 	bool WriteInteger(const char* pSection, const char* pKey, int nValue, bool bHex)
 		{ JMP_THIS(0x5276D0); }
 
 	//Reads a decimal value.
-	double ReadDouble(const char* pSection, const char* pKey, double dDefault)
+	double ReadDouble(const char* pSection, const char* pKey, double dndefault)
 		{
-			double* pdDefault = &dDefault;
-			PUSH_VAR64(pdDefault); PUSH_VAR32(pKey); PUSH_VAR32(pSection); THISCALL(0x5283D0);
-			_asm {fstp dDefault};
-			return dDefault;
+			double* pdndefault = &dndefault;
+			PUSH_VAR64(pdndefault); PUSH_VAR32(pKey); PUSH_VAR32(pSection); THISCALL(0x5283D0);
+			_asm {fstp dndefault};
+			return dndefault;
 		}
+		
+	inline double ReadDoubleClamp(const char *pSection, const char *pKey, double nMin, double nMax, double dndefault = 0.0)
+		{ return Math::clamp(ReadDouble(pSection, pKey, dndefault), nMin, nMax); }
+
 	//Writes a decimal value.
 	bool WriteDouble(const char* pSection, const char* pKey, double dValue)
 		{
@@ -112,19 +144,31 @@ public:
 			PUSH_VAR64(pdValue); PUSH_VAR32(pKey); PUSH_VAR32(pSection); THISCALL(0x5285B0);
 		}
 
+	inline float ReadFloat(const char *pSection, const char *pKey, float fndefault = 0.0f)
+		{ return (float)ReadDouble(pSection, pKey, fndefault); }
+
+	inline float ReadFloatClamp(const char *pSection, const char *pKey, float nMin, float nMax, float fndefault = 0.0f)
+		{ return std::clamp(ReadFloat(pSection, pKey, fndefault), nMin, nMax); }
+
+	inline bool WriteFloat(const char *pSection, const char *pKeys, float fVal)
+		{ return WriteDouble(pSection, pKeys, fVal); }
+
 	//Reads two integer values.
-	int* Read2Integers(int* pBuffer, const char* pSection, const char* pKey, int* pDefault)
+	int* Read2Integers(int* pBuffer, const char* pSection, const char* pKey, int* pndefault)
 		{ JMP_THIS(0x529880); }
 	//Writes two integer values.
 	bool Write2Integers(const char* pSection, const char* pKey, int* pValues)
 		{ JMP_THIS(0x5297E0); }
 
 	//Reads three integer values.
-	int* Read3Integers(int* pBuffer, const char* pSection, const char* pKey, int* pDefault)
+	int* Read3Integers(int* pBuffer, const char* pSection, const char* pKey, int* pndefault)
 		{ JMP_THIS(0x529CA0); }
 
+	CoordStruct* ReadCoords(CoordStruct* pCoord , const char* pSection, const char* pKey, CoordStruct pndefault)
+		{ JMP_THIS(0x476420); }
+
 	//Reads three byte values.
-	byte* Read3Bytes(byte* pBuffer, const char* pSection, const char* pKey, byte* pDefault)
+	byte* Read3Bytes(byte* pBuffer, const char* pSection, const char* pKey, byte* pndefault)
 		{ JMP_THIS(0x474B50); }
 	//Writes three byte values.
 	bool Write3Bytes(const char* pSection, const char* pKey, byte* pValues)
@@ -134,13 +178,36 @@ public:
 	bool Exists(const char* pSection, const char* pKey)
 		{ JMP_THIS(0x679F40); }
 
+	_GUID* ReadUID(_GUID* result ,const char* pSection , const char* pKey, _GUID* pndefault)
+		{ JMP_THIS(0x527920); }
+
+	bool PutUID(const char* pSection, const char* pKey, _GUID* pValue)
+		{ JMP_THIS(0x527B90); }
+
+	TRect<int>* GetRect(TRect<int> *result, const char* pSection, const char* entry, TRect<int>* pndefault)
+		{ JMP_THIS(0x527CC0); }
+
+	PKey* GetPkey(PKey* pResult, bool bFast)
+		{ JMP_THIS(0x52A670); }
+
+	bool PutPkey(PKey* pKey)
+		{ JMP_THIS(0x52A610); }
+
+	// OverlayPack, OverlayDataPack, IsoMapPack5
+	// Those uses 1=xxxx, 2=xxxx, 3=xxxx .etc.
+	int ReadUUBlock(const char* pSection, void* pBlock, size_t nLength)
+		{ JMP_THIS(0x526FB0);}
+
+	bool PutUUBlock(const char* pSection, void* pBlock, size_t nLength)
+		{ JMP_THIS(0x526E80); }
+
 	// C&C helpers
 
 #define INI_READ(item, addr) \
-	int Read ## item(const char* pSection, const char* pKey, int pDefault) \
+	int Read ## item(const char* pSection, const char* pKey, int pndefault) \
 		{ JMP_THIS(addr); }
 
-	// Pip= to idx ( pip strings with index < pDefault are not even scanned! )
+	// Pip= to idx ( pip strings with index < pndefault are not even scanned! )
 	INI_READ(Pip, 0x4748A0);
 
 	// PipScale= to idx
@@ -211,25 +278,17 @@ public:
 	INI_READ(VHPScan, 0x477590);
 
 	// Color=%d,%d,%d to idx , used to parse [Colors]
-	ColorStruct* ReadColor(ColorStruct* pBuffer, const char* pSection, const char* pKey, ColorStruct const& default)
+	ColorStruct* ReadColor(ColorStruct* pBuffer, const char* pSection, const char* pKey, ColorStruct const& ndefault)
 		{ JMP_THIS(0x474C70); }
 
-	ColorStruct ReadColor(const char* const pSection, const char* const pKey, ColorStruct const& default) {
+	ColorStruct ReadColor(const char* const pSection, const char* const pKey, ColorStruct const& ndefault) {
 		ColorStruct outBuffer;
-		this->ReadColor(&outBuffer, pSection, pKey, default);
+		this->ReadColor(&outBuffer, pSection, pKey, ndefault);
 		return outBuffer;
 	}
 
-	// OverlayPack, OverlayDataPack, IsoMapPack5
-	// Those uses 1=xxxx, 2=xxxx, 3=xxxx .etc.
-	size_t ReadUUBlock(const char* const pSection, void* pBuffer, size_t length)
-		{ JMP_THIS(0x526FB0); }
-
-	bool WriteUUBlock(const char* const pSection, void* pBuffer, size_t length)
-		{ JMP_THIS(0x526E80); }
-
 	// 18 bytes
-	byte* ReadAbilities(byte* pBuffer, const char* pSection, const char* pKey, byte* pDefault)
+	byte* ReadAbilities(byte* pBuffer, const char* pSection, const char* pKey, byte* pndefault)
 		{ JMP_THIS(0x477640); }
 
 
@@ -238,28 +297,30 @@ public:
 
 	// safer and more convenient overload for string reading
 	template <size_t Size>
-	int ReadString(const char* pSection, const char* pKey, const char* pDefault, char(&pBuffer)[Size])
+	int ReadString(const char* pSection, const char* pKey, const char* pndefault, char(&pBuffer)[Size])
 	{
-		return this->ReadString(pSection, pKey, pDefault, pBuffer, Size);
+		return this->ReadString(pSection, pKey, pndefault, pBuffer, Size);
 	}
 
 	// safer and more convenient overload for escaped unicode string reading
 	template <size_t Size>
-	int ReadUnicodeString(const char* pSection, const char* pKey, const wchar_t* pDefault, wchar_t(&pBuffer)[Size])
+	int ReadUnicodeString(const char* pSection, const char* pKey, const wchar_t* pndefault, wchar_t(&pBuffer)[Size])
 	{
-		this->ReadUnicodeString(pSection, pKey, pDefault, Size);
+		this->ReadUnicodeString(pSection, pKey, pndefault, Size);
 	}
 
 
 	// fsldargh who the fuck decided to pass structures by value here
 	static TypeList<int>* __fastcall GetPrerequisites(TypeList<int>* pBuffer, INIClass* pINI,
-		const char* pSection, const char* pKey, TypeList<int> Defaults)
+		const char* pSection, const char* pKey, TypeList<int> ndefaults)
 
 			{ JMP_STD(0x4770E0); }
 
-	static bool IsBlank(const char *pValue) {
-		return !_strcmpi(pValue, "<none>") || !_strcmpi(pValue, "none");
-	}
+	TypeList<int>* GetTypeList(TypeList<int>* ret , const char* pSection , const char* pKey , TypeList<int> def)
+		{ JMP_THIS(0x475D70); }
+
+	static bool IsBlank(const char *pValue)
+		{ return !_strcmpi(pValue, "<none>") || !_strcmpi(pValue, "none"); }
 
 	//Properties
 
@@ -271,6 +332,7 @@ public:
 	IndexClass<int, INISection*> SectionIndex; // <CRCValue of the Name, Pointer to the section>
 	INIComment* LineComments;
 };
+static_assert(sizeof(INIClass) == 0x40);//64
 
 //Extended INI class specified for C&C use
 class CCINIClass : public INIClass
@@ -329,3 +391,4 @@ public:
 	bool Digested : 1;
 	byte Digest[20];
 };
+static_assert(sizeof(CCINIClass) == 0x58);//85

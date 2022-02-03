@@ -28,18 +28,17 @@ public:
 
 	// fills dest with all types needed to complete this team. each type is
 	// included as often as it is needed.
-	void GetTaskForceMissingMemberTypes(DynamicVectorClass<TechnoTypeClass *>& dest) const
-		{ JMP_THIS(0x6EF4D0); }
-
-	void LiberateMember(FootClass* pFoot, int idx=-1, byte count=0)
-		{ JMP_THIS(0x6EA870); }
+	void GetTaskForceMissingMemberTypes(DynamicVectorClass<TechnoTypeClass *>& dest) const { JMP_THIS(0x6EF4D0); }
+	bool IsLeavingMap() const { JMP_THIS(0x6EC300); }
+	void LiberateMember(FootClass* pFoot, int idx=-1, byte count=0) { JMP_THIS(0x6EA870); }
+	FootClass* FetchLeader() const { JMP_THIS(0x6EC3D0); }
 
 	//AbstractClass
 	virtual AbstractType WhatAmI() const RT(AbstractType);
 	virtual int Size() const R0;
 
 	//Constructor
-	TeamClass(TeamTypeClass* pType) noexcept
+	TeamClass(TeamTypeClass* pType , HouseClass* pOwner, int investigate_me) noexcept
 		: TeamClass(noinit_t())
 	{ JMP_THIS(0x6E8A90); }
 
@@ -97,3 +96,5 @@ public:
 
 	int CountObjects [6]; // counts of each object specified in the Type
 };
+
+static_assert(sizeof(TeamClass) == 0xA0);

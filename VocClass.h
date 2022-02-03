@@ -7,7 +7,7 @@
 #include <ArrayClasses.h>
 #include <GeneralDefinitions.h>
 #include <Audio.h>
-
+#include <CoordStruct.h>
 #include <Helpers/CompileTime.h>
 
 struct VocClassHeader {

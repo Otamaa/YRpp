@@ -12,7 +12,7 @@ protected:
 		{ JMP_THIS(0x595680); }
 
 public:
-	static constexpr reference<MapSeedClass, 0xABDFD8> const Instance{};
+	static constexpr reference<MapSeedClass, 0xABDFD8u> const Instance{};
 
 	virtual ~MapSeedClass()
 		{ JMP_THIS(0x5AC270); }
@@ -43,6 +43,9 @@ public:
 	virtual const wchar_t* GetUIString_GameSaved() const
 		{ JMP_THIS(0x597FE0); }
 
+	static MapSeedClass* Global()
+		{ return reinterpret_cast<MapSeedClass*>(0xABDFD8); }
+	
 	//Properties
 public:
 	int Theater;
@@ -62,6 +65,18 @@ public:
 	int RegionSize;
 	int Seed; //default -1
 	FixedWString<0x80> DescriptionBuffer;
+};
+
+class BuildingTypeClass;
+class MapGeneratorClass : public MapSeedClass
+{
+protected:
+	MapGeneratorClass()
+	{ JMP_THIS(0x595740);}
+
+public:
+	virtual ~MapGeneratorClass()
+	{ JMP_THIS(0x5958E0); }
 
 	/*
 		This is confusing the hell out of me...
@@ -103,7 +118,5 @@ public:
 	DWORD unknown308; //UNUSED?
 	int Level; //default 4
 	bool unknown310;
-
-private:
-	DWORD align_314;
+	PRIVATE_PROPERTY(DWORD , align_314);
 };

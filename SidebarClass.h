@@ -2,6 +2,7 @@
 
 #include <PowerClass.h>
 #include <ProgressTimer.h>
+#include <ControlClass.h>
 
 class ColorScheme;
 class FactoryClass;
@@ -62,12 +63,14 @@ struct StripClass
 	BuildType         Cameos[75];
 };
 
+static_assert(sizeof(StripClass) == 0xF94);
+
 class NOVTABLE SidebarClass : public PowerClass
 {
 public:
 	//Static
 	static constexpr constant_ptr<SidebarClass, 0x87F7E8u> const Instance{};
-
+	enum { TooltipLength = 0x42 };
 	static constexpr reference<wchar_t, 0xB07BC4u, 0x42u> const TooltipBuffer{};
 
 	void SidebarNeedsRepaint(int mode = 0) {
@@ -103,6 +106,8 @@ public:
 	// which tab does the 'th object of that type belong in?
 	static int __fastcall GetObjectTabIdx(AbstractType abs, BuildCat buildCat, bool isNaval)
 		{ JMP_STD(0x6ABCD0); }
+
+	void ChangeTab(int nStrip) const { JMP_THIS(0x6A7590); }
 
 protected:
 	//Constructor
@@ -143,3 +148,37 @@ public:
 	bool unknown_bool_5515;
 	PROTECTED_PROPERTY(BYTE, padding_5516[2]);
 };
+
+class NOVTABLE SelectClass : public ControlClass
+{
+
+public:
+	//Destructor
+	virtual ~SelectClass() RX;
+
+	//GadgetClass
+	// 
+	//ControlClass
+
+	void SetOwner(StripClass* pStrip, int nIdx) const { JMP_THIS(0x6AACE0); }
+	void OnMouseEnter() const { JMP_THIS(0x6AB990); }
+	void OnMouseLeave() const { JMP_THIS(0x6AB9E0); }
+	int Action(int flags, int* key, DWORD nKeyModifierFlag) const { JMP_THIS(0x6AAD00); }
+
+	//Constructors
+	SelectClass() noexcept
+		: ControlClass(noinit_t())
+	{ JMP_THIS(0x6AACB0);	}
+
+protected:
+	explicit __forceinline SelectClass(noinit_t)  noexcept
+		: ControlClass(noinit_t())
+	{}
+
+public:
+	StripClass* Strip;
+	int Index;
+	DWORD __MouseOver;
+};
+
+static_assert(sizeof(SelectClass) == 0x38);

@@ -16,6 +16,18 @@ public:
 	bool ProcessClickCoords(Point2D *src, CellStruct *XYdst, CoordStruct *XYZdst, ObjectClass **Target, BYTE *a5, BYTE *a6)
 		{ JMP_THIS(0x692300); }
 
+	//Static
+	static DisplayClass* Global()
+		{ return reinterpret_cast<DisplayClass*>(0x87F7E8); }
+
+	static LayerClass* GetLayer(Layer lyr)
+	{
+		if(lyr >= Layer::Underground && lyr <= Layer::Top)
+			return reinterpret_cast<LayerClass**>(0x8A0360)[static_cast<int>(lyr)];
+		else
+			return nullptr;
+	}
+
 	// the foundation for placement with green/red
 	void  SetActiveFoundation(CellStruct *Coords)
 		{ JMP_THIS(0x4A8BF0); }
@@ -32,10 +44,10 @@ public:
 	virtual const wchar_t* GetToolTip(UINT nDlgID) R0;
 	virtual void CloseWindow() RX; //prolly wrong naming
 	virtual void vt_entry_8C() RX;
-	virtual bool MapCell(CellStruct* pMapCoord, HouseClass* pHouse) R0;
-	virtual bool RevealFogShroud(CellStruct* pMapCoord, HouseClass* pHouse, bool bIncreaseShroudCounter) R0;
-	virtual bool MapCellFoggedness(CellStruct* pMapCoord, HouseClass* pHouse) R0;
-	virtual bool MapCellVisibility(CellStruct* pMapCoord, HouseClass* pHouse) R0;
+	virtual bool MapCell(CellStruct* pMapCoord, HouseClass* pHouse) R0; //vt_entry_90
+	virtual bool RevealFogShroud(CellStruct* pMapCoord, HouseClass* pHouse, bool bIncreaseShroudCounter) R0; //vt_entry_94
+	virtual bool MapCellFoggedness(CellStruct* pMapCoord, HouseClass* pHouse) R0; //vt_entry_98
+	virtual bool MapCellVisibility(CellStruct* pMapCoord, HouseClass* pHouse) R0; //vt_entry_9C
 	virtual MouseCursorType GetLastMouseCursor() = 0;
 	virtual bool ScrollMap(DWORD dwUnk1, DWORD dwUnk2, DWORD dwUnk3) R0;
 	virtual void Set_View_Dimensions(const RectangleStruct& rect) RX;
@@ -64,6 +76,12 @@ public:
 		FoundationBoundsSize(outBuffer, pFoundationData);
 		return outBuffer;
 	}
+
+	void RemoveObject(ObjectClass* pObject) const 
+	   { JMP_THIS(0x4A9770); }
+
+	void SubmitObject(ObjectClass* pObject) const 
+	   { JMP_THIS(0x4A9720); }
 
 	/* marks or unmarks the cells pointed to by CurrentFoundationData as containing a building */
 	void MarkFoundation(CellStruct * BaseCell, bool Mark)
@@ -107,9 +125,9 @@ public:
 	bool unknown_bool_11CC;
 	bool unknown_bool_11CD;
 	bool unknown_bool_11CE;
-	bool DraggingRectangle;
-	bool unknown_bool_11D0;
-	bool unknown_bool_11D1;
+	bool DraggingRectangle; //11CF IsRubberBand
+	bool IsTentative; //11D0
+	bool IsShadowPresen; //11D1
 	DWORD unknown_11D4;
 	DWORD unknown_11D8;
 	DWORD unknown_11DC;

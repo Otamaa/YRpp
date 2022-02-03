@@ -29,14 +29,14 @@ class MissionControlClass
 		MissionControlClass()
 			{ JMP_THIS(0x5B3700); }
 
-		const char* GetName()
-			{ JMP_THIS(0x5B3740); }
+		int Normal_Delay() const { return static_cast<int>(TICKS_PER_MINUTE * Rate); }
+		int AA_Delay() const { return static_cast<int>(TICKS_PER_MINUTE * AARate); }
 
 		void LoadFromINI(CCINIClass* pINI)
 			{ JMP_THIS(0x5B3760); }
 
-		//Properties
-		int ArrayIndex;
+public:
+		int ArrayIndex; //MissionType
 		bool NoThreat;
 		bool Zombie;
 		bool Recruitable;
@@ -47,6 +47,8 @@ class MissionControlClass
 		double AARate; //default 0.016
 };
 
+static_assert(sizeof(MissionControlClass) == 0x20);
+
 class NOVTABLE MissionClass : public ObjectClass
 {
 public:
@@ -54,14 +56,14 @@ public:
 	virtual ~MissionClass() { /* ~ObjectClass() */ }
 
 	//MissionClass
-	virtual bool QueueMission(Mission mission, bool start_mission) R0;
-	virtual bool NextMission() R0;
+	virtual bool QueueMission(Mission mission, bool start_mission) R0; //assign
+	virtual bool NextMission() R0;//commence
 	virtual void ForceMission(Mission mission) RX;
 
-	virtual void vt_entry_1F4(Mission mission) RX;
-	virtual bool Mission_Revert() R0;
-	virtual bool vt_entry_1FC() const R0;
-	virtual bool vt_entry_200() const R0;
+	virtual void Override_Mission(Mission mission, AbstractClass* tarcom = nullptr, AbstractClass* navcom = nullptr) RX; //Vt_1F4
+	virtual bool Mission_Revert() R0; //Restore_Mission
+	virtual bool Mission_Overriden() const R0;//vt_1FC
+	virtual bool Ready_To_Commence() const R0; //200
 
 	virtual int Mission_Sleep() R0;
 	virtual int Mission_Harmless() R0;
@@ -92,6 +94,14 @@ public:
 	virtual int Mission_SpyPlaneApproach() R0;
 	virtual int Mission_SpyPlaneOverfly() R0;
 
+	static bool __fastcall IsRecruitableMission(Mission mission) { JMP_STD(0x5B36E0); }
+
+	void Shorten_Mission_Timer() { UpdateTimer = 0; }
+	MissionControlClass* GetCurrentMissionControl() const { JMP_THIS(0x5B3A00); }
+	bool HasSuspendedMission() const { JMP_THIS(0x5B3A10); }
+	int MissionTime() const { JMP_THIS(0x5B3A20); }
+	Mission GetMission() const { JMP_THIS(0x5B3040); }
+
 	//Constructor
 	MissionClass() noexcept
 		: MissionClass(noinit_t())
@@ -109,11 +119,13 @@ protected:
 public:
 
 	Mission  CurrentMission;
-	Mission  unknown_mission_B0;
+	Mission  SuspendedMission; //B0
 	Mission  QueuedMission;
-	bool     unknown_bool_B8;
+	bool     AssignmentState; //B8
 	int      MissionStatus;
 	int      CurrentMissionStartTime;	//in frames
 	DWORD    unknown_C4;
 	TimerStruct UpdateTimer;
 };
+
+static_assert(sizeof(MissionClass) == 0xD4);

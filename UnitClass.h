@@ -45,6 +45,27 @@ public:
 	bool IsDeactivated() const
 		{ JMP_THIS(0x70FBD0); }
 
+	void Explode() const 
+		{ JMP_THIS(0x738680); }
+	
+	void Firing_AI() const 
+		{JMP_THIS(0x736DF0);}
+
+	bool TryToDeploy() const
+		{ JMP_THIS(0x7393C0); }
+
+	void UnDeploy() const
+		{ JMP_THIS(0x739CD0); }
+
+	void Deploy() const
+		{ JMP_THIS(0x739AC0); }
+
+	void RotationAI()const
+		{ JMP_THIS(0x736990); }
+
+	bool GotoClearSpot() const
+		{ JMP_THIS(0x738D30); }
+
 	//Constructor
 	UnitClass(UnitTypeClass* pType, HouseClass* pOwner) noexcept
 		: UnitClass(noinit_t())
@@ -79,3 +100,4 @@ public:
 
 	wchar_t ToolTipText[0x100];
 };
+static_assert(sizeof(UnitClass) == 0x8E8);

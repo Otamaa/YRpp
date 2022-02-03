@@ -79,3 +79,5 @@ public:
 	bool IsTiberium;
 	PROTECTED_PROPERTY(BYTE, unused_301[3]);
 };
+
+static_assert(sizeof(VoxelAnimTypeClass) == 0x308);

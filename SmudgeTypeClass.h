@@ -35,6 +35,17 @@ public:
 	//SmudgeTypeClass
 	virtual void vt_entry_A0(DWORD dwUnk,DWORD dwUnk2,DWORD dwUnk3,DWORD dwUnk4,DWORD dwUnk5) RX;
 
+	void __fastcall CreateRandomSmudgeFromTypeList(CoordStruct& nWhere, int nVal1, int nVal2, bool bIgnoreBuildings)
+		{ JMP_STD(0x6B5C90); }
+
+	void __fastcall CreateRandomSmudge(CoordStruct& nWhere, int nVal1, int nVal2, bool bIgnoreBuildings)
+		{ JMP_STD(0x6B59A0); }
+
+	bool CanPlace(CellStruct& nCell, bool bIgnoreBuildings)
+		{ JMP_THIS(0x6B5F80); }
+
+	static void __fastcall TheaterInit(TheaterType nType)
+		{ JMP_STD(0x6B5490); }
 	//Constructor
 	SmudgeTypeClass(const char* pID) noexcept
 		: SmudgeTypeClass(noinit_t())

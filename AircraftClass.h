@@ -48,6 +48,20 @@ public:
 
 	//Destructor
 	virtual ~AircraftClass() RX;
+	//some stuffs here may from FootClass::vtable , which is missing
+	CellClass* GoodLandingZone() const { JMP_THIS(0x41A160); }
+	CellClass* NewLandingZone(CellClass* pOldCell) { JMP_THIS(0x418E20); }
+	void GoodTargetLoc(AbstractClass* pTarget) const { JMP_THIS(0x4197C0); }
+	bool CellSeemsOk(CellStruct& nCell, bool bStrich) { JMP_THIS(0x419B00); }
+	void DropOffCargo() const { JMP_THIS(0x416AF0); }
+	void Tracker_4134A0() { AircraftTracker_4134A0(this); }
+
+	static void AircraftTracker_4134A0(AircraftClass* pThis)
+	{
+		EPILOG_THISCALL;
+		PUSH_IMM(pThis);
+		THISCALL_EX(0x887888, 0x4134A0);
+	}
 
 	//Constructor
 	AircraftClass(AircraftTypeClass* pType, HouseClass* pOwner) noexcept
@@ -66,14 +80,16 @@ protected:
 public:
 
 	AircraftTypeClass* Type;
-	bool unknown_bool_6C8;
+	bool unknown_bool_6C8; //loseAmmo
 	bool HasPassengers;	//parachutes
 	bool IsKamikaze; // when crashing down, duh
-	DWORD unknown_6CC;
+	TechnoClass* DockedTo;
 	bool unknown_bool_6D0;
 	bool unknown_bool_6D1;
 	bool unknown_bool_6D2;
-	char unknown_char_6D3;
-	bool unknown_bool_6D4;
-	bool unknown_bool_6D5;
+	char ___paradrop_attempts; //6D3
+	bool carrayall6D4;
+	bool retreating_idle; //6D5
 };
+
+static_assert(sizeof(AircraftClass) == 0x6D8);

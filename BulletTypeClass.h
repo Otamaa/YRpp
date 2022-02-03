@@ -102,7 +102,8 @@ public:
 	bool Vertical;
 	double Elasticity;
 	int Acceleration;
-	ColorScheme* Color;
+	//ColorScheme* Color;
+	int Color; //not a pointer , but index ! -Otamaa
 	AnimTypeClass* Trailer;
 	int ROT;
 	int CourseLockDuration;
@@ -115,3 +116,5 @@ public:
 	byte AnimRate;
 	bool Flat;
 };
+
+static_assert(sizeof(BulletTypeClass) == 0x2F8);

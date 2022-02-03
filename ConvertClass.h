@@ -24,7 +24,7 @@ public:
 	//global array
 	static constexpr constant_ptr<DynamicVectorClass<ConvertClass*>, 0x89ECF8u> const Array{};
 
-	static ConvertClass* FindOrAllocate(const char* pFilename);
+	//static ConvertClass* FindOrAllocate(const char* pFilename);
 
 	static void __fastcall CreateFromFile(const char* pFilename, BytePalette* &pPalette, ConvertClass* &pDestination)
 		{ JMP_STD(0x72ADE0); }
@@ -35,6 +35,13 @@ public:
 
 	RLEBlitterCore* SelectRLEBlitter(BlitterFlags flags) const
 		{ JMP_THIS(0x490E50); }
+
+	void* SelectProperBlitter(SHPStruct * SHP, int FrameIndex, BlitterFlags flags) {
+		return (SHP->HasCompression(FrameIndex))
+			? static_cast<void*>(this->SelectRLEBlitter(flags))
+			: static_cast<void*>(this->SelectPlainBlitter(flags))
+		;
+	}
 
 	virtual ~ConvertClass() RX;
 

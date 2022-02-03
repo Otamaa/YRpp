@@ -4,7 +4,7 @@
 
 #include <LocomotionClass.h>
 
-class NOVTABLE FlyLocomotionClass : public LocomotionClass
+class __declspec(uuid("4A582746-9839-11d1-B709-00A024DDAFD1")) FlyLocomotionClass : public LocomotionClass
 {
 public:
 	//IUnknown
@@ -72,3 +72,5 @@ public:
 	bool unknown_bool_5E;
 	bool unknown_bool_5F;
 };
+
+static_assert(sizeof(FlyLocomotionClass) == 0x60);

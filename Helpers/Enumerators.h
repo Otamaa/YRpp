@@ -2,7 +2,7 @@
 
 #include <FootClass.h>
 #include <Helpers/Cast.h>
-
+#include <cmath>
 // Enumerates the objects in a linked list.
 /*
 	The next element is retrieved eagerly, thus this enumerator supports
@@ -53,9 +53,61 @@ private:
 	T* next;
 };
 
+template <typename T, T* T::* Prev>
+class PrevListEnumerator
+{
+public:
+	PrevListEnumerator()
+		: current(nullptr), prev(nullptr)
+	{
+	}
+
+	PrevListEnumerator(T* first)
+		: current(first), prev(first ? first->*Prev : nullptr)
+	{
+	}
+
+	explicit operator bool() const
+	{
+		return current != nullptr;
+	}
+
+	T* operator * () const
+	{
+		return current;
+	}
+
+	T* operator -> () const
+	{
+		return current;
+	}
+
+	PrevListEnumerator& operator ++ ()
+	{
+		current = prev;
+		if (prev)
+		{
+			prev = prev->*Prev;
+		}
+		return *this;
+	}
+
+	PrevListEnumerator operator ++ (int)
+	{
+		auto const old = *this;
+		++* this;
+		return old;
+	}
+
+private:
+	T* current;
+	T* prev;
+};
+
 using NextObject = ListEnumerator<ObjectClass, &ObjectClass::NextObject>;
 using NextTeamMember = ListEnumerator<FootClass, &FootClass::NextTeamMember>;
-
+using NextSHP = ListEnumerator<SHPReference, &SHPReference::Next>;
+using PrevSHP = PrevListEnumerator<SHPReference, & SHPReference::Prev >;
 // Enumerates the cells in a rectangle.
 /*
 	Enumeration starts at the top left and iterates left to right first, then
@@ -330,7 +382,7 @@ public:
 			static_cast<short>(Math::sgn(difference.Y))
 		};
 
-		distance = { difference.X * offset.X * 2, difference.Y * offset.Y * 2 };
+		distance = { (short)(difference.X * offset.X * 2), (short)(difference.Y * offset.Y * 2) };
 
 		if(distance.X > distance.Y) {
 			value = distance.Y - distance.X / 2;

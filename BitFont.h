@@ -66,6 +66,27 @@ public:
 	static InternalData* __fastcall LoadInternalData(const char* pFileName)
 		{ JMP_STD(0x433990); }
 
+	int CharPixelWidth(wchar_t wChar)
+		{ JMP_THIS(0x4349B0); }
+
+	int StringPixelWidth(wchar_t wChar, int nMaximum)
+		{ JMP_THIS(0x433ED0); }
+
+	void SetSpacing(int nSpacing)
+		{ JMP_THIS(0x434100); }
+
+	int GetWidth(bool bHalf = false)
+		{ return bHalf ? InternalPTR->FontWidth / 2 : InternalPTR->FontWidth; }
+
+	int GetHeight(bool bHalf = false)
+		{ return bHalf ? InternalPTR->FontHeight / 2 : InternalPTR->FontHeight; }
+
+	static BitFont* __fastcall BitFontPtr(TextPrintType nType)
+		{ JMP_STD(0x4A60D0); }
+
+	static void __fastcall Print(void* pThis, BitFont* font, Surface* surface, wchar_t* string, int xLeft, int yTop, int a6, int a7)
+		{ JMP_STD(0x434B90); }
+
 	InternalData* InternalPTR;
 	void* Pointer_8;
 	short* pGraphBuffer;
@@ -84,3 +105,5 @@ public:
 	bool field_42;
 	bool field_43;
 };
+
+static_assert(sizeof(BitFont) == 0x44);

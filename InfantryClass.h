@@ -27,7 +27,28 @@ public:
 
 	//InfantryClass
 	virtual bool IsDeployed() const R0;
-	virtual bool PlayAnim(Sequence index, bool force = false, bool randomStartFrame = false) R0;
+	virtual bool PlayAnim(DoType index, bool force = false, bool randomStartFrame = false) R0; //0x51D6F0 `InfantryClass::Do_Action
+
+	bool IsDoingDeploy()
+		{ JMP_THIS(0x522510); }
+
+	void UnslaveMe()
+	{
+		if (auto pSlave = this->SlaveOwner)
+		{
+			if (auto pManager = pSlave->SlaveManager)
+			{
+				pManager->LostSlave(this);
+			}
+		}
+	}
+
+	void RemoveMe_FromGunnerTransport();
+	void ForceHarvest() const
+		{ JMP_THIS(0x522D00); }
+
+	bool IsHarvesting() const 
+		{ JMP_THIS(0x522FC0); }
 
 	//Constructor
 	InfantryClass(InfantryTypeClass* pType, HouseClass* pOwner) noexcept
@@ -46,7 +67,7 @@ protected:
 public:
 
 	InfantryTypeClass* Type;
-	Sequence SequenceAnim; //which is currently playing
+	DoType SequenceAnim; //which is currently playing
 	TimerStruct unknown_Timer_6C8;
 	DWORD          PanicDurationLeft; // set in ReceiveDamage on panicky units
 	bool           PermanentBerzerk; // set by script action, not cleared anywhere

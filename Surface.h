@@ -3,17 +3,17 @@
 #include <GeneralStructures.h>
 #include <YRDDraw.h>
 #include <YRAllocator.h>
+#include <RectangleStruct.h>
 
 #include <Helpers/CompileTime.h>
 
 class ConvertClass;
 struct SHPStruct;
-
+class ColorScheme;
 class NOVTABLE Surface
 {
 public:
 	Surface() = default;
-
 	virtual ~Surface() { PUSH_IMM(SDDTOR_NODELETE); THISCALL(0x4115D0); }
 
 	//Surface
@@ -116,7 +116,51 @@ public:
 		return ret;
 	}
 
+	void DrawText_Old(const wchar_t* pText, RectangleStruct* pBounds, Point2D* pLocation, DWORD dwColor, DWORD unknown5, DWORD flags)
+	{
+		Point2D tmp = { 0, 0 };
 
+		PUSH_VAR32(flags);
+		PUSH_VAR32(unknown5);		//???
+		PUSH_VAR32(dwColor);
+		PUSH_VAR32(pLocation);
+		PUSH_VAR32(pBounds);
+		PUSH_VAR32(this);
+		PUSH_VAR32(pText);
+		PUSH_PTR(tmp);
+		CALL(0x4A60E0);
+
+		ADD_ESP(0x20);
+	}
+
+	void DrawText_Old(const wchar_t* pText, Point2D* pLoction, DWORD dwColor)
+	{
+		RectangleStruct rect = { 0, 0, 0, 0 };
+		PUSH_PTR(rect);
+		THISCALL(0x411510);
+
+		DrawText_Old(pText, &rect, pLoction, dwColor, 0, 0x16);
+	}
+
+	void DrawText_Old(const wchar_t* pText, int X, int Y, DWORD dwColor)
+	{
+		Point2D P = { X ,Y };
+		DrawText_Old(pText, &P, dwColor);
+	}
+
+	bool Blit(
+		RectangleStruct* pClipRect,
+		RectangleStruct* pClipRect2,	//again? hmm
+		Surface* pSrc,
+		RectangleStruct* pDestRect,	//desired dest rect of pSrc ? (stretched? clipped?)
+		RectangleStruct* pSrcRect,	//desired source rect of pSrc ?
+		bool bUnk1,
+		bool bUnk2)
+	{
+		return CopyFrom(pClipRect, pClipRect2, pSrc, pDestRect, pSrcRect, bUnk1, bUnk2);
+	}
+
+public:
 	// Properties
 
 	int Width;
@@ -132,6 +176,11 @@ public:
 
 	virtual short GetPixelClip(Point2D* pPoint, RectangleStruct* pRect) R0;
 
+	bool SetPixel(Point2D* pPoint, COLORREF nColor) override
+	{
+		JMP_THIS(0x7BAEB0);
+	}
+
 	int LockLevel;
 	int BytesPerPixel;
 };
@@ -139,36 +188,82 @@ public:
 class NOVTABLE BSurface : public XSurface
 {
 public:
-	static constexpr constant_ptr<BSurface, 0xB2D928> VoxelSurface {};
+	static constexpr constant_ptr<BSurface, 0xB2D928> VoxelSurface{};
 
-	BSurface() : XSurface(), Buffer { this->Width * this->Height * 2 } { BytesPerPixel = 2; ((int*)this)[0] = 0x7E2070; }
+	int Get_Bytes_Per_Pixel() { JMP_THIS(0x411630); }
+	int Get_Pitch() { JMP_THIS(0x411640); }
+	//	void* Lock(int X = 0, int Y = 0) { JMP_THIS(0x4115F0); }
 
-	MemoryBuffer Buffer;
+	BSurface() : XSurface(), nBuffer{ this->Width * this->Height * 2 }
+	{ BytesPerPixel = 2; (VTABLE_SET(this, 0x7E2070)); }
+
+	MemoryBuffer nBuffer;
 };
 
-// Comments from thomassneddon
-static void __fastcall CC_Draw_Shape(Surface* Surface, ConvertClass* Palette, SHPStruct* SHP, int FrameIndex,
-	const Point2D* const Position, const RectangleStruct* const Bounds, BlitterFlags Flags,
-	int Remap,
-	int ZAdjust, // + 1 = sqrt(3.0) pixels away from screen
-	ZGradient ZGradientDescIndex,
-	int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
-	int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
+#pragma warning(push)
+#pragma warning(disable : 4505)
+namespace CommonFunction
 {
-	JMP_STD(0x4AED70);
-}
+	// Used for linetrail
+	static bool __fastcall Surface_4BEAC0_Blit(Surface* Surface, RectangleStruct& nRect, Point2D& nPoint1, Point2D& nPoint2, int& nSomeval, unsigned nSomeval2, int nAdjust_1, int nAdjust2)
+	{
+		JMP_STD(0x4BEAC0);
+	}
 
-static Point2D* Fancy_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
-	Point2D* Location, COLORREF ForeColor, COLORREF BackColor, TextPrintType Flag, ...)
-{
-	JMP_STD(0x4A60E0);
-}
+	static RectangleStruct* __fastcall Funt_4A59E0(RectangleStruct* pRet, char* text, int xpos, int ypos, TextPrintType flag, int x_offset, int y_offset)
+	{
+		JMP_STD(0x4A59E0);
+	}
 
-//static Point2D* __fastcall Simple_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
-//	Point2D* Location, COLORREF ForeColor, COLORREF BackColor, TextPrintType Flag, bool bUkn)
-//{
-//	JMP_STD(0x4A5EB0);
-//}
+	// Comments from thomassneddon
+	static void __fastcall CC_Draw_Shape(Surface* Surface, ConvertClass* Palette, SHPStruct* SHP, int FrameIndex,
+		const Point2D* const Position, const RectangleStruct* const Bounds, BlitterFlags Flags,
+		int Remap,
+		int ZAdjust, // + 1 = sqrt(3.0) pixels away from screen
+		ZGradient ZGradientDescIndex,
+		int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
+		int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
+	{
+		JMP_STD(0x4AED70);
+	}
+
+	static void __fastcall CC_Draw_Shape(Surface* Surface, ConvertClass* Palette, SHPStruct* SHP, int FrameIndex,
+		const Point2D* const Position, const RectangleStruct* const Bounds, DWORD Flags,
+		int Remap,
+		int ZAdjust, // + 1 = sqrt(3.0) pixels away from screen
+		DWORD ZGradientDescIndex, //
+		int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
+		int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
+	{
+		JMP_STD(0x4AED70);
+	}
+
+	static Point2D* Fancy_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
+		Point2D* Location, unsigned int ForeColor, unsigned int BackColor, TextPrintType Flag, ...)
+	{
+		JMP_STD(0x4A60E0);
+	}
+
+	static Point2D* Fancy_Text_Print_Wide_REF(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
+		Point2D* Location, COLORREF ForeColor, COLORREF BackColor, TextPrintType Flag, ...)
+	{
+		JMP_STD(0x4A60E0);
+	}
+
+	static Point2D* Fancy_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
+		Point2D* Location, ColorScheme* fore, unsigned int BackColor, TextPrintType Flag, ...)
+	{
+		JMP_STD(0x4A61C0);
+	}
+
+	//
+	static Point2D* __fastcall Simple_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
+		Point2D* Location, COLORREF ForeColor, COLORREF BackColor, TextPrintType Flag, bool bUkn)
+	{
+		JMP_STD(0x4A5EB0);
+	}
+}
+#pragma warning(pop)
 
 class NOVTABLE DSurface : public XSurface
 {
@@ -179,11 +274,20 @@ public:
 	static constexpr reference<DSurface*, 0x88730Cu> const Hidden{};
 	static constexpr reference<DSurface*, 0x887310u> const Alternate{};
 	static constexpr reference<DSurface*, 0x887314u> const Temp{};
+	static constexpr reference<DSurface*, 0x887314u> const Hidden_2{};
 	static constexpr reference<DSurface*, 0x88731Cu> const Composite{};
+	static constexpr reference<int, 0x8205D0u> const RGBMode{};
 
 	static constexpr reference<RectangleStruct, 0x886F90u> const SidebarBounds{};
 	static constexpr reference<RectangleStruct, 0x886FA0u> const ViewBounds{};
 	static constexpr reference<RectangleStruct, 0x886FB0u> const WindowBounds{};
+
+	static constexpr reference<unsigned, 0x8A0DD0u> const RedLeft{};
+	static constexpr reference<unsigned, 0x8A0DD4u> const RedRight{};
+	static constexpr reference<unsigned, 0x8A0DE0u> const GreenLeft{};
+	static constexpr reference<unsigned, 0x8A0DE4u> const GreenRight{};
+	static constexpr reference<unsigned, 0x8A0DD8u> const BlueLeft{};
+	static constexpr reference<unsigned, 0x8A0DDCu> const BlueRight{};
 
 	virtual bool DrawGradientLine(RectangleStruct* pRect, Point2D* pStart, Point2D* pEnd,
 		ColorStruct* pStartColor, ColorStruct* pEndColor, float fStep, int nColor) R0;
@@ -198,8 +302,19 @@ public:
 		int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
 		int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
 	{
-		CC_Draw_Shape(this, Palette, SHP, FrameIndex, Position, Bounds, Flags, Remap, ZAdjust,
+		CommonFunction::CC_Draw_Shape(this, Palette, SHP, FrameIndex, Position, Bounds, Flags, Remap, ZAdjust,
 			ZGradientDescIndex, Brightness, TintColor, ZShape, ZShapeFrame, XOffset, YOffset);
+	}
+
+	void DrawSHP(ConvertClass* Palette, SHPStruct* SHP, int FrameIndex,
+		const Point2D* const Position, const RectangleStruct* const Bounds, BlitterFlags Flags, int Remap,
+		int ZAdjust, // + 1 = sqrt(3.0) pixels away from screen
+		DWORD ZGradientDescIndex,
+		int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
+		int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
+	{
+		CommonFunction::CC_Draw_Shape(this, Palette, SHP, FrameIndex, Position, Bounds, Flags, Remap, ZAdjust,
+			ZGradient(ZGradientDescIndex), Brightness, TintColor, ZShape, ZShapeFrame, XOffset, YOffset);
 	}
 
 	void DrawText(const wchar_t* pText, RectangleStruct* pBounds, Point2D* pLocation,
@@ -207,7 +322,7 @@ public:
 	{
 		Point2D tmp = { 0, 0 };
 
-		Fancy_Text_Print_Wide(&tmp, pText, this, pBounds, pLocation, ForeColor, BackColor, Flag);
+		CommonFunction::Fancy_Text_Print_Wide_REF(&tmp, pText, this, pBounds, pLocation, ForeColor, BackColor, Flag);
 	}
 
 	void DrawText(const wchar_t* pText, Point2D* pLoction, COLORREF Color)
@@ -215,8 +330,8 @@ public:
 		RectangleStruct rect = { 0, 0, 0, 0 };
 		this->GetRect(&rect);
 
-		Point2D tmp { 0,0 };
-		Fancy_Text_Print_Wide(&tmp, pText, this, &rect, pLoction, Color, 0, TextPrintType::NoShadow);
+		Point2D tmp{ 0,0 };
+		CommonFunction::Fancy_Text_Print_Wide_REF(&tmp, pText, this, &rect, pLoction, Color, 0, TextPrintType::NoShadow);
 	}
 
 	void DrawText(const wchar_t* pText, int X, int Y, COLORREF Color)
@@ -225,10 +340,39 @@ public:
 		DrawText(pText, &P, Color);
 	}
 
+	static unsigned RGBA_To_Pixel(unsigned r, unsigned g, unsigned b)
+	{
+		return (unsigned((b >> BlueRight) << BlueLeft)
+			| unsigned((r >> RedRight) << RedLeft)
+			| unsigned((g >> GreenRight) << GreenLeft));
+	}
+
+	static void Pixel_To_RGBA(unsigned pixel, unsigned* red, unsigned* green, unsigned* blue)
+	{
+		*red = ((pixel >> RedLeft) << RedRight);
+		*green = ((pixel >> GreenLeft) << GreenRight);
+		*blue = ((pixel >> BlueLeft) << BlueRight);
+	}
+
+
+	static unsigned Get_Red_Left() { return RedLeft; }
+	static unsigned Get_Red_Right() { return RedRight; }
+
+	static unsigned Get_Green_Left() { return GreenLeft; }
+	static unsigned Get_Green_Right() { return GreenRight; }
+
+	static unsigned Get_Blue_Left() { return BlueLeft; }
+	static unsigned Get_Blue_Right() { return BlueRight; }
+
+	bool DrawLine_DSurface(RectangleStruct pClipRect, Point2D pStart, Point2D pEnd, unsigned int nColor)
+	{
+		return DrawLineEx(&pClipRect, &pStart, &pEnd, (COLORREF)nColor);
+	}
+
 	void* Buffer;
 	bool IsAllocated;
 	bool IsInVideoRam;
 	PROTECTED_PROPERTY(char, field_1A[2]);
 	IDirectDrawSurface* VideoSurfacePtr;
-	DDSURFACEDESC2* VideoSurfaceDescription;
+	DDSURFACEDESC2* VideoSurfaceDescription; //SurfDesc
 };

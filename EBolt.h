@@ -49,7 +49,7 @@ public:
 
 	CoordStruct Point1;
 	CoordStruct Point2;
-	DWORD unknown_18;	//Duration?
+	int _ZAdjust;	//18,Duration?
 	int Random;	//Random number between 0 and 256
 	TechnoClass* Owner;	//ingame this is a UnitClass but needed to circumvent some issues
 	int WeaponSlot; // which weapon # to use from owner

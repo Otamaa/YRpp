@@ -2,22 +2,6 @@
 
 #include <YRPPCore.h>
 #include <GeneralStructures.h>
-#include <Quaternion.h>
-
-template <typename T>
-class Vector4D
-{
-public:
-	static const Vector4D Empty;
-
-	//no constructor, so this class stays aggregate and can be initialized using the curly braces {}
-	T X, Y, Z, W;
-
-	// TODO add Vector4 methods
-};
-
-template <typename T>
-const Vector4D<T> Vector4D<T>::Empty = { T(), T(), T(), T() };
 
 class NOVTABLE Matrix3D
 {
@@ -26,6 +10,12 @@ public:
 	//Constructor
 
 	Matrix3D() = default;
+
+	explicit Matrix3D(bool identity)
+	{
+		if (identity)
+			MakeIdentity();
+	}
 
 	// plain floats ctor
 	Matrix3D(
@@ -38,10 +28,10 @@ public:
 
 	// column vector ctor
 	Matrix3D(
-		Vector3D<float> const& vec0,
-		Vector3D<float> const& vec1,
-		Vector3D<float> const& vec2,
-		Vector3D<float> const& vec3)
+		Vector3D<float> const& X,
+		Vector3D<float> const& Y,
+		Vector3D<float> const& Z,
+		Vector3D<float> const& npos)
 	{
 		JMP_THIS(0x5AE690);
 	}
@@ -55,7 +45,30 @@ public:
 	// copy ctor
 	Matrix3D(Matrix3D& another) { JMP_THIS(0x5AE610); }
 
+	Vector4D<float> &operator [] (int i) { return Row[i]; }
+	const Vector4D<float> &operator [] (int i) const { return Row[i]; }
+
+	inline Matrix3D &operator = (const Matrix3D &m)
+	{
+		Row[0] = m.Row[0];
+		Row[1] = m.Row[1];
+		Row[2] = m.Row[2];
+		return *this;
+	}
 	// Non virtual
+
+	inline void Adjust_Translation(const Vector3D<float> &t) { Row[0][3] += t[0]; Row[1][3] += t[1]; Row[2][3] += t[2]; }
+	inline void Adjust_X_Translation(float x) { Row[0][3] += x; }
+	inline void Adjust_Y_Translation(float y) { Row[1][3] += y; }
+	inline void Adjust_Z_Translation(float z) { Row[2][3] += z; }
+
+	Vector3D<float> Get_Translation() const { return Vector3D<float>{ Row[0][3], Row[1][3], Row[2][3] }; }
+	void Get_Translation(Vector3D<float> *set) const { set->X = Row[0][3]; set->Y = Row[1][3]; set->Z = Row[2][3]; }
+	void Set_Translation(const Vector3D<float> &t) { Row[0][3] = t[0]; Row[1][3] = t[1]; Row[2][3] = t[2]; }
+
+	inline float Get_X_Translation(void) const { return Row[0][3]; }
+	inline float Get_Y_Translation(void) const { return Row[1][3]; }
+	inline float Get_Z_Translation(void) const { return Row[2][3]; }
 
 	void MakeIdentity() { JMP_THIS(0x5AE860); } // 1-matrix
 	void Translate(float x, float y, float z) { JMP_THIS(0x5AE890); }
@@ -111,7 +124,178 @@ public:
 		return buffer;
 	}
 	static Matrix3D* __fastcall sub_5AFC20(Matrix3D* inv, Matrix3D* A) { JMP_STD(0x5AFC20); }
-	static Matrix3D* __fastcall FromQuaternion(Matrix3D* mat, Quaternion* q) { JMP_STD(0x646980); }
+
+	static Vector3D<float>* Inverse_Rotate_Vector(const Matrix3D &tm, const Vector3D<float> &in)
+	{
+		Vector3D<float> tmp;
+		Vector3D<float>* v;
+		Vector3D<float>* out;
+
+		if (out == &in)
+		{
+			tmp = in;
+			v = &tmp;
+		}
+		else
+		{
+			v = (Vector3D<float> *)&in;
+		}
+		out->X = (tm[0][0] * v->X + tm[1][0] * v->Y + tm[2][0] * v->Z);
+		out->Y = (tm[0][1] * v->X + tm[1][1] * v->Y + tm[2][1] * v->Z);
+		out->Z = (tm[0][2] * v->X + tm[1][2] * v->Y + tm[2][2] * v->Z);
+
+		return out;
+	}
+
+	static Vector3D<float>* Inverse_Transform_Vector(const Matrix3D &tm, const Vector3D<float> &in)
+	{
+		Vector3D<float> tmp;
+		Vector3D<float> *v;
+		Vector3D<float>* out;
+
+		if (out == &in) {
+			tmp = in;
+			v = &tmp;
+		}
+		else {
+			v = (Vector3D<float> *)&in;
+		}
+
+		Vector3D<float> diff{ v->X - tm[0][3], v->Y - tm[1][3], v->Z - tm[2][3] };
+
+		return Inverse_Rotate_Vector(tm, diff);
+	}
+
+	static Vector3D<float>* Rotate_Vector(const Matrix3D &tm, const Vector3D<float> &in)
+	{
+		Vector3D<float> tmp;
+		Vector3D<float> *v;
+		Vector3D<float>* out;
+
+		if (out == &in) {
+			tmp = in;
+			v = &tmp;
+		}
+		else {
+			v = (Vector3D<float> *)&in;
+		}
+
+		out->X = (tm[0][0] * v->X + tm[0][1] * v->Y + tm[0][2] * v->Z);
+		out->Y = (tm[1][0] * v->X + tm[1][1] * v->Y + tm[1][2] * v->Z);
+		out->Z = (tm[2][0] * v->X + tm[2][1] * v->Y + tm[2][2] * v->Z);
+
+		return out;
+	}
+
+	static Vector3D<float>* Transform_Vector(const Matrix3D &tm, const Vector3D<float> &in)
+	{
+		Vector3D<float> tmp;
+		Vector3D<float> *v;
+		Vector3D<float>* out;
+
+		if (out == &in) {
+			tmp = in;
+			v = &tmp;
+		}
+		else {
+			v = (Vector3D<float> *)&in;
+		}
+
+		out->X = (tm[0][0] * v->X + tm[0][1] * v->Y + tm[0][2] * v->Z + tm[0][3]);
+		out->Y = (tm[1][0] * v->X + tm[1][1] * v->Y + tm[1][2] * v->Z + tm[1][3]);
+		out->Z = (tm[2][0] * v->X + tm[2][1] * v->Y + tm[2][2] * v->Z + tm[2][3]);
+		return out;
+	}
+
+	static const Matrix3D Identity()
+	{
+		return Matrix3D(
+		1.0, 0.0, 0.0, 0.0,
+		0.0, 1.0, 0.0, 0.0,
+		0.0, 0.0, 1.0, 0.0
+		);
+	};
+
+	static const Matrix3D RotateX90()
+	{
+		return Matrix3D(
+			1.0, 0.0, 0.0, 0.0,
+			0.0, 0.0, -1.0, 0.0,
+			0.0, 1.0, 0.0, 0.0
+		);
+	};
+
+	static const Matrix3D RotateX180()
+	{
+		return Matrix3D(
+			1.0, 0.0, 0.0, 0.0,
+			0.0, -1.0, 0.0, 0.0,
+			0.0, 0.0, -1.0, 0.0
+		);
+	};
+
+	static const Matrix3D RotateX270()
+	{
+		return Matrix3D(
+			1.0, 0.0, 0.0, 0.0,
+			0.0, 0.0, 1.0, 0.0,
+			0.0, -1.0, 0.0, 0.0
+		);
+	};
+
+	static const Matrix3D RotateY90()
+	{
+		return Matrix3D(
+			0.0, 0.0, 1.0, 0.0,
+			0.0, 1.0, 0.0, 0.0,
+			-1.0, 0.0, 0.0, 0.0
+		);
+	};
+
+	static const Matrix3D RotateY180()
+	{
+		return Matrix3D(
+			-1.0, 0.0, 0.0, 0.0,
+			0.0, 1.0, 0.0, 0.0,
+			0.0, 0.0, -1.0, 0.0
+		);
+	};
+
+	static const Matrix3D RotateY270()
+	{
+		return Matrix3D(
+			0.0, 0.0, -1.0, 0.0,
+			0.0, 1.0, 0.0, 0.0,
+			1.0, 0.0, 0.0, 0.0
+		);
+	};
+
+	static const Matrix3D RotateZ90()
+	{
+		return Matrix3D(
+			0.0, -1.0, 0.0, 0.0,
+			1.0, 0.0, 0.0, 0.0,
+			0.0, 0.0, 1.0, 0.0
+		);
+	};
+
+	static const Matrix3D RotateZ180()
+	{
+		return Matrix3D(
+			-1.0, 0.0, 0.0, 0.0,
+			0.0, -1.0, 0.0, 0.0,
+			0.0, 0.0, 1.0, 0.0
+		);
+	};
+
+	static const Matrix3D RotateZ270()
+	{
+		return Matrix3D(
+			0.0, 1.0, 0.0, 0.0,
+			-1.0, 0.0, 0.0, 0.0,
+			0.0, 0.0, 1.0, 0.0
+		);
+	};
 
 	//Properties
 public:
@@ -122,3 +306,5 @@ public:
 		float Data[12];
 	};
 };
+
+static_assert(sizeof(Matrix3D) == 0x30u);

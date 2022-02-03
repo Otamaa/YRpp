@@ -13,17 +13,18 @@ public:
 	class CLSIDs
 	{
 	public:
-		static constexpr reference<CLSID const, 0x7E9A30u> const Drive {};
-		static constexpr reference<CLSID const, 0x7E9AC0u> const Jumpjet {};
-		static constexpr reference<CLSID const, 0x7E9A40u> const Hover {};
-		static constexpr reference<CLSID const, 0x7E9AD0u> const Rocket {};
-		static constexpr reference<CLSID const, 0x7E9A50u> const Tunnel {};
-		static constexpr reference<CLSID const, 0x7E9A60u> const Walk {};
-		static constexpr reference<CLSID const, 0x7E9A70u> const Droppod {};
-		static constexpr reference<CLSID const, 0x7E9A80u> const Fly {};
-		static constexpr reference<CLSID const, 0x7E9A90u> const Teleport {};
-		static constexpr reference<CLSID const, 0x7E9AA0u> const Mech {};
-		static constexpr reference<CLSID const, 0x7E9AB0u> const Ship {};
+		LOCO_CLSID(Drive, 0x7E9A30u)
+		LOCO_CLSID(Jumpjet, 0x7E9AC0u)
+		LOCO_CLSID(Hover, 0x7E9A40u)
+		LOCO_CLSID(Rocket, 0x7E9AD0u)
+		LOCO_CLSID(Tunnel, 0x7E9A50u)
+		LOCO_CLSID(Walk, 0x7E9A60u)
+		LOCO_CLSID(Droppod, 0x7E9A70u)
+		LOCO_CLSID(Fly, 0x7E9A80u)
+		LOCO_CLSID(Teleport, 0x7E9A90u)
+		LOCO_CLSID(Mech, 0x7E9AA0u)
+		LOCO_CLSID(Ship, 0x7E9AB0u)
+
 	};
 	//IUnknown
 	virtual HRESULT __stdcall QueryInterface(REFIID iid, void** ppvObject) R0;
@@ -177,5 +178,7 @@ public:
 	FootClass* LinkedTo;
 	bool Powered;
 	bool Dirty;
-	int RefCount;
+	LONG RefCount;
 };
+
+static_assert(sizeof(LocomotionClass) == 0x18);

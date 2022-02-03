@@ -43,6 +43,7 @@ public:
 	static constexpr reference<ConvertClass*, 0x87F6BCu> GRFTXT_TIBERIUM_PAL{};
 	static constexpr reference<ConvertClass*, 0x87F6C0u> ANIM_PAL{};
 	static constexpr reference<ConvertClass*, 0x87F6C4u> PALETTE_PAL{};
+	static constexpr reference<ConvertClass*, 0x87F6C4u> THEATER_PAL{};
 	static constexpr reference<ConvertClass*, 0x87F6C8u> MOUSE_PAL{};
 	static constexpr reference<ConvertClass*, 0x87F6CCu> SIDEBAR_PAL{};
 	static constexpr reference<ConvertClass*, 0xA8F798u> GRFXTXT_Convert{};

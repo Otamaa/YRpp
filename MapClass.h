@@ -123,6 +123,7 @@ public:
 class LogicClass : public LayerClass
 {
 public:
+	static constexpr reference<LogicClass, 0x87F778u> const Instance {};
 	virtual bool AddObject(ObjectClass* pObject, bool sorted) override
 		{ JMP_THIS(0x55BAA0); }
 
@@ -141,12 +142,9 @@ class NOVTABLE MapClass : public GScreenClass
 public:
 	//Static
 	static constexpr constant_ptr<MapClass, 0x87F7E8u> const Instance{};
-
 	static constexpr reference<CellClass, 0xABDC50u> const InvalidCell{};
-
-	static const int MaxCells = 0x40000;
-
 	static constexpr reference<LogicClass, 0x87F778u> const Logics{};
+	static const int MaxCells = 0x40000;
 
 	// this actually points to 5 vectors, one for each layer
 	static constexpr reference<LayerClass, 0x8A0360u, 5u> const ObjectsInLayers{};
@@ -174,16 +172,24 @@ public:
 	virtual void CreateEmptyMap(const RectangleStruct& mapRect, bool reuse, char nLevel, bool bUnk2) RX;
 	virtual void SetVisibleRect(const RectangleStruct& mapRect) RX;
 
+	CellClass* operator[] (const CoordStruct&  cell)
+	{ JMP_THIS(0x565730); }
+
+	CellClass* operator[] (const CellStruct&  cell)
+	{ JMP_THIS(0x5657A0); }
+
+	//const CellClass& operator [] (const Cell& cell) const;
+	//CellClass& operator [] (const Coordinate& coord);
+	//const CellClass& operator [] (const Coordinate& coord) const;
+	// 
 	//Non-virtual
 	CellClass* TryGetCellAt(const CellStruct& MapCoords) const {
 		int idx = GetCellIndex(MapCoords);
 		return (idx >= 0 && idx < MaxCells) ? Cells[idx] : nullptr;
 	}
 
-	CellClass* TryGetCellAt(const CoordStruct& Crd) const {
-		CellStruct cell = CellClass::Coord2Cell(Crd);
-		return TryGetCellAt(cell);
-	}
+	CellClass* TryGetCellAt(const CoordStruct& Crd) const 
+	{ return TryGetCellAt(CellClass::Coord2Cell(Crd)); }
 
 	CellClass* GetCellAt(const CellStruct &MapCoords) const {
 		auto pCell = TryGetCellAt(MapCoords);
@@ -196,10 +202,8 @@ public:
 		return pCell;
 	}
 
-	CellClass* GetCellAt(const CoordStruct &Crd) const {
-		CellStruct cell = CellClass::Coord2Cell(Crd);
-		return GetCellAt(cell);
-	}
+	CellClass* GetCellAt(const CoordStruct &Crd) const 
+	{ return GetCellAt(CellClass::Coord2Cell(Crd));}
 
 	CellClass* GetTargetCell(Point2D& location)
 		{ JMP_THIS(0x565730); }
@@ -287,6 +291,9 @@ public:
 	// get the damage a warhead causes to specific armor
 	static int __fastcall GetTotalDamage(int damage, const WarheadTypeClass* pWarhead, Armor armor, int distance)
 		{ JMP_STD(0x489180); }
+
+	static void __fastcall AtomDamage(int OwnedHouse , CellStruct& nCell)
+		{ JMP_STD(0x4251F0); }
 
 	int GetCellFloorHeight(const CoordStruct& crd) const
 		{ JMP_THIS(0x578080); }
@@ -419,6 +426,9 @@ public:
 	void Reveal(HouseClass* pHouse)
 		{ JMP_THIS(0x577D90); }
 
+	void Reveal_B(HouseClass* pHouse)
+		{ JMP_THIS(0x577F30); }
+
 	void Reshroud(HouseClass* pHouse)
 		{ JMP_THIS(0x577AB0); }
 
@@ -427,7 +437,7 @@ public:
 		{ JMP_THIS(0x578080); }
 
 	// these two VERY slowly reprocess the map after gapgen state changes
-	void sub_657CE0()
+	void Map_AI() //657CE0
 		{ JMP_THIS(0x657CE0); }
 
 	void RedrawSidebar(int mode)
@@ -469,8 +479,28 @@ public:
 
 	void BuildingToWall(CellStruct const& cell, HouseClass* pHouse, BuildingTypeClass* pBldType)
 		{ JMP_THIS(0x588750); }
+	
+    bool Place_Crate(CellStruct cell, int idxCrate)
+        { JMP_THIS(0x56BEC0); }
 
-protected:
+    bool Remove_Crate(CellStruct* where)
+        { JMP_THIS(0x56C020); }
+		
+    bool Place_Random_Crate()
+        { JMP_THIS(0x56BD40); }
+	
+	int Zone_56D230(CellStruct* where,MovementZone nZone ,bool bArgs)
+		{ JMP_THIS(0x56D230); }
+
+	int Zone_56DA10(CellStruct* where , int nLessCond ,int nZoneConnectionIndex)
+		{ JMP_THIS(0x56DA10); }
+
+	int Index(CellClass* ptr) { return Cells.FindItemIndex(ptr); }
+	int Index(CellClass& ptr) { return Cells.FindItemIndex(&ptr); }
+
+	bool IsValidCell(CellStruct* cell) { JMP_THIS(0x5657E0); }
+
+//protected:
 	//Constructor
 	MapClass() {}	//don't need this
 
@@ -481,16 +511,16 @@ protected:
 public:
 	DWORD unknown_10;
 	void* unknown_pointer_14;
-	void* unknown_pointer_array_18 [0xD];
+	void* __movezones_pointer_array_18 [0xD];
 	DWORD unknown_4C;
 	DynamicVectorClass<ZoneConnectionClass> ZoneConnections;
-	void* unknown_array_68;
-	int num_items_in_68;
-	DWORD unknown_70;
+	void* __LevelAndPassability_68;
+	int __num_items_in_mzone_68;
+	DWORD LevelAndPassabilityStruct2pointer_70;
 	DWORD unknown_74;
 	DWORD unknown_78;
 	DWORD unknown_7C;
-	DWORD unknown_80[3]; // somehow connected to the 3 vectors below
+	DWORD SubzoneTrackingptr_field_80[3]; // somehow connected to the 3 vectors below
 	DynamicVectorClass<SubzoneTrackingStruct> SubzoneTracking1;
 	DynamicVectorClass<SubzoneTrackingStruct> SubzoneTracking2;
 	DynamicVectorClass<SubzoneTrackingStruct> SubzoneTracking3;
@@ -501,10 +531,10 @@ public:
 	int CellIterator_NextY;
 	int CellIterator_CurrentY;
 	CellClass* CellIterator_NextCell;
-	DWORD unknown_11C;
-	DWORD unknown_120;
+	DWORD mappos_unknown_x_11C;
+	DWORD mappos_unknown_y_120;
 	LTRBStruct MapCoordBounds; // the minimum and maximum cell struct values
-	DWORD unknown_134;
+	DWORD TotalValue; //134
 	VectorClass<CellClass*> Cells;
 	int MaxWidth;
 	int MaxHeight;

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <AbstractClass.h>
+#include <RectangleStruct.h>
 
 //forward declarations
 class ObjectClass;
@@ -30,9 +31,9 @@ public:
 	static const AbstractType AbsID = AbstractType::Cell;
 
 	// the height of a bridge in leptons
-	static const int BridgeLevels = 4;
-	static const int BridgeHeight = BridgeLevels * Unsorted::LevelHeight;
-
+	static constexpr int BridgeLevels = 4;
+	static constexpr int BridgeHeight = BridgeLevels * Unsorted::LevelHeight;
+	static constexpr constant_ptr<CellClass,0xABDC50> const Instance{};
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
 
@@ -75,7 +76,7 @@ public:
 	 * failing that, calls FindTechnoNearestTo,
 	 * if that fails too, reiterates Content looking for Terrain
 	 */
-	ObjectClass* GetSomeObject(const CoordStruct& coords, bool alt) const
+	ObjectClass* GetSomeObject(Point2D const& offsetPixel, bool alt) const
 		{ JMP_THIS(0x47C5A0); }
 
 	// misc
@@ -88,8 +89,15 @@ public:
 	void Unshroud()
 		{ JMP_THIS(0x4876F0); }
 
-	RectangleStruct* ShapeRect(RectangleStruct* pRet)
+	RectangleStruct* OverlayShapeRect(RectangleStruct* pRet)
 		{ JMP_THIS(0x47FDE0); }
+
+	RectangleStruct GetOverlayShapeRect()
+	{
+		RectangleStruct nBuffer;
+		this->OverlayShapeRect(&nBuffer);
+		return nBuffer;
+	}
 
 	bool IsFogged() // Check Fog maybe?
 		{ JMP_THIS(0x4879B0); }
@@ -121,6 +129,10 @@ public:
 	CellClass* GetNeighbourCell(unsigned int direction) const
 		{ JMP_THIS(0x481810); }
 
+	//TompsonIDB
+	CellClass* GetAdjacentCell(unsigned int direction) const
+		{ JMP_THIS(0x481810); }
+
 	// called whenever anything moves, first to remove threat from source cell, second time to add threat to dest cell
 	void UpdateThreat(unsigned int SourceHouse, int ThreatLevel)
 		{ JMP_THIS(0x481870); }
@@ -136,6 +148,9 @@ public:
 
 	RectangleStruct* GetContainingRect(RectangleStruct* dest) const
 		{ JMP_THIS(0x47FB90); }
+
+	RectangleStruct* GetTileRect(RectangleStruct& dest) const
+		{ JMP_THIS(0x48001F); }
 
 	// don't laugh, it returns the uiname of contained tiberium... which nobody ever sets
 	const wchar_t* GetUIName() const
@@ -169,13 +184,28 @@ public:
 	void SetMapCoords(const CoordStruct& coords)
 		{ JMP_THIS(0x485240); }
 
+	// in leptons
+	CoordStruct* Get3DCoords(CoordStruct* result)
+		{ JMP_THIS(0x486840); }
+
+	// depends on one of the cell flags being set
+	CoordStruct* Get3DCoords2(CoordStruct* result)
+		{ JMP_THIS(0x486890); }
+
+	// used by ambient waves and stuff
+	CoordStruct* Get3DCoords3(CoordStruct* result)
+		{ JMP_THIS(0x480A30); }
+		
 	int GetFloorHeight(Point2D const& subcoords) const
 		{ JMP_THIS(0x47B3A0); }
 
-	// used by ambient waves and stuff
+	// in leptons
 	CoordStruct* GetCenterCoords(CoordStruct* pOutBuffer) const
+		{ JMP_THIS(0x486840); }
+		
+	CoordStruct* GetCellCoords(CoordStruct* pOutBuffer) const
 		{ JMP_THIS(0x480A30); }
-
+		
 	CoordStruct GetCenterCoords() const
 	{
 		CoordStruct buffer;
@@ -183,9 +213,16 @@ public:
 		return buffer;
 	}
 
+	//
 	void ActivateVeins()
 		{ JMP_THIS(0x486920); }
 
+	void RedrawForVeins()
+		{ JMP_THIS(0x485AF0); }
+
+	bool IsVeinsExistHere()
+		{ JMP_THIS(0x485460); }
+	//
 	// cloak generators
 	bool CloakGen_InclHouse(unsigned int idx) const
 		{ return ((1 << idx) & this->CloakedByHouses) != 0; }
@@ -242,6 +279,9 @@ public:
 	// helper
 	bool ContainsBridge() const
 		{ return (this->Flags & cf_Bridge) != 0; }
+
+	bool ContainsSlide() const 
+		{ return (this->Flags & 0x400) != 0; }
 
 	// helper mimicking game's behaviour
 	ObjectClass* GetContent() const
@@ -353,6 +393,56 @@ public:
 
 	void DrawOverlayShadow(Point2D& Location, RectangleStruct& Bound)
 		{ JMP_THIS(0x47F510); }
+		
+	bool IsBuildable() const
+		{ JMP_THIS(0x487C10); }
+
+	int GetZPosAdjent() const
+		{ JMP_THIS(0x485080); }
+
+	int GetZPosAdjentWithBridge()const
+	{
+		auto ret = this->GetZPosAdjent();
+
+		if (this->ContainsBridge())
+			ret += 412;
+
+		return ret;
+	}
+
+	void CellColor(ColorStruct& arg0 , ColorStruct& arg1)
+		{ JMP_THIS(0x47C060); }
+
+	unsigned int MinimapCellColor(void* a1, bool a2 = false)
+		{ JMP_THIS(0x47BDB0); }
+
+	ObjectClass* Cell_Occupier(bool alt = false) const
+		{ return alt ? AltObject : FirstObject; }
+
+	unsigned int ReduceWall(int nDamage = -1) const { JMP_THIS(0x480CB0); }
+
+	char DrawIt_47EC90(CoordStruct& nCoord, RectangleStruct& nRect, bool bBlit)
+		{ JMP_THIS(0x47EC90);}
+
+	RectangleStruct* GetTileRect(RectangleStruct* pRet)
+		{ JMP_THIS(0x47FF80); }
+
+	RectangleStruct GetTileRect()
+	{
+		RectangleStruct nBuff;
+		GetTileRect(&nBuff);
+		return nBuff;
+	}
+
+	bool HasTiberium() const 
+		{ JMP_THIS(0x487DF0); }
+
+	bool HasWeed() const
+		{ return LandType == LandType::Weeds; }
+
+	bool operator != (const CellClass & cell) const { return cell.MapCoords != MapCoords; }
+	bool operator == (const CellClass & cell) const { return cell.MapCoords == MapCoords; }
+	bool IsValidMapCoords() const  { return MapCoords; }
 
 protected:
 	//Constructor
@@ -386,23 +476,19 @@ public:
 	                                              // Determined by finding the nearest BuildingType and taking its owner
 	int                InfantryOwnerIndex;
 	int                AltInfantryOwnerIndex;
-	DWORD              unknown_5C;
+	DWORD              __lastVisiblityUpdate; //5C
 	DWORD              unknown_60;
 	DWORD              RedrawFrame;
 	RectangleStruct    InViewportRect;
 	DWORD              CloakedByHouses;	//Is this cell in a cloak generator's radius? One bit per House.
 
 	// Is this cell in range of some SensorsSight= equipment? One Word(!) per House, ++ and -- per unit.
-protected:
-	unsigned short               SensorsOfHouses[0x18]; // ! 24 houses instead of 32 like cloakgen
+	PROTECTED_PROPERTY(unsigned short , SensorsOfHouses[0x18]); // ! 24 houses instead of 32 like cloakgen
 	// use Sensors_ funcs above
 
 	// Is this cell in range of some DetectDisguise= equipment? One Word(!) per House, ++ and -- per unit.
-protected:
-	unsigned short               DisguiseSensorsOfHouses[0x18]; // ! 24 houses instead of 32 like cloakgen
+	PROTECTED_PROPERTY(unsigned short, DisguiseSensorsOfHouses[0x18]);// ! 24 houses instead of 32 like cloakgen	
 	// use DisguiseSensors_ funcs above
-
-public:
 
 	DWORD              BaseSpacerOfHouses; // & (1 << HouseX->ArrayIndex) == base spacing dummy for HouseX
 	FootClass*         Jumpjet; // a jumpjet occupying this cell atm
@@ -418,28 +504,28 @@ public:
 	int                OccupyHeightsCoveringMe;
 	DWORD              Intensity;
 	WORD               Ambient;
-	//ColorStruct      Color1; //10A-10E
 	WORD               Color1_Red;
 	WORD               Color1_Green;
 	WORD               Color1_Blue;
-	//ColorStruct      Color2; //110-114
+//	wRGB			   Color1; //10A-10E
 	WORD               Color2_Red;
 	WORD               Color2_Green;
 	WORD               Color2_Blue;
-	signed short       TubeIndex; // !@#% Westwood braindamage, can't use > 127! (movsx eax, al)
+//	wRGB			   Color2; //110-114
+	signed short	   TubeIndex; // !@#% Westwood braindamage, can't use > 127! (movsx eax, al)
 
-	char               unknown_118;
-	char               IsIceGrowthAllowed;
+	char               RedrawCountMAYBE; //unknown_118
+	char               IsIceGrowthAllowed; //unknown_119
 	char               Height;
 	char               Level;
 
 	BYTE               SlopeIndex;  // this + 2 == cell's slope shape as reflected by PLACE.SHP
 	BYTE               unknown_11D;
 
-	unsigned char      OverlayData;	//The crate type on this cell. Also indicates some other weird properties
+	unsigned char      OverlayData;	//Powerup ,OverlayData The crate type on this cell. Also indicates some other weird properties ,OverlayData
 
 	BYTE               SmudgeData;
-	char               Visibility; // trust me, you don't wanna know... if you do, see 0x7F4194 and cry
+	char               Visibility; //Shroudedness trust me, you don't wanna know... if you do, see 0x7F4194 and cry
 	char               Foggedness; // same value as above: -2: Occluded completely, -1: Visible, 0...48: frame in fog.shp or shroud.shp
 	BYTE               BlockedNeighbours; // number of somehow occupied cells next to this
 	PROTECTED_PROPERTY(BYTE, align_123);
@@ -459,3 +545,5 @@ public:
 	eCellFlags         Flags;	//Various settings.
 	PROTECTED_PROPERTY(BYTE,     padding_144[4]);
 };
+
+static_assert(sizeof(CellClass) == 0x148);

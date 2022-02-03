@@ -1,23 +1,48 @@
 //This file initializes static constant values.
 
 #include <YRPP.h>
+#include <ASMMacros.h>
+#include <YRPPCore.h>
+#include <Unsorted.h>
+#include <Helpers/Macro.h>
 
-//include <VTables.h>
+#include <ArrayClasses.h>
+#include <TacticalClass.h>
+#include <TechnoClass.h>
+#include <InfantryClass.h>
+#include <UnitClass.h>
+#include <BuildingClass.h>
+#include <SlaveManagerClass.h>
+#include <RulesClass.h>
+#include <Drawing.h>
+#include <MapClass.h>
+#include <WarheadTypeClass.h>
+#include <HouseClass.h>
+#include <SuperClass.h>
+#include <FactoryClass.h>
+#include <ScenarioClass.h>
+#include <FootClass.h>
+#include <LocomotionClass.h>
+#include <GameOptionsClass.h>
+#include <WWMouseClass.h>
+#include <CoordStruct.h>
+#include <Fixed.h>
 
-#define ALIAS(Type, Obj, Addr) \
-	Type &Obj = *reinterpret_cast<Type*>(Addr);
+const CoordStruct CoordStruct::Empty = { 0,0,0 };
+const ColorStruct ColorStruct::Empty = { 0,0,0 };
+const Color16Struct Color16Struct::Empty = { 0,0,0 };
 
+#pragma region Imports
 ALIAS(Imports::FP_OleSaveToStream, Imports::OleSaveToStream, 0x7E15F4);
 ALIAS(Imports::FP_OleLoadFromStream, Imports::OleLoadFromStream, 0x7E15F8);
 ALIAS(Imports::FP_CoRegisterClassObject, Imports::CoRegisterClassObject, 0x7E15D8);
 ALIAS(Imports::FP_TimeGetTime, Imports::TimeGetTime, 0x7E1530);
-
+ALIAS(Imports::FP_GetUpdateRect, Imports::GetUpdateRect, 0x7E139C);
+ALIAS(Imports::FP_GetKeyState, Imports::GetKeyState, 0x7E13A8);
 ALIAS(Imports::FP_DefWindowProcA, Imports::DefWindowProcA, 0x7E1394);
 ALIAS(Imports::FP_MoveWindow, Imports::MoveWindow, 0x7E1398);
-ALIAS(Imports::FP_GetUpdateRect, Imports::GetUpdateRect, 0x7E139C);
 ALIAS(Imports::FP_GetFocus, Imports::GetFocus, 0x7E13A0);
 ALIAS(Imports::FP_GetDC, Imports::GetDC, 0x7E13A4);
-ALIAS(Imports::FP_GetKeyState, Imports::GetKeyState, 0x7E13A8);
 ALIAS(Imports::FP_GetActiveWindow, Imports::GetActiveWindow, 0x7E13AC);
 ALIAS(Imports::FP_GetCapture, Imports::GetCapture, 0x7E13B0);
 ALIAS(Imports::FP_GetDlgCtrlID, Imports::GetDlgCtrlID, 0x7E13B4);
@@ -29,9 +54,7 @@ ALIAS(Imports::FP_EndDialog, Imports::EndDialog, 0x7E13C8);
 ALIAS(Imports::FP_SetFocus, Imports::SetFocus, 0x7E13CC);
 ALIAS(Imports::FP_SetDlgItemTextA, Imports::SetDlgItemTextA, 0x7E13D0);
 ALIAS(Imports::FP_DialogBoxParamA, Imports::DialogBoxParamA, 0x7E13D4);
-#ifdef _MSVC
 ALIAS(Imports::FP_DialogBoxIndirectParamA, Imports::DialogBoxIndirectParamA, 0x7E13D8);
-#endif
 ALIAS(Imports::FP_ShowCursor, Imports::ShowCursor, 0x7E13DC);
 ALIAS(Imports::FP_GetAsyncKeyState, Imports::GetAsyncKeyState, 0x7E13E0);
 ALIAS(Imports::FP_ToAscii, Imports::ToAscii, 0x7E13E4);
@@ -61,9 +84,7 @@ ALIAS(Imports::FP_SetCursor, Imports::SetCursor, 0x7E1440);
 ALIAS(Imports::FP_PostQuitMessage, Imports::PostQuitMessage, 0x7E1444);
 ALIAS(Imports::FP_FindWindowA, Imports::FindWindowA, 0x7E1448);
 ALIAS(Imports::FP_SetCursorPos, Imports::SetCursorPos, 0x7E144C);
-#ifdef _MSVC
 ALIAS(Imports::FP_CreateDialogIndirectParamA, Imports::CreateDialogIndirectParamA, 0x7E1450);
-#endif
 ALIAS(Imports::FP_GetKeyNameTextA, Imports::GetKeyNameTextA, 0x7E1454);
 ALIAS(Imports::FP_ScreenToClient, Imports::ScreenToClient, 0x7E1458);
 ALIAS(Imports::FP_LockWindowUpdate, Imports::LockWindowUpdate, 0x7E145C);
@@ -114,8 +135,32 @@ ALIAS(Imports::FP_GetWindowTextA, Imports::GetWindowTextA, 0x7E150C);
 ALIAS(Imports::FP_RegisterHotKey, Imports::RegisterHotKey, 0x7E1510);
 ALIAS(Imports::FP_InterlockedIncrement, Imports::InterlockedIncrement, 0x7E11C8);
 ALIAS(Imports::FP_InterlockedDecrement, Imports::InterlockedDecrement, 0x7E11CC);
+#pragma endregion
 
-#undef ALIAS
+#pragma region GlobalVarDeclaration
+ALIAS(MouseClass, Map, 0x87F7E8)
+ALIAS(GScreenClass, GScreen, 0x87F7E8)
+ALIAS(CellClass, WorkingCellInstance, 0xABDC50)
+ALIAS(RulesClass*,RulesGlobal,0x8871E0)
+ALIAS(ScenarioClass*, ScenarioGlobal ,0xA8B230)
+ALIAS(Random2Class, Random2Global ,0x886B88)
+ALIAS(ParticleSystemClass*, ParticleSystemGlobal ,0xA8ED78)
+ALIAS(GameOptionsClass, GameOptions,0xA8EB60)
+ALIAS(GameModeOptionsClass, GameModeOptions ,0xA8B250)
+ALIAS(TacticalClass*, TacticalGlobal,0x887324)
+ALIAS(MessageListClass, MessageListGlobal,0xA8BC60)
+ALIAS(SessionClass, SessionGlobal,0xA8B238)
+ALIAS(WWMouseClass*, WWMouse,0x887640)
+ALIAS(BombListClass , BombList , 0x87F5D8u)
+ALIAS(DynamicVectorClass<ULONG>, ClassFactories, 0xB0BC88)
+#pragma endregion
+
+
+#pragma region Array
+ARRAY2D_DEF(0xB4669Cu, short, Wave_LUT_Pythagoras, 300, 300);
+ARRAY2D_DEF(0xABC7F8u, Point2D, LaserClass_DrawData, 8, 2);
+ARRAY2D_DEF(0x88A118u, char, AlphaShapeArray, 256, 256);
+#pragma endregion
 
 void SlaveManagerClass::ZeroOutSlaves() {
 	for(const auto& pNode : this->SlaveNodes) {
@@ -127,6 +172,29 @@ void SlaveManagerClass::ZeroOutSlaves() {
 		pNode->RespawnTimer.Start(this->RegenRate);
 	}
 }
+
+bool ObjectClass::IsOnMyView() const
+{
+	auto coords = this->GetCoords();
+	auto Point = TacticalClass::Instance->CoordsToView(coords);
+	return Point.X > Drawing::SurfaceDimensions_Hidden().X
+		&& Point.Y > Drawing::SurfaceDimensions_Hidden().Y
+		&& Point.X < Drawing::SurfaceDimensions_Hidden().X + Drawing::SurfaceDimensions_Hidden().Width
+		&& Point.Y < Drawing::SurfaceDimensions_Hidden().Y + Drawing::SurfaceDimensions_Hidden().Height;
+
+}
+
+bool ObjectClass::IsGreenToYellowHP() const
+{
+	return this->Health / this->GetTechnoType()->Strength
+		>= RulesClass::Instance->ConditionYellow;
+}
+
+bool ObjectClass::IsFullHP() const
+{ return this->GetHealthPercentage() >= RulesClass::Instance->ConditionGreen; }
+
+double ObjectClass::GetHealthPercentage_() const
+{ return static_cast<double>(this->Health) / this->GetType()->Strength; }
 
 int HouseClass::CountOwnedNow(const TechnoTypeClass* const pItem) const {
 	switch(pItem->WhatAmI()) {
@@ -251,6 +319,32 @@ bool HouseClass::IsIonCannonEligibleTarget(const TechnoClass* const pTechno) con
 	return false;
 }
 
+CellStruct FootClass::GetRandomDirection(FootClass* pFoot)
+{
+	CellStruct nRet = CellStruct::Empty;
+
+	if (auto pCell = MapClass::Instance->GetCellAt(pFoot->GetCoords()))
+	{
+		int rnd = ScenarioClass::Instance->Random.RandomRanged(0, 7);
+		for (int j = 0; j < 8; ++j)
+		{
+			// get the direction in an overly verbose way
+			int dir = ((j + rnd) % 8) & 7;
+
+			if (auto pNeighbour = pCell->GetNeighbourCell(dir))
+			{
+				if (pFoot->IsCellOccupied(pNeighbour, -1, -1, nullptr, true) == Move::OK)
+				{
+					nRet = pNeighbour->MapCoords;
+					break;
+				}
+			}
+		}
+	}
+
+	return nRet;
+}
+
 int TechnoClass::GetIonCannonValue(AIDifficulty const difficulty) const {
 	const auto& rules = *RulesClass::Instance;
 
@@ -339,3 +433,149 @@ TechnoTypeClass* BuildingClass::GetSecretProduction() const {
 	}
 	return this->SecretProduction;
 }
+
+void InfantryClass::RemoveMe_FromGunnerTransport()
+{
+	if (auto pTransport = this->Transporter)
+	{
+		if (auto pUnit = specific_cast<UnitClass*>(pTransport))
+		{
+			if (pUnit->GetTechnoType()->Gunner)
+			{
+				pUnit->RemoveGunner(this);
+			}
+		}
+	}
+}
+
+bool BuildingClass::BuildingUnderAttack()
+{
+	if (this->Owner)
+	{
+		this->Owner->BuildingUnderAttack(this);
+		return true;
+	}
+
+	return false;
+}
+
+#pragma warning(push)
+#pragma warning(disable : 4244)
+
+const Fixed Fixed::_1_2(1, 2);		// 1/2
+const Fixed Fixed::_1_3(1, 3);		// 1/3
+const Fixed Fixed::_1_4(1, 4);		// 1/4
+const Fixed Fixed::_3_4(3, 4);		// 3/4
+const Fixed Fixed::_2_3(2, 3);		// 2/3
+
+Fixed::Fixed(int numerator, int denominator)
+{
+	if (denominator == 0)
+	{
+		Data.Raw = 0U;
+	}
+	else
+	{
+		Data.Raw = (unsigned int)(((unsigned __int64)numerator * PRECISION) / denominator);
+	}
+}
+
+Fixed::Fixed(const char* ascii)
+{
+	if (ascii == nullptr)
+	{
+		Data.Raw = 0U;
+		return;
+	}
+
+	char const* wholepart = ascii;
+
+	while (isspace(*ascii))
+	{
+		ascii++;
+	}
+
+	char const* tptr = ascii;
+	while (isdigit(*tptr))
+	{
+		tptr++;
+	}
+
+	if (*tptr == '%')
+	{
+		Data.Raw = (unsigned short)(((unsigned __int64)CRT::atoi(ascii) * PRECISION) / 100ULL);
+	}
+	else
+	{
+
+		Data.Composite.Whole = Data.Composite.Fraction = 0U;
+		if (wholepart && *wholepart != '.')
+		{
+			Data.Composite.Whole = (unsigned char)CRT::atoi(wholepart);
+		}
+
+		const char* fracpart = CRT::strchr(ascii, '.');
+		if (fracpart) fracpart++;
+		if (fracpart)
+		{
+			unsigned short frac = (unsigned short)CRT::atoi(fracpart);
+
+			int len = 0;
+			unsigned int base = 1;
+			char const* fptr = fracpart;
+			while (isdigit(*fptr))
+			{
+				fptr++;
+				len++;
+				base *= 10U;
+			}
+
+			Data.Composite.Fraction = (unsigned char)(((unsigned __int64)frac * PRECISION) / base);
+		}
+	}
+}
+
+int Fixed::To_ASCII(char* buffer, int maxlen) const
+{
+	if (buffer == nullptr) return 0;
+
+	unsigned int whole = Data.Composite.Whole;
+	unsigned int frac = ((unsigned int)Data.Composite.Fraction * 1000U) / PRECISION;
+	char tbuffer[32];
+
+	if (frac == 0)
+	{
+		sprintf_s(tbuffer, "%u", whole);
+	}
+	else
+	{
+		sprintf_s(tbuffer, "%u.%02u", whole, frac);
+
+		char* ptr = &tbuffer[CRT::strlen(tbuffer) - 1];
+		while (*ptr == '0')
+		{
+			*ptr = '\0';
+			ptr--;
+		}
+	}
+
+	if (maxlen == -1)
+	{
+		maxlen = CRT::strlen(tbuffer) + 1;
+	}
+
+	CRT::strncpy(buffer, tbuffer, maxlen);
+
+	int len = CRT::strlen(tbuffer);
+	if (len < maxlen - 1) return(len);
+	return(maxlen - 1);
+}
+
+const char* Fixed::As_ASCII() const
+{
+	static char buffer[32];
+
+	To_ASCII(buffer, sizeof(buffer));
+	return buffer;
+}
+#pragma warning(pop)

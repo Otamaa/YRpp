@@ -3,6 +3,18 @@
 #include <GeneralStructures.h>
 #include <Helpers\EnumFlags.h>
 
+/**
+ *  Timer constants.
+ */
+#define TIMER_SECOND        60
+#define TIMER_MINUTE        (TIMER_SECOND * 60)
+
+#define TICKS_PER_SECOND    15
+#define TICKS_PER_MINUTE    (TICKS_PER_SECOND * 60)
+#define TICKS_PER_HOUR      (TICKS_PER_MINUTE * 60)
+
+#define SECONDS_TO_MILLISECONDS(x)  (x * 1000)
+
 //Scalar Deleting Destructor Flags
 #define SDDTOR_NODELETE				0x00
 #define SDDTOR_DELETE				0x01
@@ -457,7 +469,7 @@ enum class AITriggerCondition : int {
 	Pool = -1,
 	AIOwns = 0,
 	EnemyOwns = 1,
-	EnemyYellowPowe = 2,
+	EnemyYellowPower = 2,
 	EnemyRedPower = 3,
 	EnemyCashExceeds = 4,
 	IronCharged = 5,
@@ -634,21 +646,13 @@ public:
 	typedef unsigned int Value;
 	enum {
 		N = 0x0,
-		North = 0x0,
 		NE = 0x1,
-		NorthEast = 0x1,
 		E = 0x2,
-		East = 0x2,
 		SE = 0x3,
-		SouthEast = 0x3,
 		S = 0x4,
-		South = 0x4,
 		SW = 0x5,
-		SouthWest = 0x5,
 		W = 0x6,
-		West = 0x6,
 		NW = 0x7,
-		NorthWest = 0x7,
 	};
 };
 
@@ -1055,6 +1059,7 @@ enum class MouseCursorType : unsigned int {
 	PsychicReveal = 0x54,
 	SpyPlane = 0x55
 };
+MAKE_ENUM_FLAGS(MouseCursorType);
 
 enum class RadBeamType : unsigned int {
 	Temporal = 0,
@@ -1069,7 +1074,7 @@ enum class Rank : int {
 	Rookie = 2
 };
 
-enum class Sequence : int {
+enum class DoType : int {
 	Ready = 0,
 	Guard = 1,
 	Prone = 2,
@@ -1114,7 +1119,7 @@ enum class Sequence : int {
 	SecondaryProne = 41
 };
 
-enum class SequenceFacing : unsigned int {
+enum class DoTypeFacing : unsigned int {
 	N = 0,
 	NE = 1,
 	E = 2,

@@ -39,6 +39,15 @@ public:
 	void CalculateSpeed()
 		{ JMP_THIS(0x7729F0); }
 
+    int GetWeaponSpeed(int range)
+    { JMP_THIS(0x773070); }
+
+	bool IsWallDestroyer() const
+	{ JMP_THIS(0x772AC0); }
+	
+	TargetFlags EligibleTarget() const
+	{ JMP_THIS(0x772A90); }
+
 	//Constructor
 	WeaponTypeClass(const char* pID = nullptr)
 		: WeaponTypeClass(noinit_t())
@@ -119,3 +128,4 @@ public:
 	int RadLevel;
 	bool IsMagBeam;
 };
+static_assert(sizeof(WeaponTypeClass) == 0x160);

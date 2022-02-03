@@ -12,7 +12,7 @@ struct SHPReference;
 struct SHPFile;
 
 //SHP file stuff
-struct SHPStruct
+struct SHPStruct //header
 {
 	SHPStruct() : Type(0), Width(0), Height(0), Frames(0)
 		{}
@@ -75,8 +75,15 @@ struct SHPStruct
 
 struct SHPReference : public SHPStruct
 {
+	//=== GLOBAL LINKED LIST OF ALL LOADED SHP FILES
+	// defined but not used
+	static constexpr reference<SHPReference*, 0xB077B0u> List{};
+
 	SHPReference(const char* filename)
 		{ JMP_THIS(0x69E430); }
+
+	//SHPFile* GetData()
+	//	{ JMP_THIS(0x69E580); }
 
 	char*			Filename;
 	SHPStruct*		Data;

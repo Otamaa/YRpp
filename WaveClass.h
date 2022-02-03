@@ -10,7 +10,7 @@ public:
 	static const AbstractType AbsID = AbstractType::Wave;
 
 	static constexpr constant_ptr<DynamicVectorClass<WaveClass*>, 0xA8EC38u> const Array{};
-
+	static constexpr reference<bool, 0xB725CCu> const IsWave_LUTs_Calculated{};
 	//IPersistStream
 	virtual HRESULT __stdcall Load(IStream* pStm) R0;
 	virtual HRESULT __stdcall Save(IStream* pStm,BOOL fClearDirty) R0;
@@ -24,18 +24,62 @@ public:
 	virtual AbstractType WhatAmI() const RT(AbstractType);
 	virtual int Size() const R0;
 
-	void Draw_Magnetic(const CoordStruct& xyzFrom, const CoordStruct& xyzTo)
-		{ JMP_THIS(0x762070); }
+	static void Generate_Tables()
+		{ JMP_STD(0x75F020); }
 
-	void Draw_NonMagnetic(const CoordStruct& xyzFrom, const CoordStruct& xyzTo)
-		{ JMP_THIS(0x761640); }
+	//=================================================================================
+	void CalculateSonicBeam (int nA1, int nA2, int nA3, ColorStruct* pBuffer) const
+		{ JMP_THIS(0x75EDF0); }
 
-	void Update_Wave()
-		{ JMP_THIS(0x762AF0); }
+	void CalculateMagBeam(int nA1, int nA2, int nA3, ColorStruct* pBuffer) const
+		{ JMP_THIS(0x760190); }
 
-	// ambient
+	void CalculateColorOverTo(ColorStruct* pBuffer ,int nDir) const
+		{ JMP_THIS(0x75EF30); }
+
+	void GenerateSurfacePitch() const
+		{ JMP_THIS(0x75F140); }
+
 	void DamageArea(const CoordStruct& location) const
 		{ JMP_THIS(0x75F330); }
+
+	void DamageArea(const CoordStruct* pLocation) const
+		{ JMP_THIS(0x75F330); }
+
+	void AddCell(const CoordStruct& location) const
+		{ JMP_THIS(0x75F4C0); }
+
+	void AddCell(const CoordStruct* pLocation) const
+		{ JMP_THIS(0x75F4C0); }
+
+	void DrawIt(const CoordStruct& xyzFrom, const CoordStruct& xyzTo) const
+		{ JMP_THIS(0x75F9F0); }
+
+	void DrawSonic(const CoordStruct& xyzFrom, const CoordStruct& xyzTo) const
+		{ JMP_THIS(0x75FA90); }
+
+	void DrawMagnetic(const CoordStruct& xyzFrom, const CoordStruct& xyzTo) const
+		{ JMP_THIS(0x7602E0); }
+
+	void DrawLaser(const CoordStruct& xyzFrom, const CoordStruct& xyzTo) const
+		{ JMP_THIS(0x7609E0); }
+
+	void AIAll() const
+		{ JMP_THIS(0x760F50); }
+
+	void WaveAI()const
+		{ JMP_THIS(0x762AF0); }
+
+	void CellAI() const
+		{ JMP_THIS(0x7610F0); }
+
+	// matrix ? or something else ?
+	Matrix3D* DrawNonMag(const CoordStruct& xyzFrom, const CoordStruct& xyzTo)const
+		{ JMP_THIS(0x761640); }
+
+	Matrix3D* DrawMag(const CoordStruct& xyzFrom, const CoordStruct& xyzTo) const
+		{ JMP_THIS(0x762070); }
+
 
 	//Constructor
 	WaveClass(
@@ -53,7 +97,7 @@ protected:
 	//===========================================================================
 
 public:
-
+	//incomplete !
 	TechnoClass* Target;
 	WaveType Type;
 	Point2D someCoords;
@@ -135,3 +179,4 @@ public:
 	DynamicVectorClass<CellClass *> Cells;
 	BYTE unknown_208 [14*4];
 };
+static_assert(sizeof(WaveClass) == 0x240);

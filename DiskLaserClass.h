@@ -58,8 +58,8 @@ public:
 	TechnoClass* Owner;
 	TechnoClass* Target;
 	WeaponTypeClass* Weapon;
-	DWORD unknown_30;
-	DWORD unknown_34;
-	DWORD unknown_38;
+	DWORD LogicState; //30
+	DWORD drawoffset34;
+	DWORD drawoffset38;
 	int Damage;
 };

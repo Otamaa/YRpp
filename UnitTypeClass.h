@@ -33,6 +33,8 @@ public:
 	virtual ObjectClass* CreateObject(HouseClass* pOwner) R0;
 
 	//TechnoTypeClass
+	void OneTimeInit() const
+		{ JMP_STD(0x7473E0); }
 
 	//Constructor
 	UnitTypeClass(const char* pID) noexcept
@@ -57,8 +59,8 @@ public:
 	bool CrateGoodie;
 	bool Harvester;
 	bool Weeder;
-	bool unknown_E10;
-	bool HasTurret; //not read from the INIs
+	bool FireAnim; //E10	
+	bool HasTurret; //LockTurrent
 	bool DeployToFire;
 	bool IsSimpleDeployer;
 	bool IsTilter;
@@ -89,3 +91,4 @@ public:
 	char FiringFrames;
 	char AltImageFile [0x19];
 };
+static_assert(sizeof(UnitTypeClass) == 0xE78);

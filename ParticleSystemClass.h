@@ -15,6 +15,7 @@ public:
 
 	//Static
 	static constexpr constant_ptr<DynamicVectorClass<ParticleSystemClass*>, 0xA80208u> const Array{};
+	static constexpr reference<ParticleSystemClass*, 0xA8ED78u> Instance{};
 
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
@@ -29,6 +30,15 @@ public:
 	//AbstractClass
 	virtual AbstractType WhatAmI() const RT(AbstractType);
 	virtual int Size() const R0;
+
+	ParticleClass* SpawnParticle(ParticleTypeClass* pType, CoordStruct* coords)
+		{JMP_THIS(0x62E430);}
+
+	ParticleClass* SpawnHeldParticle(CoordStruct* pcoord_a, CoordStruct* pcoord_b)
+		{JMP_THIS(0x62E380);}
+
+	ParticleClass* SpawnHeldParticleRandom(CoordStruct* pcoord_a, CoordStruct* pcoord_b ,int nArgs)
+		{JMP_THIS(0x62E4C0);}
 
 	//Constructor
 	ParticleSystemClass(

@@ -658,6 +658,45 @@ public:
 	int CalculateCostMultipliers()
 		{ JMP_THIS(0x50BF60); }
 
+	void WhimpOnMoney(AbstractType nAbsType)
+		{ JMP_THIS(0x509700); }
+
+	void RemoveTracking(TechnoClass* pTechno)
+		{ JMP_THIS(0x4FF550); }
+
+	void AddTracking(TechnoClass* pTechno)
+	{
+		JMP_THIS(0x4FF700);
+	}
+
+	Edge GetHouseEdge() const
+	{
+		auto edge = this->StartingEdge;
+		if (edge < Edge::North || edge > Edge::West)
+		{
+			edge = this->Edge;
+
+			if (edge < Edge::North || edge > Edge::West)
+			{
+				edge = Edge::North;
+			}
+		}
+
+		return edge;
+	}
+
+	double GetTypeArmorMult(TechnoTypeClass* pTech)
+		{ JMP_THIS(0x50BD30); }
+
+	void GiveWeed(int nAmount ,int nIndex) const
+		{ JMP_THIS(0x4F9700); }
+
+	AbstractClass* FindTargetOnCoords(CoordStruct& nCoord)
+		{ JMP_THIS(0x500300); }
+
+	int FactoryCount(AbstractType nWhat, bool bArg3)
+		{ JMP_THIS(0x500910); }
+
 	//Constructor
 	HouseClass(HouseTypeClass* pCountry) noexcept
 		: HouseClass(noinit_t())

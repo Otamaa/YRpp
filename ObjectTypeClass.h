@@ -25,11 +25,11 @@ public:
 	virtual ~ObjectTypeClass() RX;
 
 	//ObjectTypeClass
-	virtual CoordStruct* vt_entry_6C(CoordStruct* pDest, CoordStruct* pSrc) const R0;
+	virtual CoordStruct* vt_entry_6C(CoordStruct* pDest, CoordStruct* pSrc) const R0; //Coord_Fixup
 	virtual DWORD GetOwners() const R0;
 	virtual int GetPipMax() const R0;
-	virtual void vt_entry_78(DWORD dwUnk) const RX;
-	virtual void Dimension2(CoordStruct* pDest) RX;
+	virtual void PixelDimensions(Point3D* pDest) const RX;  //pixel dimension , 0x78
+	virtual void Dimension2(CoordStruct* pDest) RX; //was LeptonDimensions
 	virtual bool SpawnAtMapCoords(CellStruct* pMapCoords, HouseClass* pOwner) = 0;
 	virtual int GetActualCost(HouseClass* pHouse) const R0;
 	virtual int GetBuildSpeed() const R0;
@@ -45,8 +45,9 @@ public:
 	static TechnoTypeClass * __fastcall GetTechnoType(AbstractType abstractID, int idx)
 		{ JMP_STD(0x48DCD0); }
 
-	void LoadVoxel()
-		{ JMP_STD(0x5F8110); }
+
+	void LoadVoxel__() const  
+		{ JMP_THIS(0x5F8110); }
 
 	//Constructor
 	ObjectTypeClass(const char* pID) noexcept

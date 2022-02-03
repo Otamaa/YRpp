@@ -3,6 +3,7 @@
 #include <GenericList.h>
 #include <ArrayClasses.h>
 #include <Helpers/CompileTime.h>
+#include <PKey.h>
 
 struct MixHeaderData
 {
@@ -56,7 +57,7 @@ public:
 	static constexpr reference<DynamicVectorClass<MixFileClass*>, 0x884DC0u> const Array_Alt{};
 	static constexpr reference<DynamicVectorClass<MixFileClass*>, 0x884DA8u> const Maps{};
 	static constexpr reference<DynamicVectorClass<MixFileClass*>, 0x884DE0u> const Movies{};
-
+	static constexpr reference<PKey*, 0x886980u> const Key {};
 	static constexpr reference<MixFileClass, 0x884DD8u> const MULTIMD{};
 	static constexpr reference<MixFileClass, 0x884DDCu> const MULTI{};
 
@@ -67,6 +68,25 @@ public:
 
 	virtual ~MixFileClass() RX;
 
+    void Free()
+		{ JMP_THIS(0x5B4400); }
+
+    static bool __fastcall Free(const char *pFilename)
+		{ JMP_STD(0x5B3E90); }
+
+    bool Cache(const MemoryBuffer * buffer = nullptr)
+		{ JMP_THIS(0x5B43F0); }
+
+    static bool __fastcall Cache(const char *pFilename, MemoryBuffer const * buffer = nullptr)
+		{ JMP_STD(0x5B43E0); }
+
+    static bool __fastcall Offset(const char *pFilename, void ** realptr = nullptr, MixFileClass ** mixfile = nullptr, long * offset = nullptr, long * size = nullptr)
+		{ JMP_STD(0x5B4430); }
+
+    static void* __fastcall Retrieve(const char *pFilename, bool bLoadAsSHP = false)
+		{ JMP_STD(0x5B40B0); }
+
+
 	MixFileClass(const char* pFileName)
 		: Node<MixFileClass>()
 	{
@@ -75,8 +95,10 @@ public:
 		THISCALL(0x5B3C20);
 	}
 
-	static void* Retrieve(char* name, bool forceShapeCache)
-		{ JMP_STD(0x5B40B0); }
+//	MixFileClass(const char* pFileName,const PKey * key = Key() )
+//		: Node<MixFileClass>()
+//	{ JMP_THIS(0x5B3C20); }
+
 
 protected:
 	/*PROPERTY(MixFileClass*, Next);
@@ -93,3 +115,5 @@ public:
 	MixHeaderData* Headers;
 	int field_24;
 };
+
+static_assert(sizeof(MixFileClass) == 0x28);

@@ -8,6 +8,9 @@ class ObjectClass;
 class TechnoClass;
 class HouseClass;
 
+enum class BombState : int { Planted, Removed };
+enum class BombType : int { NormalBomb , DeathBomb };
+
 class NOVTABLE BombClass : public AbstractClass
 {
 public:
@@ -33,7 +36,7 @@ public:
 	void Disarm()
 		{ JMP_THIS(0x4389B0); }
 
-	BOOL IsDeathBomb() const
+	BombType GetBombType() const
 		{ JMP_THIS(0x4389F0); }
 
 	int GetCurrentFlickerFrame() const // which frame of the ticking bomb to draw
@@ -63,11 +66,11 @@ public:
 	TechnoClass* Owner;		//Most likely Ivan.
 	HouseClass* OwnerHouse;
 	ObjectClass* Target; // attaching to objects is possible, but it will never detonate
-	BOOL DeathBomb; // unused - if so, [General]CanDetonateDeathBomb applies instead of CanDetonateTimeBomb
+	BombType Type; // unused - if so, [General]CanDetonateDeathBomb applies instead of CanDetonateTimeBomb
 	int PlantingFrame;
 	int DetonationFrame;
-	AudioController Audio;
+	AudioController TickAudioController;
 	int TickSound;
 	BOOL ShouldPlayTickingSound; // seems so
-	bool Harmless; // (mostly) set to 0 on plant, 1 on detonation/removal ?
+	BombState State; // (mostly) set to 0 on plant, 1 on detonation/removal ?
 };

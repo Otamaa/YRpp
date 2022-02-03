@@ -35,7 +35,9 @@ public:
 
 	//ObjectClass
 	//VoxelAnimClass
-
+	VoxelAnimTypeClass* GetVoxelAnimType() const 
+		{ JMP_THIS(0x74AB30); }
+		
 	//Constructor
 	VoxelAnimClass(
 		VoxelAnimTypeClass* pVoxelAnimType, CoordStruct* pLocation,
@@ -68,3 +70,5 @@ public:
 	int Duration; // counting down to zero
 	PROTECTED_PROPERTY(DWORD, unused_144);
 };
+
+static_assert(sizeof(VoxelAnimClass) == 0x148);

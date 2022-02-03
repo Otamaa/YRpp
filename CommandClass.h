@@ -30,13 +30,13 @@ public:
 	virtual const wchar_t* GetUICategory() const = 0;
 	virtual const wchar_t* GetUIDescription() const = 0;
 
-	virtual bool vt_entry_14(DWORD dwUnk) const
+	virtual bool Check_Key1_Pressed(DWORD dwUnk) const
 		{ return false; }
 
-	virtual bool vt_entry_18(DWORD dwUnk) const
+	virtual bool Check_Key2_Released(DWORD dwUnk) const
 		{ return (((~dwUnk) >> 11) & 1) != 0; }
 
-	virtual bool vt_entry_1C(DWORD dwUnk) const
+	virtual bool Check_Key3_Wait(DWORD dwUnk) const
 		{ return false; }
 
 	virtual void Execute(DWORD dwUnk) const = 0;

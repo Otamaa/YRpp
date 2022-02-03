@@ -186,8 +186,9 @@ public:
 		{ JMP_THIS(0x457A10); }
 
 	// returns false if this is a gate that is closed, true otherwise
-	bool IsTraversable() const
-		{ JMP_THIS(0x4525F0); }
+	bool IsTraversable() const { JMP_THIS(0x4525F0); }
+
+	KickOutResult* ExitObject__(TechnoClass* pTech) const { JMP_THIS(0x4587D0); }
 
 	// helpers
 	bool HasSuperWeapon(int index) const {
@@ -220,6 +221,38 @@ public:
 		return this->AnimStates[static_cast<int>(slot)];
 	}
 
+	CoordStruct GetBuildingCenterCoords(bool includeBib = false) const
+	{
+		CoordStruct ret = this->GetCoords();
+		ret.X += this->Type->GetFoundationWidth() / 2;
+		ret.Y += this->Type->GetFoundationHeight(includeBib) / 2;
+		return ret;
+	}
+
+	CoordStruct* GetBuildingCenterCoords___(CoordStruct* nReturn) const
+	{ JMP_THIS(0x447AC0); }
+
+	CoordStruct GetCenterCoords___() const
+	{
+		CoordStruct ret;
+		GetBuildingCenterCoords___(&ret);
+		return ret;
+	}
+
+	bool BuildingUnderAttack();
+
+	void Placement_DrawIt_43D030(Point2D& nPoint, RectangleStruct& nRect)
+	{ JMP_THIS(0x43D030); }
+
+	//458810 voxel anim MTX
+
+	//
+	BuildingClass* GetNearbyLaserFence(CoordStruct* pCoord, bool Unk = true, int threatrange = -1) const
+	{ JMP_THIS(0x452BB0); }
+
+	bool Absorber() const { JMP_THIS(0x4598A0); }
+	bool ClearFactoryBib() const { JMP_THIS(0x449540); }
+	
 	//Constructor
 	BuildingClass(BuildingTypeClass* pType, HouseClass* pOwner) noexcept
 		: BuildingClass(noinit_t())
@@ -243,27 +276,25 @@ public:
 	int QueueBState;
 	DWORD OwnerCountryIndex;
 	InfantryClass* C4AppliedBy;
-	DWORD unknown_544;
+    DWORD LastStrength; //544
 	AnimClass* FirestormAnim; //pointer
 	AnimClass* PsiWarnAnim; //pointer
-	TimerStruct unknown_timer_550;
+    TimerStruct PlacementDelay; //550
 
 // see eBuildingAnims above for slot index meanings
 	AnimClass * Anims [0x15];
 	bool AnimStates [0x15]; // one flag for each of the above anims (whether the anim was enabled when power went offline?)
 
-protected:
-	char align_5C5[3];
-public:
+	PROTECTED_PROPERTY(char , align_5C5[3]);
 
 	AnimClass * DamageFireAnims [0x8];
-
 	bool RequiresDamageFires; // if set, ::Update spawns damage fire anims and zeroes it
+
 	//5E8 - 5F8 ????????
 	BuildingTypeClass * Upgrades [0x3];
 
 	int FiringSWType; // type # of sw being launched
-	DWORD unknown_5FC;
+    DWORD upgrade_5FC;
 	BuildingLightClass* Spotlight;
 	RepeatableTimerStruct GateTimer;
 	LightSourceClass * LightSource; // tiled light , LightIntensity > 0
@@ -296,28 +327,28 @@ public:
 	bool ShouldRebuild;
 	bool HasEngineer; // used to pass the NeedsEngineer check
 	TimerStruct CashProductionTimer;
-	bool unknown_bool_6DC;
-	bool IsReadyToCommence;
+    bool IsAllowedToSell; //6DC
+    bool IsReadyToCommence; //6DD
 	bool NeedsRepairs; // AI handholder for repair logic,
 	bool C4Applied;
 	bool NoCrew;
-	bool unknown_bool_6E1;
-	bool unknown_bool_6E2;
+    bool IsCharging; //6E1
+    bool IsCharged;	//6E2
 	bool HasBeenCaptured; // has this building changed ownership at least once? affects crew and repair.
 	bool ActuallyPlacedOnMap;
 	bool unknown_bool_6E5;
 	bool IsDamaged; // AI handholder for repair logic,
 	bool IsFogged;
 	bool IsBeingRepaired; // show animooted repair wrench
-	bool unknown_bool_6E9;
-	bool StuffEnabled; // status set by EnableStuff() and DisableStuff()
+    bool __hasBuildupData_6E9;
+    bool StuffEnabled; // status set by EnableStuff() and DisableStuff()
 	char HasCloakingData; // some fugly buffers
 	byte CloakRadius; // from Type->CloakRadiusInCells
 	char Translucency;
 	DWORD StorageFilledSlots; // the old "silo needed" logic
 	TechnoTypeClass * SecretProduction; // randomly assigned secret lab bonus, used if SecretInfantry, SecretUnit, and SecretBuilding are null
 	ColorStruct ColorAdd;
-	int unknown_int_6FC;
+	int IsAirstrikeTargetingMe; //6FC
 	short unknown_short_700;
 	BYTE UpgradeLevel; // as defined by Type->UpgradesToLevel=
 	char GateStage;

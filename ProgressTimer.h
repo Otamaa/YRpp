@@ -9,6 +9,7 @@
 
 #include <GeneralStructures.h>
 
+//called Stage class on Game
 class ProgressTimer
 {
 public:
@@ -39,7 +40,7 @@ public:
 		return this->HasChanged;
 	}
 
-	int Value{ 0 }; // the current value
+	int Value{ 0 }; // the current value , stage
 	bool HasChanged{ false }; // if the timer expired this frame and the value changed
 	RepeatableTimerStruct Timer{};
 	int Step{ 1 }; // added to value every time the timer expires

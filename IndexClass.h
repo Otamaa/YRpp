@@ -28,6 +28,7 @@ public:
 		TKey ID;
 		TValue Data;
 	};
+	static_assert(sizeof(NodeElement) == 0x8);//
 
 	NodeElement* IndexTable;
 	int IndexCount;
@@ -167,7 +168,7 @@ bool IndexClass<TKey, TValue>::RemoveIndex(TKey id)
 	for (int i = 0; i < this->IndexCount; ++i)
 		if (this->IndexTable[i].ID == id)
 		{
-			found_index = index;
+			found_index = id;
 			break;
 		}
 
@@ -179,7 +180,7 @@ bool IndexClass<TKey, TValue>::RemoveIndex(TKey id)
 
 		NodeElement fake;
 		fake.ID = 0;
-		fake.Data = T();
+		fake.Data = TValue();
 		IndexTable[IndexCount] = fake;
 
 		this->InvalidateArchive();

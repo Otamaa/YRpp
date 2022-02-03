@@ -7,7 +7,8 @@
 struct TacticalSelectableStruct;
 class SideClass;
 class ObjectClass;
-
+struct RectangleStruct;
+struct CoordStruct;
 // things that I can't put into nice meaningful classes
 class Game
 {
@@ -15,14 +16,13 @@ public:
 	// the magic checksum for version validation - linked in StaticInits
 	static constexpr reference<DWORD, 0x83D560u> const Savegame_Magic{};
 
-	static constexpr reference<DynamicVectorClass<DWORD>, 0xB0BC88u> const COMClasses{};
-
 	static constexpr reference<HWND, 0xB73550u> const hWnd{};
 	static constexpr reference<HINSTANCE, 0xB732F0u> const hInstance{};
 
 	static constexpr reference<bool, 0x840A6Cu> const bVideoBackBuffer{};
 	static constexpr reference<bool, 0xA8EB96u> const bAllowVRAMSidebar{};
 
+	static constexpr reference<DynamicVectorClass<DWORD>, 0xB0BC88u> const COMClasses {};
 	// the game's own rounding function
 	// infamous for true'ing (F2I(-5.00) == -4.00)
 	static __int64 F2I64(double val) {
@@ -70,7 +70,7 @@ public:
 	static HRESULT __fastcall Save_Sides(LPSTREAM pStm, DynamicVectorClass<SideClass *>* pVector)
 		{ JMP_STD(0x6805F0); }
 
-	static void StreamerThreadFlush()
+	static void __fastcall StreamerThreadFlush()
 		{ JMP_STD(0x53E6B0); }
 
 	static void __fastcall UICommands_TypeSelect_7327D0(const char* iniName)
@@ -80,7 +80,40 @@ public:
 		{ JMP_STD(0x732D00); }
 
 	static double GetFloaterGravity()
-		{ JMP_STD(0x48ACF0); }
+	{ JMP_STD(0x48ACF0); }
+
+	static AbstractType __fastcall WhichTab(AbstractType Type, int heapId, int a3 = 0)
+	{ JMP_STD(0x6ABC60); }
+
+	// convert xyz height to xy height?
+	static int __fastcall AdjustForZ(int Height) //ZDepth_Adjust_For_Height
+	{ JMP_STD(0x6D20E0); }
+
+	static void __fastcall WriteMapFiles(const char* pFilename, int bArgs = false)
+	{ JMP_STD(0x687CE0); }
+
+	static bool __fastcall IsClipLine(Point2D* pPoint_1, Point2D* pPoint_2, const RectangleStruct* pRect)
+	{ JMP_STD(0x7BC2B0); }
+
+	static bool __fastcall func_007BBE20(RectangleStruct* torect, const RectangleStruct* toarea, RectangleStruct* fromrect, const RectangleStruct* fromarea)
+	{ JMP_STD(0x7BBE20); }
+
+	static int __fastcall Point2DToDir8(Point2D* pFrom, Point2D* pTo)
+	{ JMP_STD(0x75F230); }
+
+	static Ability __fastcall GetAbility(char* pString)
+	{ JMP_STD(0x74FEF0); }
+
+	static int __fastcall CellStructToIdx(CellStruct* pCell)
+	{ JMP_STD(0x42B1C0); }
+
+	static int __fastcall ZDepthAdjust(int nZ)
+	{ JMP_STD(0x6D20E0); }
+
+	DirStruct* GetDirOver(DirStruct* nBuff ,CoordStruct* coord1, CoordStruct* coord2)
+	{
+		JMP_REG_THIS_(nBuff,0x4265B0);
+	}
 };
 
 // this fake class contains the IIDs used by the game
@@ -110,11 +143,11 @@ public:
 class Imports {
 public:
 	// OleLoadFromStream
+	typedef HRESULT(__stdcall* FP_OleLoadFromStream)(LPSTREAM pStm, const IID* const iidInterface, LPVOID* ppvObj);
+	static FP_OleLoadFromStream& OleLoadFromStream;
+
 	typedef HRESULT(__stdcall* FP_OleSaveToStream)(LPPERSISTSTREAM pPStm, LPSTREAM pStm);
 	static FP_OleSaveToStream& OleSaveToStream;
-
-	typedef HRESULT (__stdcall * FP_OleLoadFromStream)(LPSTREAM pStm, const IID *const iidInterface, LPVOID *ppvObj);
-	static FP_OleLoadFromStream &OleLoadFromStream;
 
 	typedef HRESULT(__stdcall* FP_CoRegisterClassObject)(const IID& rclsid, LPUNKNOWN pUnk, DWORD dwClsContext, DWORD flags, LPDWORD lpdwRegister);
 	static FP_CoRegisterClassObject& CoRegisterClassObject;
@@ -420,7 +453,6 @@ public:
 
 	typedef LONG(__stdcall* FP_InterlockedDecrement)(void* lpAddend);
 	static FP_InterlockedDecrement& InterlockedDecrement;
-
 };
 
 class MovieInfo
@@ -469,8 +501,15 @@ struct MovieUnlockableInfo
 	int DiskRequired{ 2 };
 };
 
+struct GroundType
+{
+	float Cost[8];
+	char Build;
+};
+
 namespace Unsorted
 {
+	static constexpr reference<GroundType*, 0x89EA40u> GroundTypeData {};
 	// if != 0, EVA_SWxxxActivated is skipped
 	static constexpr reference<int, 0xA8B538> MuteSWLaunches {};
 
@@ -496,6 +535,7 @@ namespace Unsorted
 
 	static constexpr reference<TacticalSelectableStruct, 0xB0CEC8, 500> TacticalSelectables {};
 	static constexpr reference<bool, 0xB0FE65> TypeSelecting {};
+	static constexpr reference<HWND, 0xB73550u> const Game_hWnd {};
 
 struct ColorPacker
 {
@@ -515,65 +555,18 @@ static constexpr reference<int, 0x8809A0> CurrentSWType {};
 
 static const int except_txt_length = 0xFFFF;
 static constexpr constant_ptr<char, 0x8A3A08> except_txt_content {};
-
-/*
- * This thing is ridiculous
- * all xxTypeClass::Create functions use it:
-
-  // doing this makes no sense - it's just a wrapper around CTOR, which doesn't call any Mutex'd functions... but who cares
-  InfantryTypeClass *foo = something;
-  ++SomeMutex;
-  InfantryClass *obj = foo->CreateObject();
-  --SomeMutex;
-
-  // XXX do not do this if you aren't sure if the object can exist in this place
-  // - this flag overrides any placement checks so you can put Terror Drones into trees and stuff
-  ++SomeMutex;
-  obj->Unlimbo(blah);
-  --SomeMutex;
-
-  AI base node generation uses it:
-  int level = SomeMutex;
-  SomeMutex = 0;
-  House->GenerateAIBuildList();
-  SomeMutex = level;
-
-  Building destruction uses it:
-  if(!SomeMutex) {
-  	Building->ShutdownSensorArray();
-  	Building->ShutdownDisguiseSensor();
-  }
-
-  Building placement uses it:
-  if(!SomeMutex) {
-  	UnitTypeClass *freebie = Building->Type->FreeUnit;
-  	if(freebie) {
-  		freebie->CreateObject(blah);
-  	}
-  }
-
-  Building state animations use it:
-  if(SomeMutex) {
-  	// foreach attached anim
-  	// update anim state (normal | damaged | garrisoned) if necessary, play anim
-  }
-
-  building selling uses it:
-  if(blah) {
-  	++SomeMutex;
-  	this->Type->UndeploysInto->CreateAtMapCoords(blah);
-  	--SomeMutex;
-  }
-
-  Robot Control Centers use it:
-  if ( !SomeMutex ) {
-  	VoxClass::PlayFromName("EVA_RobotTanksOffline/BackOnline", -1, -1);
-  }
-
-  and so on...
- */
 	// Note: SomeMutex has been renamed to this because it reflects the usage better
 static constexpr reference<int, 0xA8E7AC> IKnowWhatImDoing {}; // h2ik
+	static constexpr reference<int, 0xA8DAB4> SystemResponseMessages {};
+
+	static constexpr reference<CellStruct*, 0x880964u> CursorSize {};
+	static constexpr reference<CellStruct*, 0x880974u> CursorSizeSecond {};
+	static constexpr reference<CellStruct, 0x88095Cu> Display_ZoneCell {};
+	static constexpr reference<CellStruct, 0x88096Au> Display_ZoneCell2 {};
+	static constexpr reference<CellStruct, 0x880960u> Display_ZoneOffset {};
+	static constexpr reference<CellStruct, 0x88096Eu> Display_ZoneOffset2 {};
+
+	static constexpr int CellHeight = 728;
 };
 
 struct CheatData {

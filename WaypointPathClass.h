@@ -36,12 +36,24 @@ public:
 	virtual AbstractType WhatAmI() const RT(AbstractType);
 	virtual int Size() const R0;
 
-	WaypointClass * GetWaypoint(int idx) const
-		{ JMP_THIS(0x763980); }
-	WaypointClass * GetWaypointAfter(int idx) const
-		{ JMP_THIS(0x763BA0); }
-	bool WaypointExistsAt(WaypointClass *wpt) const
-		{ JMP_THIS(0x763A50); }
+	WaypointClass* GetWaypoint(int idx) const
+	{ JMP_THIS(0x763980); }
+	WaypointClass* GetWaypointAfter(int idx) const
+	{ JMP_THIS(0x763BA0); }
+	void Clear() const
+	{ JMP_THIS(0x763BE0); }
+	void Find(int nIndex) const
+	{ JMP_THIS(0x763B30); }
+	WaypointClass* SetWaypoint(int nIdx, WaypointClass* pSetTo) const
+	{ JMP_THIS(0x763B30); }
+	bool SetWaypoint(CoordStruct& nWhere) const
+	{ JMP_THIS(0x7639A0); }
+	bool WaypointExistsAt(CoordStruct& nWhere) const
+	{ JMP_THIS(0x763A50); }
+	static int __fastcall StringToWaypointIdx(char* pChar)
+	{ JMP_STD(0x763690); }
+	static char* __fastcall WaypointIdxToString(int nIdx)
+	{ JMP_STD(0x763610); }
 
 	// Constructor
 	WaypointPathClass(int idx)
@@ -62,3 +74,5 @@ public:
 	int  CurrentWaypointIndex; //seems that way
 	DynamicVectorClass<WaypointClass> Waypoints; // actual path waypoints, no *
 };
+
+static_assert(sizeof(WaypointPathClass) == 0x40);

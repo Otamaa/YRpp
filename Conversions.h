@@ -47,6 +47,13 @@ public:
 		}
 	}
 
+	// narrow_cast(): a searchable way to do narrowing casts of values
+	template <class T, class U>
+	constexpr T narrow_cast(U&& u) noexcept
+	{
+		return static_cast<T>(std::forward<U>(u));
+	}
+
 	// OMG OPTIMIZED:
 	// http://graphics.stanford.edu/~seander/bithacks.html#IntegerLog
 	static unsigned int Int2Highest(DWORD v) {
@@ -63,6 +70,19 @@ public:
 
 	static unsigned int Int2Highest(int v) {
 		return Int2Highest(static_cast<DWORD>(v));
+	}
+
+	inline int Distance(int x1, int y1, int x2, int y2)
+	{
+		int diff1 = y1 - y2;
+		if (diff1 < 0) diff1 = -diff1;
+		int diff2 = x1 - x2;
+		if (diff2 < 0) diff2 = -diff2;
+		if (diff1 > diff2)
+		{
+			return(diff1 + ((unsigned)diff2 / 2));
+		}
+		return(diff2 + ((unsigned)diff1 / 2));
 	}
 
 };

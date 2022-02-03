@@ -4,6 +4,7 @@
 #include <GeneralStructures.h>
 #include <ArrayClasses.h>
 #include <IndexClass.h>
+#include <RectangleStruct.h>
 
 struct ToolTip
 {

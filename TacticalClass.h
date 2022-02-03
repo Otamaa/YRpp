@@ -31,8 +31,25 @@ public:
 	bool CoordsToClient(CoordStruct const& coords, Point2D* pOutClient) const
 		{ JMP_THIS(0x6D2140); }
 
+	bool CoordsToClient(CoordStruct const* coords, Point2D* pOutClient) const
+		{ JMP_THIS(0x6D2140); }
+
+    Point2D CoordsToView(CoordStruct const& coords)
+    {
+        Point2D Buffer;
+        this->CoordsToClient(coords, &Buffer);
+        return Buffer;
+    }
+	
 	Point2D* CoordsToScreen(Point2D* pDest, CoordStruct* pSource)
 		{ JMP_THIS(0x6D1F10); }
+
+	Point2D CoordsToScreen(CoordStruct* nSource)
+	{
+		Point2D Buffer;
+		this->CoordsToScreen(&Buffer, nSource);
+		return Buffer;
+	}
 
 	CoordStruct* ClientToCoords(CoordStruct* pOutBuffer, Point2D const& client) const
 		{ JMP_THIS(0x6D2280); }
@@ -79,6 +96,31 @@ public:
 	void Render(DSurface* pSurface, bool flag, int eMode)
 		{ JMP_THIS(0x6D3D10); }
 
+	CellStruct* Coordmap_viewportpos_tocellpos_Click_Cell_Calc(CellStruct& retstr, Point2D& a3)
+		{ JMP_THIS(0x6D6590); }
+
+	void DrawLaserfencePlacement(bool bBlit,CellStruct nLoc)
+		{ JMP_THIS(0x6D5730); }
+
+	void DrawFirewallPlacement(bool bBlit, CellStruct nLoc)
+		{ JMP_THIS(0x6D59D0); }
+
+	void DrawWallPlacement(bool bBlit, CellStruct nLoc)
+		{ JMP_THIS(0x6D5C50); }
+	
+	RectangleStruct VisibleArea() const
+	{ return RectangleStruct{ TacticalPos.X ,TacticalPos.Y , LastTacticalPos.X ,LastTacticalPos.Y }; }
+
+	Point2D* ApplyOffsetPixel_(Point2D* pRet ,Point2D* pOffset)
+	{ JMP_THIS(0x6D2070); }
+
+	Point2D ApplyOffsetPixel(Point2D Input)
+	{
+		Point2D nBuffer;
+		ApplyOffsetPixel_(&nBuffer, &Input);
+		return nBuffer;
+	}
+
 public:
 
 	wchar_t ScreenText[64];
@@ -103,13 +145,13 @@ public:
 	bool field_D7C;
 	bool Redrawing; // set while redrawing - cheap mutex // TacticalPosUpdated
 	PROTECTED_PROPERTY(char, gap_D7E[2]);
-	RectangleStruct ContainingMapCoords;
+	RectangleStruct Rectangle_D80;
 	LTRBStruct Band;
 	DWORD MouseFrameIndex;
 	TimerStruct StartTime;
 	int SelectableCount;
 	Matrix3D Unused_Matrix3D;
-	Matrix3D IsoTransformMatrix;
+	Matrix3D Matrix3D_DE4;
 	DWORD field_E14;
 
 };

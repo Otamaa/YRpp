@@ -8,6 +8,13 @@
 
 struct ScriptActionNode
 {
+public:
+	unsigned int BuildINIEntry(char* pTr)
+	 { JMP_THIS(0x723CE0); }
+
+	void FillIn(char* pTr)
+	 { JMP_THIS(0x723CA0); }
+
 	int Action;
 	int Argument;
 };

@@ -37,6 +37,9 @@ public:
 	//Destructor
 	virtual ~AnimTypeClass() RX;
 
+	void __UnloadImage() const
+	{ JMP_THIS(0x428DE0); }
+
 	//Constructor
 	AnimTypeClass(const char* pID) noexcept
 		: AnimTypeClass(noinit_t())
@@ -57,7 +60,7 @@ public:
 	int MiddleFrameIndex;
 	int MiddleFrameWidth;
 	int MiddleFrameHeight;
-	BYTE unknown_2A4;
+    BYTE Biggest; //was BYTE unknown_2A4;
 	double Damage;
 	int Rate;
 	int Start;
@@ -83,7 +86,7 @@ public:
 	int TrailerSeperation;	//MISTYPE BY WESTWOOD!
 	double Elasticity;
 	double MinZVel;
-	double unknown_double_320;
+	double MaxZVel; //unknown_double_320
 	double MaxXYVel;
 	WarheadTypeClass* Warhead;
 	int DamageRadius;
@@ -124,3 +127,5 @@ public:
 	bool PsiWarning;
 	bool ShouldFogRemove;
 };
+
+static_assert(sizeof(AnimTypeClass) == 0x378);

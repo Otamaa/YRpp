@@ -12,6 +12,7 @@ class NOVTABLE ParticleSystemTypeClass : public ObjectTypeClass
 {
 public:
 	static const AbstractType AbsID = AbstractType::ParticleSystemType;
+	static constexpr reference<TypeList<ParticleSystemTypeClass*>, 0x7F4F9Cu> const TypeListArray{};
 
 	//Array
 	ABSTRACTTYPE_ARRAY(ParticleSystemTypeClass, 0xA83D68u);

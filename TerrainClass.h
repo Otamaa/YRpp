@@ -30,6 +30,12 @@ public:
 	virtual AbstractType WhatAmI() const RT(AbstractType);
 	virtual int Size() const R0;
 
+	void Placement_DrawIt_71C360(Point2D& nPoint, RectangleStruct& nRect)
+	{ JMP_THIS(0x71C360); }
+
+	void UpdatePlacement(PlacementType nType) const
+	{ JMP_THIS(0x71BFB0); }
+
 	//Constructor, Destructor
 	TerrainClass(TerrainTypeClass* tt, CellStruct coords) noexcept
 		: TerrainClass(noinit_t())
