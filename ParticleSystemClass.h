@@ -45,7 +45,7 @@ public:
 		ParticleSystemTypeClass* pParticleSystemType,
 		const CoordStruct& coords,
 		AbstractClass* pTarget,
-		TechnoClass* pOwner,
+		ObjectClass* pOwner,
 		const CoordStruct& targetCoords,
 		HouseClass* pOwnerHouse) noexcept : ParticleSystemClass(noinit_t())
 			{ JMP_THIS(0x62DC50); }
