@@ -29,7 +29,7 @@
 
 // swizzle shorthand
 #define SWIZZLE(var) \
-	SwizzleManagerClass::Instance.Swizzle((void **)&var);
+	SwizzleManagerClass::Instance->Swizzle((void **)&var)
 
 
 #include <cmath>
@@ -50,6 +50,12 @@ template<typename T>
 __forceinline T *Make_Pointer(const uintptr_t address)
 {
 	return reinterpret_cast<T *>(address);
+}
+
+template<typename T>
+__forceinline auto Make_Pointer_B(const uintptr_t address)
+{
+	return *reinterpret_cast<T**>(address);
 }
 
 template<typename T>

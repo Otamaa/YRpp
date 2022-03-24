@@ -3,12 +3,14 @@
 #include <ArrayClasses.h>
 #include <GeneralDefinitions.h>
 #include <Helpers/CompileTime.h>
+#include <Interfaces.h>
 
 struct TacticalSelectableStruct;
 class SideClass;
 class ObjectClass;
 struct RectangleStruct;
 struct CoordStruct;
+class CCFileClass;
 // things that I can't put into nice meaningful classes
 class Game
 {
@@ -16,13 +18,23 @@ public:
 	// the magic checksum for version validation - linked in StaticInits
 	static constexpr reference<DWORD, 0x83D560u> const Savegame_Magic{};
 
+	static constexpr reference<DynamicVectorClass<DWORD>, 0xB0BC88u> const COMClasses{};
+
 	static constexpr reference<HWND, 0xB73550u> const hWnd{};
 	static constexpr reference<HINSTANCE, 0xB732F0u> const hInstance{};
 
+	static constexpr reference<bool, 0x887418u> const bVPLRead{};
 	static constexpr reference<bool, 0x840A6Cu> const bVideoBackBuffer{};
 	static constexpr reference<bool, 0xA8EB96u> const bAllowVRAMSidebar{};
 
-	static constexpr reference<DynamicVectorClass<DWORD>, 0xB0BC88u> const COMClasses {};
+	static constexpr reference<RecordFlag, 0xA8D5F8u> const RecordingFlag{};
+	static constexpr reference<CCFileClass, 0xA8D58Cu> const RecordFile{};
+	//static constexpr reference<DynamicVectorClass<DWORD>, 0xB0BC88u> const COMClasses {};
+
+	static constexpr reference<bool, 0x822CF1u> const bDrawShadow{};
+	static constexpr reference<bool, 0x8A0DEFu> const bAllowDirect3D{};
+	static constexpr reference<bool, 0x8A0DF0u> const bDirect3DIsUseable{};
+
 	// the game's own rounding function
 	// infamous for true'ing (F2I(-5.00) == -4.00)
 	static __int64 F2I64(double val) {
@@ -80,7 +92,10 @@ public:
 		{ JMP_STD(0x732D00); }
 
 	static double GetFloaterGravity()
-	{ JMP_STD(0x48ACF0); }
+		{ JMP_STD(0x48ACF0); }
+
+	static LARGE_INTEGER __fastcall AudioGetTime()
+		{ JMP_STD(0x4093B0); }
 
 	static AbstractType __fastcall WhichTab(AbstractType Type, int heapId, int a3 = 0)
 	{ JMP_STD(0x6ABC60); }
@@ -101,7 +116,7 @@ public:
 	static int __fastcall Point2DToDir8(Point2D* pFrom, Point2D* pTo)
 	{ JMP_STD(0x75F230); }
 
-	static Ability __fastcall GetAbility(char* pString)
+	static AbilityType __fastcall GetAbility(char* pString)
 	{ JMP_STD(0x74FEF0); }
 
 	static int __fastcall CellStructToIdx(CellStruct* pCell)
@@ -110,10 +125,11 @@ public:
 	static int __fastcall ZDepthAdjust(int nZ)
 	{ JMP_STD(0x6D20E0); }
 
-	DirStruct* GetDirOver(DirStruct* nBuff ,CoordStruct* coord1, CoordStruct* coord2)
-	{
-		JMP_REG_THIS_(nBuff,0x4265B0);
-	}
+	static DirStruct* GetDirOver(DirStruct* nBuff ,CoordStruct* coord1, CoordStruct* coord2)
+	{ JMP_REG_THIS_(nBuff,0x4265B0); }
+
+	static bool __fastcall Clip_Line(Point2D* point1, Point2D* point2, const RectangleStruct* rect)
+	{ JMP_STD(0x7BC2B0) }
 };
 
 // this fake class contains the IIDs used by the game
@@ -143,14 +159,17 @@ public:
 class Imports {
 public:
 	// OleLoadFromStream
-	typedef HRESULT(__stdcall* FP_OleLoadFromStream)(LPSTREAM pStm, const IID* const iidInterface, LPVOID* ppvObj);
-	static FP_OleLoadFromStream& OleLoadFromStream;
-
 	typedef HRESULT(__stdcall* FP_OleSaveToStream)(LPPERSISTSTREAM pPStm, LPSTREAM pStm);
 	static FP_OleSaveToStream& OleSaveToStream;
 
+	typedef HRESULT (__stdcall * FP_OleLoadFromStream)(LPSTREAM pStm, const IID *const iidInterface, LPVOID *ppvObj);
+	static FP_OleLoadFromStream &OleLoadFromStream;
+
 	typedef HRESULT(__stdcall* FP_CoRegisterClassObject)(const IID& rclsid, LPUNKNOWN pUnk, DWORD dwClsContext, DWORD flags, LPDWORD lpdwRegister);
 	static FP_CoRegisterClassObject& CoRegisterClassObject;
+
+	typedef HRESULT(__stdcall* FP_CoRevokeClassObject)(DWORD dwRegister);
+	static FP_CoRevokeClassObject& CoRevokeClassObject;
 
 	typedef DWORD (* FP_TimeGetTime)();
 	static FP_TimeGetTime &TimeGetTime;
@@ -453,6 +472,22 @@ public:
 
 	typedef LONG(__stdcall* FP_InterlockedDecrement)(void* lpAddend);
 	static FP_InterlockedDecrement& InterlockedDecrement;
+
+	typedef void(__stdcall* FP_DeleteCriticalSection)(LPCRITICAL_SECTION lpCriticalSection);
+	static FP_DeleteCriticalSection& DeleteCriticalSection;
+
+	typedef void(__stdcall* FP_EnterCriticalSection)(LPCRITICAL_SECTION lpCriticalSection);
+	static FP_EnterCriticalSection& EnterCriticalSection;
+
+	typedef void(__stdcall* FP_LeaveCriticalSection)(LPCRITICAL_SECTION lpCriticalSection);
+	static FP_LeaveCriticalSection& LeaveCriticalSection;
+
+	typedef void(__stdcall* FP_InitializeCriticalSection)(LPCRITICAL_SECTION lpCriticalSection);
+	static FP_InitializeCriticalSection& InitializeCriticalSection;
+
+	typedef void(__stdcall* FP_Sleep)(DWORD dwMilliseconds);
+	static FP_Sleep& Sleep;
+
 };
 
 class MovieInfo
@@ -555,6 +590,63 @@ static constexpr reference<int, 0x8809A0> CurrentSWType {};
 
 static const int except_txt_length = 0xFFFF;
 static constexpr constant_ptr<char, 0x8A3A08> except_txt_content {};
+
+/*
+ * This thing is ridiculous
+ * all xxTypeClass::Create functions use it:
+
+  // doing this makes no sense - it's just a wrapper around CTOR, which doesn't call any Mutex'd functions... but who cares
+  InfantryTypeClass *foo = something;
+  ++SomeMutex;
+  InfantryClass *obj = foo->CreateObject();
+  --SomeMutex;
+
+  // XXX do not do this if you aren't sure if the object can exist in this place
+  // - this flag overrides any placement checks so you can put Terror Drones into trees and stuff
+  ++SomeMutex;
+  obj->Unlimbo(blah);
+  --SomeMutex;
+
+  AI base node generation uses it:
+  int level = SomeMutex;
+  SomeMutex = 0;
+  House->GenerateAIBuildList();
+  SomeMutex = level;
+
+  Building destruction uses it:
+  if(!SomeMutex) {
+  	Building->ShutdownSensorArray();
+  	Building->ShutdownDisguiseSensor();
+  }
+
+  Building placement uses it:
+  if(!SomeMutex) {
+  	UnitTypeClass *freebie = Building->Type->FreeUnit;
+  	if(freebie) {
+  		freebie->CreateObject(blah);
+  	}
+  }
+
+  Building state animations use it:
+  if(SomeMutex) {
+  	// foreach attached anim
+  	// update anim state (normal | damaged | garrisoned) if necessary, play anim
+  }
+
+  building selling uses it:
+  if(blah) {
+  	++SomeMutex;
+  	this->Type->UndeploysInto->CreateAtMapCoords(blah);
+  	--SomeMutex;
+  }
+
+  Robot Control Centers use it:
+  if ( !SomeMutex ) {
+  	VoxClass::PlayFromName("EVA_RobotTanksOffline/BackOnline", -1, -1);
+  }
+
+  and so on...
+ */
 	// Note: SomeMutex has been renamed to this because it reflects the usage better
 static constexpr reference<int, 0xA8E7AC> IKnowWhatImDoing {}; // h2ik
 	static constexpr reference<int, 0xA8DAB4> SystemResponseMessages {};

@@ -52,7 +52,7 @@ public:
 	virtual bool IsSelectable() const R0;
 	virtual VisualType VisualCharacter(VARIANT_BOOL SpecificOwner, HouseClass * WhoIsAsking) const RT(VisualType);
 	virtual SHPStruct* GetImage() const R0;
-	virtual Action MouseOverCell(CellStruct const* cell, bool checkFog = false, bool ignoreForce = false) const RT(Action);
+	virtual Action MouseOverCell(CellStruct const& cell, bool checkFog = false, bool ignoreForce = false) const RT(Action);
 	virtual Action MouseOverObject(ObjectClass const* pObject, bool ignoreForce = false) const RT(Action);
 	virtual Layer InWhichLayer() const RT(Layer);
 	virtual bool IsSurfaced() R0; // opposed to being submerged
@@ -105,10 +105,10 @@ public:
 	virtual int GetYSort() const R0;
 	virtual bool IsOnBridge(TechnoClass* pDocker = nullptr) const R0; // pDocker is passed to GetDestination
 	virtual bool IsStandingStill() const R0;
-	virtual bool IsDisguised() const R0;
+	virtual bool IsDisguised() const R0; //__Has_Disguise 0xC4
 	virtual bool IsDisguisedAs(HouseClass *target) const R0; // only works correctly on infantry!
-	virtual ObjectTypeClass* GetDisguise(bool DisguisedAgainstAllies) const R0;
-	virtual HouseClass* GetDisguiseHouse(bool DisguisedAgainstAllies) const R0;
+	virtual ObjectTypeClass* GetDisguise(bool DisguisedAgainstAllies) const R0; //.__Show_As_Type 0xCC
+	virtual HouseClass* GetDisguiseHouse(bool DisguisedAgainstAllies) const R0; // __Show_As___targetable 0xD0
 
 	// remove object from the map
 	virtual bool Limbo() R0;
@@ -136,11 +136,11 @@ public:
 	virtual void DrawBehind(Point2D* pLocation, RectangleStruct* pBounds) const RX;
 	virtual void DrawExtras(Point2D* pLocation, RectangleStruct* pBounds) const RX; // draws ivan bomb, health bar, talk bubble, etc
 	virtual void Draw(Point2D* pLocation, RectangleStruct* pBounds) const RX;
-	virtual void DrawAgain(Point2D* pLocation, RectangleStruct* pBounds) const RX; // just forwards the call to Draw
-	virtual void Undiscover() RX;
+	virtual void DrawAgain(const Point2D& location, const RectangleStruct& bounds) const RX; // just forwards the call to Draw
+	virtual void Undiscover() RX; //hidden
 	virtual void See(DWORD dwUnk, DWORD dwUnk2) RX;
 	virtual bool UpdatePlacement(PlacementType value) R0;
-	virtual RectangleStruct* vt_entry_128(RectangleStruct* pRect) const R0;
+	virtual RectangleStruct* GetDimensions(RectangleStruct* pRect) const R0;
 	virtual RectangleStruct* GetRenderDimensions(RectangleStruct* pRect) R0;
 	virtual void DrawRadialIndicator(DWORD dwUnk) RX;
 	virtual void MarkForRedraw() RX;
@@ -167,12 +167,12 @@ public:
 	virtual DWORD GetPointsValue() const R0;
 	virtual Mission GetCurrentMission() const RT(Mission);
 	virtual void RestoreMission(Mission mission) RX;
-	virtual void UpdatePosition(int dwUnk) RX;
-	virtual BuildingClass* FindFactory(bool allowOccupied, bool requirePower) const R0;
-	virtual RadioCommand ReceiveCommand(TechnoClass* pSender, RadioCommand command, AbstractClass* &pInOut) RT(RadioCommand);
+	virtual void UpdatePosition(int dwUnk) RX; // PCP
+	virtual BuildingClass* FindFactory(bool allowOccupied, bool requirePower) const R0; //who can build me
+	virtual RadioCommand ReceiveCommand(TechnoClass* pSender, RadioCommand command, AbstractClass* &pInOut) RT(RadioCommand); //receive message
 	virtual bool DiscoveredBy(HouseClass *pHouse) R0;
 	virtual void SetRepairState(int state) RX; // 0 - off, 1 - on, -1 - toggle
-	virtual void Sell(DWORD dwUnk) RX;
+	virtual void Sell(int Control) RX; // -1 if Mission::Deconst , 0 if not Mission::Deconst , > 1 Play Generic Click
 	virtual void AssignPlanningPath(signed int idxPath, signed char idxWP) RX;
 	virtual void vt_entry_1A8(DWORD dwUnk) RX;
 	virtual Move IsCellOccupied(CellClass *pDestCell, int facing, int level, CellClass* pSourceCell, bool alt) const RT(Move);
@@ -221,14 +221,14 @@ public:
 		JMP_THIS(0x5F65A0); }
 
 	CoordStruct GetLocationCoords() const
-	{    
+	{
 		CoordStruct nBuff;
 		GetLocationCoords(&nBuff);
 		return nBuff;
 	}
 
 	double GetHealthPercentage_() const;
-		
+
 	//game original func
 	double GetHealthPercentage() const
 		{ JMP_THIS(0x5F5C60); }
@@ -288,19 +288,23 @@ public:
 
 	CoordStruct GetFLH(int idxWeapon, const CoordStruct& base) const {
 		CoordStruct ret;
-		this->GetFLH(&ret, 0, base);
+		this->GetFLH(&ret, idxWeapon, base);
 		return ret;
 	}
 
 	bool IsOnMyView() const;
-	
+
 	void AdjustStrength(double nMult) const
 		{ JMP_THIS(0x5F5C80); }
 
-	//Constructor
-	ObjectClass()  noexcept
-		: ObjectClass(noinit_t())
-	{ JMP_THIS(0x5F3900); }
+	//only accept BuildingClass it seems
+	void RemoveSidebarObject() const
+		{ JMP_THIS(0x734270); }
+
+//Constructor NEVER CALL IT DIRECTLY
+//	ObjectClass()  noexcept
+//		: ObjectClass(noinit_t())
+//	{ JMP_THIS(0x5F3900); }
 
 protected:
 	explicit __forceinline ObjectClass(noinit_t)  noexcept
@@ -319,8 +323,8 @@ public:
 	ObjectClass*       NextObject;	//Next Object in the same cell or transport. This is a linked list of Objects.
 	TagClass*          AttachedTag; //Should be TagClass , TODO: change when implemented
 	BombClass*         AttachedBomb; //Ivan's little friends.
-	AudioController    AmbientSoundController; // the "mofo" struct, evil evil stuff
-	AudioController    CustomSoundController; // the "mofo" struct, evil evil stuff
+	DECLARE_PROPERTY(AudioController, AmbientSoundController); // the "mofo" struct, evil evil stuff
+	DECLARE_PROPERTY(AudioController, CustomSoundController); // the "mofo" struct, evil evil stuff
 	int                CustomSound;
 	bool               BombVisible; // In range of player's bomb seeing units, so should draw it
 	PROTECTED_PROPERTY(BYTE, align_69[0x3]);

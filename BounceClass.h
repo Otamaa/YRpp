@@ -21,12 +21,13 @@ public:
 	BounceClass() = default;
 
 	void Init(CoordStruct& coords, double elasticity, double gravity,
-			double maxVelocity, Vector3D<float>* velocity, double angularVelocity)
+			double maxVelocity, Vector3D<float>* velocity, double angularVelocity) const
 		{ JMP_THIS(0x4397E0); }
 
 	void Init(CoordStruct* coords, double elasticity, int nUnused1,
-		int nUnused2, double velocity, double angularVelocity)
+		int nUnused2, double velocity, double angularVelocity) const
 		{ JMP_THIS(0x439690); }
+		
 	CoordStruct* GetCoords(CoordStruct* pBuffer) const
 		{ JMP_THIS(0x4399A0); }
 

@@ -1,7 +1,7 @@
 #pragma once
 #include <LocomotionClass.h>
 
-class __declspec(uuid("55D141B8-DB94-11d1-AC98-006008055BB5")) MechLocomotionClass : public LocomotionClass
+class NOVTABLE __declspec(uuid("55D141B8-DB94-11d1-AC98-006008055BB5")) MechLocomotionClass : public LocomotionClass
 {
 public:
 

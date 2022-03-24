@@ -1,6 +1,8 @@
 #pragma once
 
 #include <ObjectTypeClass.h>
+#include <Drawing.h>
+#include <FileFormats/IsoTileImageStruct.h>
 
 struct TileInsert
 {
@@ -15,8 +17,9 @@ class NOVTABLE IsometricTileTypeClass : public ObjectTypeClass
 public:
 	static const AbstractType AbsID = AbstractType::IsotileType;
 
+	ABSTRACTTYPE_ARRAY_NOALLOC(IsometricTileTypeClass, 0xA8ED28u);
+
 	//Array
-	static constexpr constant_ptr<DynamicVectorClass<IsometricTileTypeClass*>, 0xA8ED28u> const Array{};
 	static constexpr constant_ptr<DynamicVectorClass<LightConvertClass*>, 0x87F698u> const TileDrawers{};
 	static constexpr reference<SHPStruct*, 0xAA1060u, 0x4u> const SlopeZshape {};
 
@@ -36,16 +39,20 @@ public:
 
 	//ObjectTypeClass
 	virtual CoordStruct* vt_entry_6C(CoordStruct* pDest, CoordStruct* pSrc) const R0;
-
 	virtual bool SpawnAtMapCoords(CellStruct* pMapCoords, HouseClass* pOwner) R0;
-
 	virtual ObjectClass* CreateObject(HouseClass* pOwner) R0;
 	virtual void vt_entry_90(DWORD dwUnk) RX;
 
+private:
 	virtual SHPStruct* GetImage() const R0;
-
+public:
 	//Destructor
 	virtual ~IsometricTileTypeClass() RX;
+
+	int LoadTile() const
+	{ JMP_THIS(0x547020); }
+
+	IsoTileFileStruct* const Get_Tile_Data() const { return (IsoTileFileStruct*)GetImage(); }
 
 	//Constructor
 	IsometricTileTypeClass(int ArrayIndex, int Minus65, int Zero1,
@@ -71,7 +78,7 @@ public:
 	int NonMarbleMadnessTile;
 	DWORD ArrayIndex; //2A0
 	DynamicVectorClass<Color16Struct*> RadarImage; //2A4
-	DWORD NextTileTypeInSet; //2BC
+	IsometricTileTypeClass* NextTileTypeInSet; //2BC
 	int ToSnowTheater;
 	int ToTemperateTheater;
 	int TileAnimIndex; //Tile%02dAnim, actually an AnimTypeClass array index...
@@ -94,3 +101,5 @@ public:
 	bool AllowTiberium;
 	DWORD TilesLoadedMaybe_; //308
 };
+
+static_assert(sizeof(IsometricTileTypeClass) == 0x30C);

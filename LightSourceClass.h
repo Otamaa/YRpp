@@ -6,6 +6,9 @@
 
 #include <AbstractClass.h>
 
+#include <CoordStruct.h>
+#include <BasicStructures.h>
+
 class NOVTABLE LightSourceClass : public AbstractClass
 {
 public:

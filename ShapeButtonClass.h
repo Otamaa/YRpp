@@ -3,7 +3,7 @@
 #include <ToggleClass.h>
 
 class ConvertClass;
-class SHPStruct;
+struct SHPStruct;
 
 enum class ShapeButtonFlag : int
 {

@@ -24,14 +24,31 @@ class TagClass;
 class WaypointPathClass;
 class WaypointClass;
 
-//--- ScoreStruct - might as well have been a class, but I didn't find any proof for that.
-struct ScoreStruct
+class UnitTrackerClass
 {
-	int Counts[0x200];
-	int NumCounts;	//should maximally be 0x200 !!!
-	int	ByteOrder;	//BYTEORDER_HOST or BYTEORDER_NETWORK
+public:
+	UnitTrackerClass() JMP_THIS(0x748FD0);
+	~UnitTrackerClass() = default; // JMP_THIS(0x749010);
+	void IncrementUnitCount(int nUnit) JMP_THIS(0x749020);
+	void DecrementUnitCount(int nUnit) JMP_THIS(0x749040);
+	void PopulateUnitCount(int nCount) JMP_THIS(0x749060);
+	int GetUnitCount() JMP_THIS(0x7490A0);
+	const int* GetArray() JMP_THIS(0x7490C0);
+	void ClearUnitCount() JMP_THIS(0x7490D0);
+	void ToNetworkFormat() JMP_THIS(0x749100);
+	void ToPCFormat() JMP_THIS(0x749150);
+
+	int UnitTotals[0x200];
+	int UnitCount;
+	BOOL InNetworkFormat;
 };
-//-----
+
+struct ZoneInfoStruct
+{
+	int Aircraft;
+	int Armor;
+	int Infantry;
+};
 
 struct StartingTechnoStruct
 {
@@ -51,6 +68,11 @@ struct AngerStruct
 		return (House == tAnger.House &&
 				AngerLevel == tAnger.AngerLevel);
 	}
+
+	bool operator != (const AngerStruct& that) const
+	{
+		return (House != that.House && AngerLevel != that.AngerLevel);
+	}
 };
 
 struct ScoutStruct
@@ -63,6 +85,11 @@ struct ScoutStruct
 	{
 		return (House == tScout.House &&
 				IsPreferred == tScout.IsPreferred);
+	}
+
+	bool operator != (const ScoutStruct& that) const
+	{
+		return (House != that.House && IsPreferred != that.IsPreferred);
 	}
 };
 
@@ -94,6 +121,12 @@ class BaseClass
 public:
 	BaseClass()
 		{ JMP_THIS(0x42E6F0); }
+	~BaseClass()
+	{
+		BaseNodes.~DynamicVectorClass();
+		Cells_24.~DynamicVectorClass();
+		Cells_38.~DynamicVectorClass();
+	}
 
 	//VTable
 	virtual HRESULT __stdcall Load(IStream* pStm) R0;
@@ -106,10 +139,10 @@ public:
 		{ JMP_THIS(0x42F380); }
 
 	//Properties
-	DynamicVectorClass<BaseNodeClass> BaseNodes;
+	DECLARE_PROPERTY(DynamicVectorClass<BaseNodeClass>, BaseNodes);
 	int                               PercentBuilt;
-	DynamicVectorClass<CellStruct>    Cells_24;
-	DynamicVectorClass<CellStruct>    Cells_38;
+	DECLARE_PROPERTY(DynamicVectorClass<CellStruct>, Cells_24);
+	DECLARE_PROPERTY(DynamicVectorClass<CellStruct>, Cells_38);
 	CellStruct Center;
 
 	PROTECTED_PROPERTY(BYTE,                    unknown_54[0x20]);
@@ -122,7 +155,10 @@ public:
 // used for each of the 3 drop ships. has more functions that are not reproduced here yet
 struct DropshipStruct
 {
-	TimerStruct      Timer;
+	DropshipStruct() JMP_THIS(0x4B69B0);
+	~DropshipStruct() JMP_THIS(0x4B69D0);
+
+	DECLARE_PROPERTY(TimerStruct, Timer);
 	BYTE             unknown_C;
 	PROTECTED_PROPERTY(BYTE, align_D[3]);
 	int              Count;
@@ -484,38 +520,38 @@ public:
 	int CountOwnedAndPresent(TechnoTypeClass const* pItem) const;
 
 	int CountOwnedAndPresent(BuildingTypeClass const* const pItem) const {
-		return this->OwnedBuildingTypes1.GetItemCount(pItem->ArrayIndex);
+		return this->ActiveBuildingTypes.GetItemCount(pItem->ArrayIndex);
 	}
 
 	int CountOwnedAndPresent(AircraftTypeClass const* const pItem) const {
-		return this->OwnedAircraftTypes1.GetItemCount(pItem->ArrayIndex);
+		return this->ActiveAircraftTypes.GetItemCount(pItem->ArrayIndex);
 	}
 
 	int CountOwnedAndPresent(InfantryTypeClass const* const pItem) const {
-		return this->OwnedInfantryTypes1.GetItemCount(pItem->ArrayIndex);
+		return this->ActiveInfantryTypes.GetItemCount(pItem->ArrayIndex);
 	}
 
 	int CountOwnedAndPresent(UnitTypeClass const* const pItem) const {
-		return this->OwnedUnitTypes1.GetItemCount(pItem->ArrayIndex);
+		return this->ActiveUnitTypes.GetItemCount(pItem->ArrayIndex);
 	}
 
 	// Count owned ever
 	int CountOwnedEver(TechnoTypeClass const* pItem) const;
 
 	int CountOwnedEver(BuildingTypeClass const* const pItem) const {
-		return this->OwnedBuildingTypes2.GetItemCount(pItem->ArrayIndex);
+		return this->FactoryProducedBuildingTypes.GetItemCount(pItem->ArrayIndex);
 	}
 
 	int CountOwnedEver(AircraftTypeClass const* const pItem) const {
-		return this->OwnedAircraftTypes2.GetItemCount(pItem->ArrayIndex);
+		return this->FactoryProducedAircraftTypes.GetItemCount(pItem->ArrayIndex);
 	}
 
 	int CountOwnedEver(InfantryTypeClass const* const pItem) const {
-		return this->OwnedInfantryTypes2.GetItemCount(pItem->ArrayIndex);
+		return this->FactoryProducedInfantryTypes.GetItemCount(pItem->ArrayIndex);
 	}
 
 	int CountOwnedEver(UnitTypeClass const* const pItem) const {
-		return this->OwnedUnitTypes2.GetItemCount(pItem->ArrayIndex);
+		return this->FactoryProducedUnitTypes.GetItemCount(pItem->ArrayIndex);
 	}
 
 
@@ -623,6 +659,22 @@ public:
 		return static_cast<unsigned int>(this->AIDifficulty);
 	}
 
+	unsigned int GetCorrectAIDifficultyIndex() const
+	{
+		switch (AIDifficulty)
+		{
+		case AIDifficulty::Hard:
+			return 2;
+		break;
+		case AIDifficulty::Normal:
+			return 1;
+		break;
+		default:
+			return 0;
+		break;
+		}
+	}
+
 	/*!
 		At the moment, this function is really just a more intuitively named mask for
 		this->Type->MultiplayPassive, but it might be expanded into something more
@@ -665,9 +717,7 @@ public:
 		{ JMP_THIS(0x4FF550); }
 
 	void AddTracking(TechnoClass* pTechno)
-	{
-		JMP_THIS(0x4FF700);
-	}
+	{ JMP_THIS(0x4FF700); }
 
 	Edge GetHouseEdge() const
 	{
@@ -684,6 +734,15 @@ public:
 
 		return edge;
 	}
+	
+	Edge ResolveEdge() const
+		{ JMP_THIS(0x50DAC0); }
+	
+	Edge GetStartingEdge() const
+		{ JMP_THIS(0x50DAA0); }
+		
+	double GetBuildTimeMult(TechnoTypeClass* pThat)
+		{ JMP_THIS(0x50C0A0); }
 
 	double GetTypeArmorMult(TechnoTypeClass* pTech)
 		{ JMP_THIS(0x50BD30); }
@@ -696,6 +755,9 @@ public:
 
 	int FactoryCount(AbstractType nWhat, bool bArg3)
 		{ JMP_THIS(0x500910); }
+
+	void ForceEnd()
+		{ JMP_THIS(0x4FCDC0); }
 
 	//Constructor
 	HouseClass(HouseTypeClass* pCountry) noexcept
@@ -715,24 +777,24 @@ public:
 
 	int                   ArrayIndex;
 	HouseTypeClass*       Type;
-	DynamicVectorClass<TagClass*> RelatedTags;
-	DynamicVectorClass<BuildingClass*> ConYards;
-	DynamicVectorClass<BuildingClass*> Buildings;
-	DynamicVectorClass<BuildingClass*> UnitRepairStations;
-	DynamicVectorClass<BuildingClass*> Grinders;
-	DynamicVectorClass<BuildingClass*> Absorbers;
-	DynamicVectorClass<BuildingClass*> Bunkers;
-	DynamicVectorClass<BuildingClass*> Occupiables;
-	DynamicVectorClass<BuildingClass*> CloningVats;
-	DynamicVectorClass<BuildingClass*> SecretLabs;
-	DynamicVectorClass<BuildingClass*> PsychicDetectionBuildings;
-	DynamicVectorClass<BuildingClass*> FactoryPlants;
+	DECLARE_PROPERTY(DynamicVectorClass<TagClass*>, RelatedTags);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, ConYards);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, Buildings);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, UnitRepairStations);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, Grinders);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, Absorbers);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, Bunkers);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, Occupiables);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, CloningVats);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, SecretLabs);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, PsychicDetectionBuildings);
+	DECLARE_PROPERTY(DynamicVectorClass<BuildingClass*>, FactoryPlants);
 	int                   CountResourceGatherers;
 	int                   CountResourceDestinations;
 	int                   CountWarfactories;
 	int                   InfantrySelfHeal;
 	int                   UnitsSelfHeal;
-	DynamicVectorClass<StartingTechnoStruct*> StartingUnits;
+	DECLARE_PROPERTY(DynamicVectorClass<StartingTechnoStruct*>, StartingUnits);
 	AIDifficulty          AIDifficulty; // be advised that it's reverse, Hard == 0 and Easy == 2. I'm sure Westwood has a good reason for this. Yep.
 	double                FirepowerMultiplier; // used
 	double                GroundspeedMultiplier; // unused ...
@@ -745,16 +807,17 @@ public:
 	double                BuildDelay;
 	int                   IQLevel;
 	int                   TechLevel;
-	PROTECTED_PROPERTY(DWORD,       AltAllies); // ask question, receive brain damage
+	IndexBitfield<HouseClass*> AltAllies; // ask question, receive brain damage
 	int                   StartingCredits;	//not sure how these are used // actual credits = this * 100
 	Edge                  StartingEdge;
-	DWORD                 unknown_1E4;
+	DWORD                 AIState_1E4;
 	int                   SideIndex;
 	bool                  CurrentPlayer;		//is controlled by the player at this computer
 	bool                  PlayerControl;		//a human controls this House
 	bool                  Production;		//AI production has begun
 	bool                  AutocreateAllowed;
-	PROTECTED_PROPERTY(BYTE,        unknown_1F0[2]);
+	bool			      NodeLogic_1F0;
+	bool			      ShipYardConst_1F1;
 	bool                  AITriggersActive;
 	bool                  AutoBaseBuilding;
 	bool                  DiscoveredByPlayer;
@@ -766,34 +829,36 @@ public:
 	bool                  FirestormActive;
 	bool                  HasThreatNode;
 	bool                  RecheckTechTree;
-	PROTECTED_PROPERTY(BYTE,        unknown_1FD[0x0F]);
+	int					  IPAddress;
+	int					  TournamentTeamID;
+	bool				  LostConnection;
 	int                   SelectedPathIndex;
-	WaypointPathClass* PlanningPaths [0x0C]; // 12 paths for "planning mode"
+	WaypointPathClass* PlanningPaths [12]; // 12 paths for "planning mode"
 	char                  Visionary;			//??? exe says so
 	bool                  MapIsClear;
-	bool                  unknown_bool_242;
-	bool                  unknown_bool_243;
+	bool                  IsTiberiumShort;
+	bool                  HasBeenSpied;
 	bool                  HasBeenThieved; // Something of this house has been entered by a Thief/VehicleThief
 	bool                  Repairing; // BuildingClass::Repair, handholder for hurr durf AI
-	bool                  unknown_bool_246;
-	bool                  unknown_bool_247;
-	bool                  unknown_bool_248;
+	bool                  IsBuiltSomething;
+	bool                  IsResigner;
+	bool                  IsGiverUpper;
 	bool                  AllToHunt;
-	bool                  unknown_bool_24A;
-	bool                  unknown_bool_24B;
+	bool                  IsParanoid;
+	bool                  IsToLook;
 	int                   IQLevel2;			//no idea why we got this twice
 	AIMode                AIMode;
-	DynamicVectorClass<SuperClass*> Supers;
+	DECLARE_PROPERTY(DynamicVectorClass<SuperClass*>, Supers);
 	int                   LastBuiltBuildingType;
 	int                   LastBuiltInfantryType;
 	int                   LastBuiltAircraftType;
 	int                   LastBuiltVehicleType;
 	int                   AllowWinBlocks; // some ra1 residue map trigger-fu, should die a painful death
-	TimerStruct RepairTimer; // for AI
-	TimerStruct unknown_timer_28C;
-	TimerStruct SavourTimer;
-	TimerStruct PowerBlackoutTimer;
-	TimerStruct RadarBlackoutTimer;
+	DECLARE_PROPERTY(TimerStruct, RepairTimer); // for AI
+	DECLARE_PROPERTY(TimerStruct, AlertTimer);
+	DECLARE_PROPERTY(TimerStruct, BorrowedTime);
+	DECLARE_PROPERTY(TimerStruct, PowerBlackoutTimer);
+	DECLARE_PROPERTY(TimerStruct, RadarBlackoutTimer);
 	bool                  Side2TechInfiltrated; // asswards! whether this player has infiltrated stuff
 	bool                  Side1TechInfiltrated; // which is listed in [AI]->BuildTech
 	bool                  Side0TechInfiltrated; // and has the appropriate AIBasePlanningSide
@@ -818,29 +883,29 @@ public:
 
 	int                   AirportDocks;
 	int                   PoweredUnitCenters;
-	DWORD unknown_2DC;
-	DWORD unknown_2E0;
-	DWORD unknown_2E4;
+	int					  CreditsSpent;
+	int					  HarvestedCredits;
+	int					  StolenBuildingsCredits;
 	int                   OwnedUnits;
 	int                   OwnedNavy;
 	int                   OwnedBuildings;
 	int                   OwnedInfantry;
 	int                   OwnedAircraft;
-	OwnedTiberiumStruct   OwnedTiberium;
+	DECLARE_PROPERTY(StorageClass, OwnedTiberium);
 	int                   Balance;
 	int                   TotalStorage; // capacity of all building Storage
-	OwnedTiberiumStruct   OwnedWeed;
+	DECLARE_PROPERTY(StorageClass, OwnedWeed);
 	DWORD unknown_324;
-	ScoreStruct BuiltInfantryTypes;
-	ScoreStruct BuiltUnitTypes;
-	ScoreStruct BuiltAircraftTypes;
-	ScoreStruct BuiltBuildingTypes;
-	ScoreStruct KilledInfantryTypes;
-	ScoreStruct KilledUnitTypes;
-	ScoreStruct KilledAircraftTypes;
-	ScoreStruct KilledBuildingTypes;
-	ScoreStruct UnknownScores;
-	ScoreStruct CollectedPowerups;	//YES, THIS IS HOW WW WASTES TONS OF RAM
+	DECLARE_PROPERTY(UnitTrackerClass, BuiltAircraftTypes);
+	DECLARE_PROPERTY(UnitTrackerClass, BuiltInfantryTypes);
+	DECLARE_PROPERTY(UnitTrackerClass, BuiltUnitTypes);
+	DECLARE_PROPERTY(UnitTrackerClass, BuiltBuildingTypes);
+	DECLARE_PROPERTY(UnitTrackerClass, KilledAircraftTypes);
+	DECLARE_PROPERTY(UnitTrackerClass, KilledInfantryTypes);
+	DECLARE_PROPERTY(UnitTrackerClass, KilledUnitTypes);
+	DECLARE_PROPERTY(UnitTrackerClass, KilledBuildingTypes);
+	DECLARE_PROPERTY(UnitTrackerClass, CapturedBuildings);
+	DECLARE_PROPERTY(UnitTrackerClass, CollectedCrates);	//YES, THIS IS HOW WW WASTES TONS OF RAM
 	int                   NumAirpads;
 	int                   NumBarracks;
 	int                   NumWarFactories;
@@ -863,63 +928,49 @@ public:
 	FactoryClass*         Primary_Unused2;
 	FactoryClass*         Primary_Unused3;
 	FactoryClass*         Primary_ForDefenses;
-	BYTE unknown_53D0;
-	BYTE unknown_53D1;
-	BYTE unknown_53D2;
-	BYTE unknown_53D3;
-	BYTE unknown_53D4;
-	BYTE unknown_53D5;
-	BYTE unknown_53D6;
-	BYTE unknown_53D7;
-	BYTE unknown_53D8;
-	BYTE unknown_53D9;
-	BYTE unknown_53DA;
-	BYTE unknown_53DB;
-	UnitClass* OurFlagCarrier;
-	CellStruct  OurFlagCoords;
+	BYTE				  AircraftType_53D0;
+	BYTE				  InfantryType_53D1;
+	BYTE				  VehicleType_53D2;
+	BYTE				  ShipType_53D3;
+	BYTE				  BuildingType_53D4;
+	BYTE				  unknown_53D5;
+	BYTE				  unknown_53D6;
+	BYTE				  unknown_53D7;
+	BYTE				  DefenseType_53D8;
+	BYTE				  unknown_53D9;
+	BYTE				  unknown_53DA;
+	BYTE				  unknown_53DB;
+	UnitClass*			  OurFlagCarrier;
+	CellStruct			  OurFlagCoords;
 	//for endgame score screen
-	int KilledUnitsOfHouses [0x14];		// 20 Houses only!
+	int					  KilledUnitsOfHouses [20];		// 20 Houses only!
 	int                   TotalKilledUnits;
-	int KilledBuildingsOfHouses [0x14];	// 20 Houses only!
+	int					  KilledBuildingsOfHouses [20];	// 20 Houses only!
 	int                   TotalKilledBuildings;
-	DWORD                 unknown_548C;
+	int                   WhoLastHurtMe;
 	CellStruct            BaseSpawnCell;
 	CellStruct            BaseCenter; // set by map action 137 and 138
-	DWORD unknown_5498;
-	DWORD unknown_549C;
-	DWORD unknown_54A0;
-	DWORD unknown_54A4;
-	DWORD unknown_54A8;
-	DWORD unknown_54AC;
-	DWORD unknown_54B0;
-	DWORD unknown_54B4;
-	DWORD unknown_54B8;
-	DWORD unknown_54BC;
-	DWORD unknown_54C0;
-	DWORD unknown_54C4;
-	DWORD unknown_54C8;
-	DWORD unknown_54CC;
-	DWORD unknown_54D0;
-	DWORD unknown_54D4;
-	DWORD unknown_54D8;
-	DWORD unknown_54DC;
-	DWORD unknown_54E0;
+	int					  Radius;
+	DECLARE_PROPERTY_ARRAY(ZoneInfoStruct, ZoneInfos, 5);
+	int					  LATime;
+	int					  LAEnemy;
+	int					  ToCapture;
 //	IndexBitfield<HouseTypeClass *> RadarVisibleTo; // these house types(!?!, fuck you WW) can see my radar
 	IndexBitfield<HouseClass *> RadarVisibleTo; // this crap is being rewritten to use house indices instead of house types
 	int                   SiloMoney;
-	TargetType PreferredTargetType; // Set via map action 35. The preferred object type to attack.
-	CellStruct PreferredTargetCell; // Set via map action 135 and 136. Used to override firing location of targettable SWs.
-	CellStruct PreferredDefensiveCell; // Set via map action 140 and 141, or when an AIDefendAgainst SW is launched.
-	CellStruct PreferredDefensiveCell2; // No known function sets this to a real value, but it would take precedence over the other.
-	int PreferredDefensiveCellStartTime; // The frame the PreferredDefensiveCell was set. Used to fire the Force Shield.
+	TargetType			  PreferredTargetType; // Set via map action 35. The preferred object type to attack.
+	CellStruct			  PreferredTargetCell; // Set via map action 135 and 136. Used to override firing location of targettable SWs.
+	CellStruct			  PreferredDefensiveCell; // Set via map action 140 and 141, or when an AIDefendAgainst SW is launched.
+	CellStruct			  PreferredDefensiveCell2; // No known function sets this to a real value, but it would take precedence over the other.
+	int					  PreferredDefensiveCellStartTime; // The frame the PreferredDefensiveCell was set. Used to fire the Force Shield.
 
 		// Used for: Counting objects ever owned
 		// altered on each object's loss or gain
 		// BuildLimit > 0 validation uses this
-	CounterClass OwnedBuildingTypes;
-	CounterClass OwnedUnitTypes;
-	CounterClass OwnedInfantryTypes;
-	CounterClass OwnedAircraftTypes;
+	DECLARE_PROPERTY(CounterClass, OwnedBuildingTypes);
+	DECLARE_PROPERTY(CounterClass, OwnedUnitTypes);
+	DECLARE_PROPERTY(CounterClass, OwnedInfantryTypes);
+	DECLARE_PROPERTY(CounterClass, OwnedAircraftTypes);
 
 		// Used for: Counting objects currently owned and on the map
 		// altered on each object's loss or gain
@@ -927,28 +978,26 @@ public:
 		// original PrereqOverride check uses this
 		// original Prerequisite check uses this
 		// AuxBuilding check uses this
-	CounterClass OwnedBuildingTypes1;
-	CounterClass OwnedUnitTypes1;
-	CounterClass OwnedInfantryTypes1;
-	CounterClass OwnedAircraftTypes1;
+	DECLARE_PROPERTY(CounterClass, ActiveBuildingTypes);
+	DECLARE_PROPERTY(CounterClass, ActiveUnitTypes);
+	DECLARE_PROPERTY(CounterClass, ActiveInfantryTypes);
+	DECLARE_PROPERTY(CounterClass, ActiveAircraftTypes);
 
 		// Used for: Counting objects produced from Factory
 		// not altered when things get taken over or removed
 		// BuildLimit < 0 validation uses this
-	CounterClass OwnedBuildingTypes2;
-	CounterClass OwnedUnitTypes2;
-	CounterClass OwnedInfantryTypes2;
-	CounterClass OwnedAircraftTypes2;
+	DECLARE_PROPERTY(CounterClass, FactoryProducedBuildingTypes);
+	DECLARE_PROPERTY(CounterClass, FactoryProducedUnitTypes);
+	DECLARE_PROPERTY(CounterClass, FactoryProducedInfantryTypes);
+	DECLARE_PROPERTY(CounterClass, FactoryProducedAircraftTypes);
 
-	DWORD unknown_55F0;
-	DWORD unknown_55F4;
-	int                   AttackDelayA;
-	int                   AttackDelayB; // both unused
+	DECLARE_PROPERTY(TimerStruct, AttackTimer);
+	int                   InitialAttackDelay; // both unused
 	int                   EnemyHouseIndex;
-	DynamicVectorClass<AngerStruct> AngerNodes; //arghghghgh bugged
-	DynamicVectorClass<ScoutStruct> ScoutNodes; // filled with data which is never used, jood gob WW
-	TimerStruct unkTimer3;
-	TimerStruct unkTimer4;
+	DECLARE_PROPERTY(DynamicVectorClass<AngerStruct>, AngerNodes); //arghghghgh bugged
+	DECLARE_PROPERTY(DynamicVectorClass<ScoutStruct>, ScoutNodes); // filled with data which is never used, jood gob WW
+	DECLARE_PROPERTY(TimerStruct, AITimer);
+	DECLARE_PROPERTY(TimerStruct, Unknown_Timer_5640);
 	int                   ProducingBuildingTypeIndex;
 	int                   ProducingUnitTypeIndex;
 	int                   ProducingInfantryTypeIndex;
@@ -958,41 +1007,40 @@ public:
 	int                   RatioTeamInfantry;
 	int                   RatioTeamBuildings;
 	int                   BaseDefenseTeamCount;
-	DropshipStruct        DropshipData[3];
+	DECLARE_PROPERTY_ARRAY(DropshipStruct, DropshipData, 3);
 	int                   CurrentDropshipIndex;
-	byte          HasCloakingRanges; // don't ask
-	ColorStruct Color;
-	ColorStruct LaserColor; // my idb says so
-	byte          padding;
-	BaseClass Base;
+	byte				  HasCloakingRanges; // don't ask
+	ColorStruct			  Color;
+	ColorStruct			  LaserColor; // my idb says so
+	BaseClass			  Base;
 	bool                  RecheckPower;
 	bool                  RecheckRadar;
 	bool                  SpySatActive;
 	bool                  IsBeingDrained;
 	Edge                  Edge;
-	CellStruct EMPTarget;
-	CellStruct NukeTarget;
-	DWORD                 Allies;	//flags, one bit per HouseClass instance
+	CellStruct			  EMPTarget;
+	CellStruct			  NukeTarget;
+	IndexBitfield<HouseClass*> Allies;	//flags, one bit per HouseClass instance
 	                                        	//-> 32 players possible here
-	TimerStruct DamageDelayTimer;
-	TimerStruct TeamDelayTimer; // for AI attacks
-	TimerStruct unknown_timer_A;
-	TimerStruct unknown_timer_B;
-	TimerStruct unknown_timer_C;
-	TimerStruct unknown_timer_D;
-	TimerStruct unknown_timer_E;
-	DWORD unknown_57DC;
+	DECLARE_PROPERTY(TimerStruct, DamageDelayTimer);
+	DECLARE_PROPERTY(TimerStruct, TeamDelayTimer); // for AI attacks
+	DECLARE_PROPERTY(TimerStruct, TriggerDelayTimer);
+	DECLARE_PROPERTY(TimerStruct, SpeakAttackDelayTimer);
+	DECLARE_PROPERTY(TimerStruct, SpeakPowerDelayTimer);
+	DECLARE_PROPERTY(TimerStruct, SpeakMoneyDelayTimer);
+	DECLARE_PROPERTY(TimerStruct, SpeakMaxedDelayTimer);
+	IAIHouse*		      AIGeneral;
 
-	unsigned int                    ThreatPosedEstimates[130][130]; // BLARGH
+	unsigned int          ThreatPosedEstimates[130][130]; // BLARGH
 
-	char PlainName [0x15]; // this defaults to the owner country's name in SP or <human player><computer player> in MP. Used as owner for preplaced map objects
-	char UINameString [0x20]; // this contains the UIName= text from the INI! or
-	wchar_t UIName [0x15]; // this contains the CSF string from UIName= above, or a copy of the country's UIName if not defined. Take note that this is shorter than the country's UIName can be...
+	char				  PlainName[21]; // this defaults to the owner country's name in SP or <human player><computer player> in MP. Used as owner for preplaced map objects
+	char				  UINameString[33]; // this contains the UIName= text from the INI! or
+	wchar_t				  UIName [21]; // this contains the CSF string from UIName= above, or a copy of the country's UIName if not defined. Take note that this is shorter than the country's UIName can be...
 	int                   ColorSchemeIndex;
-	CellStruct StartingCell;
-	DWORD                 StartingAllies;
+	CellStruct			  StartingCell;
+	IndexBitfield<HouseClass*> StartingAllies;
 	DWORD                 unknown_16060;
-	DynamicVectorClass<IConnectionPoint*> WaypointPath;
+	DECLARE_PROPERTY(DynamicVectorClass<IConnectionPoint*>, WaypointPath);
 	DWORD unknown_1607C;
 	DWORD unknown_16080;
 	DWORD unknown_16084;
@@ -1005,5 +1053,5 @@ public:
 	int TotalOwnedInfantryCost;
 	int TotalOwnedVehicleCost;
 	int TotalOwnedAircraftCost;
-	DWORD unknown_160B4;
+	DWORD unknown_power_160B4;
 };

@@ -95,10 +95,12 @@ public:
 		THISCALL(0x5B3C20);
 	}
 
-//	MixFileClass(const char* pFileName,const PKey * key = Key() )
-//		: Node<MixFileClass>()
-//	{ JMP_THIS(0x5B3C20); }
+	static void* Retrieve(char* name, bool forceShapeCache)
+		{ JMP_STD(0x5B40B0); }
 
+	static bool __fastcall Offset(const char* filename, void*& data,
+		MixFileClass*& mixfile, int& offset, int& length)
+	{ JMP_STD(0x5B4430); }
 
 protected:
 	/*PROPERTY(MixFileClass*, Next);

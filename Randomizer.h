@@ -34,59 +34,31 @@ public:
 	static constexpr reference<Random2Class, 0x886B88u> const NonCriticalRandomNumber{};
 	static constexpr reference<Random2Class, 0x886B88u> const Global{}; // For backward compatibility
 
-	Random2Class(unsigned seed = GetTickCount())
-	{
-		JMP_THIS(0x65C6D0);
-	}
+	Random2Class(DWORD seed = *reinterpret_cast<DWORD*>(0xA8ED94))
+	{ JMP_THIS(0x65C6D0); }
 
-	operator int() { return operator()(); }
-
-	int operator()()
-	{
-		JMP_THIS(0x65C780);
-	}
-
-	int operator()(int minval, int maxval)
-	{
-		JMP_THIS(0x65C7E0)
-	}
-
-	template<typename T> T operator()(T minval, T maxval) { return static_cast<T>((*this)(static_cast<int>(minval), static_cast<int>(maxval))); }
-
-	int operator()(int nNumber)
-	{
-		return (*this)(0, nNumber);
-	}
-
-	// For backward compatibility
-	// Otamaa 05/08/2021
-
-	DWORD Random()
-	{
-		JMP_THIS(0x65C780);
-	}
+	int Random()
+	{ JMP_THIS(0x65C780); }
 
 	int RandomRanged(int nMin, int nMax)
-	{
-		return (*this)(nMin, nMax);
-	}
+	{ JMP_THIS(0x65C7E0); }
+
+	int operator()()
+	{ return Random(); }
+
+	int operator()(int nMin, int nMax)
+	{ return RandomRanged(nMin, nMax); }
 
 	bool PercentChance(int percent)
-	{
-		return (*this)(99) < percent;
-	}
+	{ return RandomRanged(0,99) < percent; }
 
 	bool PercentChance(double dChance)
-	{
-		return (*this).RandomDouble() < dChance;
-	}
+	{ return RandomDouble() < dChance; }
 
 	double RandomDouble()
-	{
-		return (*this)(1, 2147483647) / 2147483648.0;
-	}
+	{ return RandomRanged(1, INT_MAX) / (double)((unsigned int)INT_MAX + 1); }
 
-protected:
+public:
 	bool unknownBool_00;
 	int Index1;
 	int Index2;

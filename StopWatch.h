@@ -1,8 +1,5 @@
 #pragma once
 
-#include <Unsorted.h>
-#include <Helpers/CompileTime.h>
-
 class Stopwatch
 {
 public:
@@ -20,7 +17,7 @@ public:
         return ret;
     }
 
-    LARGE_INTEGER get_nano() const 
+    LARGE_INTEGER get_nano() const
     {
         LARGE_INTEGER ret = get();
         ret.QuadPart *= 1000000000;
@@ -28,7 +25,7 @@ public:
         return ret;
     }
 
-    LARGE_INTEGER get_micro() const 
+    LARGE_INTEGER get_micro() const
     {
         LARGE_INTEGER ret = get();
         ret.QuadPart *= 1000000;
@@ -44,7 +41,7 @@ public:
         return ret;
     }
 
-    void reset() 
+    void reset()
     {
         QueryPerformanceCounter(&this->StartingTime);
     }

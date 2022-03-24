@@ -2,7 +2,7 @@
 
 #include <LocomotionClass.h>
 
-class __declspec(uuid("4A582744-9839-11d1-B709-00A024DDAFD1")) WalkLocomotionClass : public LocomotionClass, public IPiggyback
+class NOVTABLE __declspec(uuid("4A582744-9839-11d1-B709-00A024DDAFD1")) WalkLocomotionClass : public LocomotionClass, public IPiggyback
 {
 public:
 	//IUnknown

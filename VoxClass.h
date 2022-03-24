@@ -6,10 +6,10 @@
 
 #include <ArrayClasses.h>
 #include <GeneralDefinitions.h>
-#include <CCINIClass.h>
 
 #include <Helpers/CompileTime.h>
 
+class CCINIClass;
 class VoxClass
 {
 public:

@@ -36,6 +36,7 @@ const Color16Struct Color16Struct::Empty = { 0,0,0 };
 ALIAS(Imports::FP_OleSaveToStream, Imports::OleSaveToStream, 0x7E15F4);
 ALIAS(Imports::FP_OleLoadFromStream, Imports::OleLoadFromStream, 0x7E15F8);
 ALIAS(Imports::FP_CoRegisterClassObject, Imports::CoRegisterClassObject, 0x7E15D8);
+ALIAS(Imports::FP_CoRevokeClassObject, Imports::CoRevokeClassObject, 0x7E15CC);
 ALIAS(Imports::FP_TimeGetTime, Imports::TimeGetTime, 0x7E1530);
 ALIAS(Imports::FP_GetUpdateRect, Imports::GetUpdateRect, 0x7E139C);
 ALIAS(Imports::FP_GetKeyState, Imports::GetKeyState, 0x7E13A8);
@@ -135,6 +136,12 @@ ALIAS(Imports::FP_GetWindowTextA, Imports::GetWindowTextA, 0x7E150C);
 ALIAS(Imports::FP_RegisterHotKey, Imports::RegisterHotKey, 0x7E1510);
 ALIAS(Imports::FP_InterlockedIncrement, Imports::InterlockedIncrement, 0x7E11C8);
 ALIAS(Imports::FP_InterlockedDecrement, Imports::InterlockedDecrement, 0x7E11CC);
+ALIAS(Imports::FP_DeleteCriticalSection, Imports::DeleteCriticalSection, 0x7E11E4);
+ALIAS(Imports::FP_EnterCriticalSection, Imports::EnterCriticalSection, 0x7E11E8);
+ALIAS(Imports::FP_LeaveCriticalSection, Imports::LeaveCriticalSection, 0x7E11EC);
+ALIAS(Imports::FP_InitializeCriticalSection, Imports::InitializeCriticalSection, 0x7E11F4);
+ALIAS(Imports::FP_Sleep, Imports::Sleep, 0x7E11F0);
+
 #pragma endregion
 
 #pragma region GlobalVarDeclaration
@@ -160,6 +167,7 @@ ALIAS(DynamicVectorClass<ULONG>, ClassFactories, 0xB0BC88)
 ARRAY2D_DEF(0xB4669Cu, short, Wave_LUT_Pythagoras, 300, 300);
 ARRAY2D_DEF(0xABC7F8u, Point2D, LaserClass_DrawData, 8, 2);
 ARRAY2D_DEF(0x88A118u, char, AlphaShapeArray, 256, 256);
+ARRAY2D_DEF(0xB07E80u,SelectClass*, SelectButton, 1, 14);
 #pragma endregion
 
 void SlaveManagerClass::ZeroOutSlaves() {
@@ -175,8 +183,8 @@ void SlaveManagerClass::ZeroOutSlaves() {
 
 bool ObjectClass::IsOnMyView() const
 {
-	auto coords = this->GetCoords();
-	auto Point = TacticalClass::Instance->CoordsToView(coords);
+	auto const coords = this->GetCoords();
+	auto const Point = TacticalClass::Instance->CoordsToView(coords);
 	return Point.X > Drawing::SurfaceDimensions_Hidden().X
 		&& Point.Y > Drawing::SurfaceDimensions_Hidden().Y
 		&& Point.X < Drawing::SurfaceDimensions_Hidden().X + Drawing::SurfaceDimensions_Hidden().Width
@@ -579,3 +587,191 @@ const char* Fixed::As_ASCII() const
 	return buffer;
 }
 #pragma warning(pop)
+/*const std::array<const TileTypeData, 21> CellClass::TileArray
+=
+{ {
+	{TileType::Unk, 0x0},
+	{TileType::Tunnel, 0x484AB0},
+	{TileType::Water, 0x485060},
+	{TileType::Blank, 0x486380},
+	{TileType::Ramp, 0x4863A0},
+	{TileType::Cliff, 0x4863D0},
+	{TileType::Shore, 0x4865B0},
+	{TileType::Wet, 0x4865D0},
+	{TileType::MiscPave, 0x486650},
+	{TileType::Pave, 0x486670},
+	{TileType::DirtRoad, 0x486690},
+	{TileType::PavedRoad, 0x4866D0},
+	{TileType::PavedRoadEnd, 0x4866F0},
+	{TileType::PavedRoadSlope, 0x486710},
+	{TileType::Median, 0x486730},
+	{TileType::Bridge, 0x486750},
+	{TileType::WoodBridge, 0x486770},
+	{TileType::ClearToSandLAT, 0x486790},
+	{TileType::Green, 0x4867B0},
+	{TileType::NotWater, 0x4867E0},
+	{TileType::DestroyableCliff, 0x486900},
+	}
+};*/
+
+CoordStruct WWMouseClass::GetCoordsUnderCursor()
+{
+	CoordStruct nbuffer { -1,-1,-1 };
+	Point2D nBuffer2D;
+	WWMouseClass::Instance->GetCoords_NotVirtual(nBuffer2D);
+
+	if (nBuffer2D.X >= 0 && nBuffer2D.Y >= 0)
+	{
+		CellStruct nBufferCell;
+		TacticalClass::Instance->Coordmap_viewportpos_tocellpos_Click_Cell_Calc(nBufferCell, nBuffer2D);
+		nbuffer.X = nBufferCell.X * 256;
+		nbuffer.Y = nBufferCell.Y * 256;
+		nbuffer.Z = 0;
+	}
+
+	return nbuffer;
+}
+
+CellStruct WWMouseClass::GetCellUnderCursor()
+{
+	CellStruct nbuffer { -1,-1 };
+	Point2D nBuffer2D;
+	WWMouseClass::Instance->GetCoords_NotVirtual(nBuffer2D);
+
+	if (nBuffer2D.X >= 0 && nBuffer2D.Y >= 0)
+		TacticalClass::Instance->Coordmap_viewportpos_tocellpos_Click_Cell_Calc(nbuffer, nBuffer2D);
+
+	return nbuffer;
+}
+
+bool LocomotionClass::End_Piggyback(YRComPtr<ILocomotion> &pLoco)
+{
+	if (!pLoco)
+	{
+		Game::RaiseError(E_POINTER);
+	}
+
+	if (YRComPtr<IPiggyback> pPiggy = pLoco)
+	{
+		if (pPiggy->Is_Piggybacking())
+		{
+			// this frees the current locomotor
+			pLoco.reset(nullptr);
+
+			// this restores the old one
+			auto res = pPiggy->End_Piggyback(pLoco.pointer_to());
+			if (FAILED(res))
+			{
+				Game::RaiseError(res);
+			}
+			return (res == S_OK);
+		}
+	}
+
+	return false;
+}
+
+void LocomotionClass::ChangeLocomotorTo(FootClass *Object, const CLSID &clsid)
+{
+	// remember the current one
+	YRComPtr<ILocomotion> Original(Object->Locomotor);
+
+	// create a new locomotor and link it
+	auto NewLoco = CreateInstance(clsid);
+	NewLoco->Link_To_Object(Object);
+
+	// get piggy interface and piggy original
+	YRComPtr<IPiggyback> Piggy(NewLoco);
+	Piggy->Begin_Piggyback(Original.get());
+
+	// replace the current locomotor
+	Object->Locomotor = std::move(NewLoco);
+}
+
+
+void TechnoClass::ReleaseCaptureManager() const
+{
+	if (auto pManager = this->CaptureManager)
+		pManager->FreeAll();
+}
+
+void TechnoClass::SuspendWorkSlaveManager() const
+{
+	if (auto pManager = this->SlaveManager)
+		pManager->SuspendWork();
+}
+
+void TechnoClass::ResumeWorkSlaveManager() const
+{
+	if (auto pManager = this->SlaveManager)
+		pManager->ResumeWork();
+}
+
+void TechnoClass::DetechMyTemporal() const
+{
+	if (this->IsWarpingSomethingOut())
+		if (auto pTemporal = this->TemporalImUsing)
+			pTemporal->LetGo();
+}
+
+MissionControlClass* TechnoClass::GetCurrentMissionControl() const
+{
+	return MissionControlClass::Find(MissionControlClass::FindName(this->GetCurrentMission()));
+}
+
+double TechnoClass::GetCurrentMissionRate() const
+{
+	auto const control = this->GetCurrentMissionControl();
+	auto const doubleval = 900.0; // 0x7E27F8
+	return control->Rate * doubleval;
+}
+
+int TechnoClass::GetIonCannonValue(AIDifficulty difficulty, int maxHealth) const {
+	// what TS does
+	if (maxHealth > 0 && this->Health > maxHealth) {
+		return (this->WhatAmI() == AbstractType::Building) ? 3 : 1;
+	}
+
+	return this->GetIonCannonValue(difficulty);
+}
+
+bool PCX::LoadFile(const char *pFileName, int flag1, int flag2)
+{
+	if (Instance->GetSurface(pFileName, nullptr)) {
+		return true;
+	}
+	return Instance->ForceLoadFile(pFileName, flag1, flag2);
+}
+
+void LoadProgressManager::DrawText(const wchar_t *pText, int X, int Y, DWORD dwColor)
+{
+	if (auto pManager = LoadProgressManager::Instance())
+	{
+		if (auto pSurface = pManager->ProgressSurface)
+		{
+			pSurface->DrawText_Old(pText, X, Y, dwColor);
+		}
+	}
+}
+
+bool FootClass::LiberateMember(int idx, byte count)
+{
+	if (this->BelongsToATeam())
+	{
+		this->Team->LiberateMember(this, idx, count);
+		return true;
+	}
+
+	return false;
+}
+
+void InfantryClass::UnslaveMe()
+{
+	if (auto pSlave = this->SlaveOwner)
+	{
+		if (auto pManager = pSlave->SlaveManager)
+		{
+			pManager->LostSlave(this);
+		}
+	}
+}

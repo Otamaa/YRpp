@@ -19,7 +19,7 @@ struct BulletData
 	int Distance;
 };
 
-enum class BulletDataResult : unsigned int 
+enum class BulletDataResult : unsigned int
 {  DontIgnite , Ignite , Ignite_DistaceFactor };
 
 // the velocities along the axes, or something like that
@@ -101,7 +101,7 @@ public:
 	// call only after the target, args, etc., have been set
 	void NukeMaker()
 		{ JMP_THIS(0x46B310); }
-    
+
     //4E11F0
     BulletDataResult* __thiscall BulletStateCheck(BulletData* pData, CoordStruct* Destination)
     	{ JMP_STD(0x4E11F0);}
@@ -111,12 +111,12 @@ public:
   	    {JMP_THIS(0x468BB0);}
 
 	static int __fastcall ProjectileMotion(
-		CoordStruct* pCoord, 
+		CoordStruct* pCoord,
 		BulletVelocity* pVel,
 		CoordStruct* pSecondCoord,
-		DirStruct* pDir, 
+		DirStruct* pDir,
 		bool bInAir,
-		bool bAirburs, 
+		bool bAirburs,
 		bool bVeryHigh,
 		bool bLevel)
 

@@ -6,8 +6,8 @@
 #include <YRMathVector.h>
 #include <GeneralDefinitions.h> // need eDirection for FacingStruct
 #include <BasicStructures.h>
+
 #include <string.h>
-#include <Fixed.h>
 
 //used for cell coordinates/vectors
 using CellStruct = Vector2D<short>;
@@ -16,6 +16,7 @@ using Point2DByte = Vector2D<BYTE>;
 using Point3D = Vector3D<int>;
 //using FloatVelocity = Vector3D<float>;
 
+class Fixed;
 struct SWRange {
 	SWRange(float widthOrRange = -1.0f, int height = -1) : WidthOrRange(widthOrRange), Height(height) {}
 	SWRange(int widthOrRange, int height = -1) : WidthOrRange(static_cast<float>(widthOrRange)), Height(height) {}
@@ -163,7 +164,7 @@ struct DirStruct
 	explicit DirStruct(double nVelZ, double nVelDistanceXY) : DirStruct()
 		{ this->radians(Math::atan2(nVelZ, nVelDistanceXY)); }
 
-	explicit DirStruct(size_t bits, value_type value)
+	DirStruct(size_t bits, value_type value)
 		: DirStruct(static_cast<value_type>(TranslateFixedPoint(bits, 16, static_cast<unsigned_type>(value), 0)))
 	{ }
 
@@ -252,6 +253,11 @@ struct DirStruct
 		this->value<16>(value);
 	}
 
+	// The vanilla YR formula
+	double get_radian() const {
+		return (double)((value32() - 8)) * -(Math::Pi / 16);
+	}
+
 	template <size_t Bits = 16>
 	double radians() const {
 		static_assert(Bits > 0 && Bits <= 16, "Bits has to be greater than 0 and lower or equal to 16.");
@@ -272,13 +278,21 @@ struct DirStruct
 		this->value<Bits>(static_cast<value_type>(Max / 4 - value));
 	}
 
+	value_type GetValue(size_t Bits = 16)
+	{
+		if (Bits > 0 && Bits <= 16)
+			return (value_type)(TranslateFixedPoint(16, Bits, (this->Value), 0));
+
+		return 0;
+	}
+
 	// pThis.Value >= (pDir2.Value - pDir3.Value)
 	bool CompareToTwoDir(DirStruct* pBaseDir, DirStruct* pDirFrom)
 		{ JMP_THIS(0x5B2990); }
 
 	bool Func_5B29C0(DirStruct* pDir2, DirStruct* pDir3)
 		{ JMP_THIS(0x5B29C0);}
-	
+
 private:
 	value_type Value;
 	unsigned_type unused_2;
@@ -309,19 +323,13 @@ struct FacingStruct
 	{ JMP_THIS(0x4C9480); }
 
 	int turn_timeLeft()
-	{
-		return this->Timer.GetTimeLeft();
-	}
+	{ return this->Timer.GetTimeLeft(); }
 
 	int turn_timerStartTime()
-	{
-		return this->Timer.StartTime;
-	}
+	{ return this->Timer.StartTime; }
 
 	void stop_turn()
-	{
-		this->Timer.Stop();
-	}
+	{ this->Timer.Stop(); }
 
 	bool in_motion() const {
 		return this->turn_rate() > 0 && this->Timer.GetTimeLeft();
@@ -348,9 +356,7 @@ struct FacingStruct
 	}
 
 	DirStruct next(bool flip = false)
-	{
-		return current(flip, 1);
-	}
+	{ return current(flip, 1); }
 
 	bool set(const DirStruct& value) {
 		bool ret = (this->current() != value);
@@ -433,14 +439,6 @@ public:
 
 	void Func_5B2A30(Fixed* pFixed)
 	{ JMP_THIS(0x5B2A30);}
-};
-
-struct SomeVoxelCache {
-	void *ptr;
-	DWORD f_4;
-	DWORD f_8;
-	BYTE f_C;
-	DWORD * ptr_10;
 };
 
 struct BasePlanningCell {

@@ -58,15 +58,18 @@ public:
 	virtual AbstractType WhatAmI() const RT(AbstractType);
 	virtual int Size() const R0;
 
+
+	// Gets overlay's tiberium type
+	static int __fastcall GetTiberiumType(int overlayTypeIndex)
+	{ JMP_THIS(0x5FDD20); }
+
 	//Constructor
-	OverlayClass(OverlayTypeClass* pType, const CellStruct& mapCoord, int flag) noexcept
-		: OverlayClass(noinit_t())
-	{ JMP_THIS(0x5FC380); }
+	OverlayClass(OverlayTypeClass* pType, const CellStruct& mapCoord, int flag) noexcept : OverlayClass(noinit_t())
+		{ JMP_THIS(0x5FC380); }
 
 protected:
-	explicit __forceinline OverlayClass(noinit_t) noexcept
-		: ObjectClass(noinit_t())
-	{ }
+	explicit OverlayClass(noinit_t) noexcept : ObjectClass(noinit_t())
+		{}
 
 	//===========================================================================
 	//===== Properties ==========================================================

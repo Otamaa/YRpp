@@ -2,13 +2,13 @@
 
 #include <ArrayClasses.h>
 #include <GeneralDefinitions.h>
-
+#include <Interfaces.h>
 #include <Helpers/CompileTime.h>
 
 //forward declarations
 class AircraftClass;
 class CellClass;
-
+class AbstractClass;
 class Kamikaze {
 public:
 	struct KamikazeControl {

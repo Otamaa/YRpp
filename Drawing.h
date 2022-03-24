@@ -205,14 +205,14 @@ public:
 	// Rect1 will be changed, notice that - secsome
 	static RectangleStruct* __fastcall Union(
 		RectangleStruct* pOutBuffer,
-		RectangleStruct& rect1,
-		RectangleStruct& rect2)
+		const RectangleStruct& rect1,
+		const RectangleStruct& rect2)
 			{ JMP_STD(0x487F40); }
 
 	// Rect1 will be changed, notice that - secsome
 	static RectangleStruct __fastcall Union(
-		RectangleStruct& rect1,
-		RectangleStruct& rect2)
+		const RectangleStruct& rect1,
+		const RectangleStruct& rect2)
 	{
 		RectangleStruct buffer;
 		Union(&buffer, rect1, rect2);
@@ -249,15 +249,6 @@ public:
 };
 
 //A few preset 16bit colors.
-#define		COLOR_BLACK  0x0000
-#define		COLOR_WHITE  0xFFFF
-
-#define		COLOR_RED    0xF800
-#define		COLOR_GREEN  0x07E0
-#define		COLOR_BLUE   0x001F
-
-#define		COLOR_PURPLE (COLOR_RED | COLOR_BLUE)
-
 class ABufferClass {
 public:
 	static constexpr reference<ABufferClass*, 0x87E8A4u> const Instance {};

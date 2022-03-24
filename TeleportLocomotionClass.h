@@ -4,7 +4,7 @@
 
 #include <LocomotionClass.h>
 
-class __declspec(uuid("4A582747-9839-11d1-B709-00A024DDAFD1")) TeleportLocomotionClass : public LocomotionClass, public IPiggyback
+class NOVTABLE __declspec(uuid("4A582747-9839-11d1-B709-00A024DDAFD1")) TeleportLocomotionClass : public LocomotionClass, public IPiggyback
 {
 public:
 	//IUnknown

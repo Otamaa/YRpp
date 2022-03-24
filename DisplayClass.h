@@ -10,15 +10,12 @@ class NOVTABLE DisplayClass : public MapClass
 public:
 	//Static
 	static constexpr constant_ptr<DisplayClass, 0x87F7E8u> const Instance{};
-
+	static constexpr constant_ptr<DisplayClass, 0x87F7E8u> const Global{};
+	
 	//WIP: DisplayClass::TacticalClass goes HERE
 
 	bool ProcessClickCoords(Point2D *src, CellStruct *XYdst, CoordStruct *XYZdst, ObjectClass **Target, BYTE *a5, BYTE *a6)
 		{ JMP_THIS(0x692300); }
-
-	//Static
-	static DisplayClass* Global()
-		{ return reinterpret_cast<DisplayClass*>(0x87F7E8); }
 
 	static LayerClass* GetLayer(Layer lyr)
 	{
@@ -86,6 +83,12 @@ public:
 	/* marks or unmarks the cells pointed to by CurrentFoundationData as containing a building */
 	void MarkFoundation(CellStruct * BaseCell, bool Mark)
 		{ JMP_THIS(0x4A95A0); }
+
+	void SetCursorShape2(CellStruct* pWhere) const
+		{ JMP_THIS(0x4A8D50); }
+
+	void SetCursorPos(CellStruct* pRet , CellStruct* pIn ) const
+		{ JMP_THIS(0x4A91B0); }
 
 protected:
 	//Constructor

@@ -78,6 +78,7 @@ struct RocketStruct
 	{ }
 };
 
+#pragma pack(push, 8)
 class RulesClass
 {
 public:
@@ -226,7 +227,6 @@ public:
 	UnitTypeClass*			 LargeVisceroid;
 	UnitTypeClass*			 SmallVisceroid;
 	int				 AttackingAircraftSightRange;
-	DWORD align_1C;
 	double			 TunnelSpeed;
 	double			 TiberiumHeal;
 	int				 SelfHealInfantryFrames;
@@ -259,7 +259,6 @@ public:
 	AnimTypeClass*			 InfantryBrute;
 	AnimTypeClass*			 InfantryMutate;
 	AnimTypeClass*			 Behind;
-	DWORD align_BC;
 	double			 AITriggerSuccessWeightDelta;
 	double			 AITriggerFailureWeightDelta;
 	double			 AITriggerTrackRecordCoefficient;
@@ -392,10 +391,8 @@ public:
 	int				 GateDown;
 	int				 TurnRate;
 	int				 Speed;
-	DWORD align_414;
 	double			 Climb;
 	int				 CruiseHeight;
-	DWORD align_424;
 	double			 Acceleration;
 	double			 WobblesPerSecond;
 	int				 WobbleDeviation;
@@ -410,47 +407,6 @@ public:
 	int				 PrismSupportDelay;
 	int				 PrismSupportDuration;
 	int				 PrismSupportHeight;
-	/*
-	int				 V3RocketPauseFrames;
-	int				 V3RocketTiltFrames;
-	float				 V3RocketPitchInitial;
-	float				 V3RocketPitchFinal;
-	float				 V3RocketTurnRate;
-	float				 V3RocketRaiseRate;
-	float				 V3RocketAcceleration;
-	int				 V3RocketAltitude;
-	int				 V3RocketDamage;
-	int				 V3RocketEliteDamage;
-	int				 V3RocketBodyLength;
-	bool				 V3RocketLazyCurve;
-	AircraftTypeClass*		 V3RocketType;
-	int				 DMislPauseFrames;
-	int				 DMislTiltFrames;
-	float				 DMislPitchInitial;
-	float				 DMislPitchFinal;
-	float				 DMislTurnRate;
-	float				 DMislRaiseRate;
-	float				 DMislAcceleration;
-	int				 DMislAltitude;
-	int				 DMislDamage;
-	int				 DMislEliteDamage;
-	int				 DMislBodyLength;
-	bool				 DMislLazyCurve;
-	AircraftTypeClass*		 DMislType;
-	int				 CMislPauseFrames;
-	int				 CMislTiltFrames;
-	float				 CMislPitchInitial;
-	float				 CMislPitchFinal;
-	float				 CMislTurnRate;
-	float				 CMislRaiseRate;
-	float				 CMislAcceleration;
-	int				 CMislAltitude;
-	int				 CMislDamage;
-	int				 CMislEliteDamage;
-	int				 CMislBodyLength;
-	bool				 CMislLazyCurve;
-	AircraftTypeClass*		 CMislType;
-	*/
 	RocketStruct V3Rocket;
 	RocketStruct DMisl;
 	RocketStruct CMisl;
@@ -465,7 +421,6 @@ public:
 	float				 LowPowerPenaltyModifier;
 	float				 MultipleFactory;
 	int				 MaximumCheerRate;
-	DWORD align_584;
 	double			 TreeFlammability;
 	double			 MissileSpeedVar;
 	double			 MissileROTVar;
@@ -535,7 +490,6 @@ public:
 	int				 StormSound;
 	TypeList<int >		 LightningSounds;
 	int				 ShellButtonSlideSound;
-	DWORD align_754;
 	double			 WallBuildSpeedCoefficient;
 	double			 ChargeToDrainRatio;
 	double			 TrackedUphill;
@@ -727,7 +681,6 @@ public:
 	ParticleSystemTypeClass*		 DefaultFireStreamSystem;
 	ParticleSystemTypeClass*		 DefaultTestParticleSystem;
 	ParticleSystemTypeClass*		 DefaultRepairParticleSystem;
-	DWORD align_103C;
 	double			 MyEffectivenessCoefficientDefault;
 	double			 TargetEffectivenessCoefficientDefault;
 	double			 TargetSpecialThreatCoefficientDefault;
@@ -745,22 +698,16 @@ public:
 	double			 PowerEmergency;
 	double			 AirstripRatio;
 	int				 AirstripLimit;
-	DWORD align_10C4;
 	double			 HelipadRatio;
 	int				 HelipadLimit;
-	DWORD align_10D4;
 	double			 TeslaRatio;
 	int				 TeslaLimit;
-	DWORD align_10E4;
 	double			 AARatio;
 	int				 AALimit;
-	DWORD align_10F4;
 	double			 DefenseRatio;
 	int				 DefenseLimit;
-	DWORD align_1104;
 	double			 WarRatio;
 	int				 WarLimit;
-	DWORD align_1114;
 	double			 BarracksRatio;
 	int				 BarracksLimit;
 	int				 RefineryLimit;
@@ -772,7 +719,6 @@ public:
 	int				 SoloCrateMoney;
 	int				 TreeStrength;
 	UnitTypeClass*			 UnitCrateType;
-	DWORD align_114C;
 	double			 PatrolScan;
 	TypeList<int >		 TeamDelays;
 	TypeList<int >		 AIHateDelays;
@@ -799,10 +745,8 @@ public:
 	TypeList<int >		 MinimumAIDefensiveTeams;
 	TypeList<int >		 MaximumAIDefensiveTeams;
 	TypeList<int >		 TotalAITeamCap;
-	DWORD align_13E4;
 	double			 AIUseTurbineUpgradeProbability;
 	TypeList<int >		 FillEarliestTeamProbability;
-	DWORD align_140C;
 	double			 CloakDelay;
 	double			 GameSpeedBias;
 	double			 BaseBias;
@@ -858,27 +802,23 @@ public:
 	double			 MessageDelay;
 	double			 SavourDelay;
 	int				 Players;
-	DWORD align_14D4;
 	double			 BaseDefenseDelay;
 	int				 SuspendPriority;
-	DWORD align_14E4;
 	double			 SuspendDelay;
 	double			 SurvivorRate;
 	int				 AlliedSurvivorDivisor;
 	int				 SovietSurvivorDivisor;
 	int				 ThirdSurvivorDivisor;
-	DWORD align_1504;
 	double			 ReloadRate;
 	double			 AutocreateTime;
 	double			 BuildupTime;
 	int				 HarvesterLoadRate;
-	DWORD align_1524;
 	double			 HarvesterDumpRate;
 	int				 AtomDamage;
-	DWORD align_1534;
-	DifficultyStruct			 Easy;
-	DifficultyStruct			 Normal;
-	DifficultyStruct			 Difficult;
+//	DifficultyStruct			 Easy;
+//	DifficultyStruct			 Normal;
+//	DifficultyStruct			 Difficult;
+	DifficultyStruct	AIDiffs[3];
 	DWORD align_1628[4];
 	double			 GrowthRate;
 	double			 ShroudRate;
@@ -886,13 +826,11 @@ public:
 	double			 IceGrowthRate;
 	double			 VeinGrowthRate;
 	int				 IceSolidifyFrameTime;
-	DWORD align_1664;
 	double			 AmbientChangeRate;
 	double			 AmbientChangeStep;
 	double			 CrateRegen;
 	double			 TimerWarning;
 	int				 TiberiumTransmogrify;
-	DWORD align_168C;
 	double			 unknown_double_1690;	//2.6875
 	double			 unknown_double_1698;	//2.3125
 	double			 unknown_double_16A0;	//2.5625
@@ -906,7 +844,6 @@ public:
 	int				 RepairStep;
 	double			 RepairPercent;
 	int				 IRepairStep;
-	DWORD align_16DC;
 	double			 RepairRate;
 	double			 URepairRate;
 	double			 IRepairRate;
@@ -924,14 +861,11 @@ public:
 	int				 BallisticScatter;
 	double			 RefundPercent;
 	int				 BridgeStrength;
-	DWORD align_1744;
 	double			 BuildSpeed;
 	double			 C4Delay;
 	int				 CreditReserve;
-	DWORD align_175C;
 	double			 PathDelay;
 	int				 BlockagePathDelay;
-	DWORD align_176C;
 	double			 MovieTime;
 	int				 TiberiumShortScan;
 	int				 TiberiumLongScan;
@@ -994,11 +928,9 @@ public:
 	ColorStruct				 RadColor;
 	WarheadTypeClass*			 RadSiteWarhead;
 	int				 ElevationIncrement;
-	DWORD align_183C;
 	double			 ElevationIncrementBonus;
 	double			 ElevationBonusCap;
 	bool				 AlliedWallTransparency;
-	DWORD align_1854;
 	double			 WallPenetratorThreshold;
 	ColorStruct				 LocalRadarColor;
 	ColorStruct				 LineTrailColorOverride;
@@ -1016,5 +948,5 @@ public:
 	float				 DirectRockingCoefficient;
 	float				 FallBackCoefficient;
 };
-
+#pragma pack(pop)
 static_assert(sizeof(RulesClass) == 0x18C0);

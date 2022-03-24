@@ -1,8 +1,10 @@
 #pragma once
 
+#include <windows.h>
 #include <GeneralDefinitions.h>
 #include <ArrayClasses.h>
 #include <Helpers/String.h>
+#include <objidl.h>
 
 class FileEntryClass {
 public:
@@ -94,7 +96,7 @@ public:
 	DWORD unknown_14;
 	DWORD unknown_18;
 	DWORD unknown_1C;
-	DynamicVectorClass<FileEntryClass*> FileEntries;
+	DECLARE_PROPERTY(DynamicVectorClass<FileEntryClass*>, FileEntries);
 };
 
 class SavegameInformation

@@ -14,6 +14,8 @@ NOTE:
 
 #include <GeneralDefinitions.h>
 #include <MPTeams.h>
+#include <Helpers/CompileTime.h>
+#include <Wstring.h>
 
 //forward declarations
 class HouseClass;
@@ -240,11 +242,11 @@ public:
 
 	bool unknown_4;
 	DynamicVectorClass<MPTeam *> MPTeams;
-	wchar_t * CSFTitle;
-	wchar_t * CSFTooltip;
+	DECLARE_PROPERTY(WideWstring, CSFTitle);
+	DECLARE_PROPERTY(WideWstring, CSFTooltip);
 	int MPModeIndex;
-	char* INIFilename;
-	char* MapFilter;
+	DECLARE_PROPERTY(Wstring, INIFilename);
+	DECLARE_PROPERTY(Wstring, MapFilter);
 	bool AIAllowed;
 	CCINIClass* INI;
 	bool AlliesAllowed;
@@ -445,4 +447,17 @@ protected:
 		: MPGameModeClass(noinit_t())
 	{ }
 	//FACTORY(0x7EEEA4);
+};
+
+struct MPlayerScoreType
+{
+	static constexpr reference<MPlayerScoreType, 0xA8D1FCu, 8u> MPScores { };
+
+	char Name[0x40];
+	int Scheme;
+	int NonGameOvers;
+	int Lost[4];
+	int Kill[4];
+	int Builts[4];
+	int Score[4];
 };

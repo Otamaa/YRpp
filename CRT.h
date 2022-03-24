@@ -22,6 +22,9 @@ public:
 		static size_t __cdecl wcslen(const wchar_t *Str)
 			{ JMP_STD(0x7CA405); }
 
+		static size_t __cdecl wcscspn(const wchar_t* pFirst ,const wchar_t* pSecond )
+			{ JMP_STD(0x7CD7CE); }
+
 		static wchar_t *__cdecl wcscat(wchar_t *Dest, const wchar_t *Source)
 			{ JMP_STD(0x7CA45F); }
 
@@ -33,6 +36,12 @@ public:
 
 		static wchar_t * __fastcall wcstrim(wchar_t *Buffer)
 			{ JMP_STD(0x727D60); }
+
+		static wchar_t* __cdecl wcschr(const wchar_t*Str ,wchar_t a2)
+			{ JMP_STD(0x7CA8C6); }
+
+		static wchar_t* __cdecl wcsncat(wchar_t* a1, const wchar_t* a2, size_t a3)
+			{ JMP_STD(0x7CB504); }
 
 		// memory management
 		static void *__cdecl malloc(size_t sz)
@@ -66,10 +75,13 @@ public:
 		static char* __cdecl strdup(const char *Src)
 			{ JMP_STD(0x7D5408); }
 
-		static char* __cdecl strcat(char* StrTo, char* StrFrom)
+		static char* __cdecl strcats(char* StrTo, char* StrFrom)
 			{ JMP_STD(0x7D4C00); }
 
-		static char* __cdecl strcpy(char* StrTo, char* StrFrom)
+		static char* __cdecl strcat(char* StrTo, const char* StrFrom)
+			{ JMP_STD(0x7D4C00); }
+
+		static char* __cdecl strcpy(char* StrTo, const char* StrFrom)
 			{ JMP_STD(0x7D4BF0);}
 
 		static int __cdecl strcmpi(const char *lhs, const char *rhs)
@@ -116,6 +128,9 @@ public:
 
 		static size_t __cdecl strlen(const char *input)
 			{ JMP_STD(0x7D15A0); }
+
+		static size_t __cdecl strcspn(const char* pFirst , const char* pSecond)
+			{ JMP_STD(0x7CD790); }
 
 		// misc
 		static void *__cdecl memcpy(void *Dst, const void *Src, size_t Size)

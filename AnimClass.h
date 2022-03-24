@@ -45,6 +45,9 @@ public:
 	void SetHouse(HouseClass* pOwner) { this->Owner = pOwner; }
 	void SetBullet(BulletClass* pBullet) { this->AttachedBullet = pBullet; }
 
+	void DetachFromObject(ObjectClass* pTarget, bool detachFromAll)
+		{ JMP_THIS(0x425150); }
+
 	void Pause() {
 		this->Paused = true;
 		this->Unpaused = false;
@@ -71,7 +74,7 @@ public:
 	BounceClass::Status BounceAI() const { JMP_THIS(0x423930); }
 
 	void FlamingGuy_AI() const { JMP_THIS(0x425670); }
-	
+
 	CoordStruct* FlamingGuy_Coords(CoordStruct* pbuffer) const
 	{ JMP_THIS(0x425D10); }
 
@@ -108,7 +111,7 @@ protected:
 
 public:
 
-	ProgressTimer Animation;
+	DECLARE_PROPERTY(ProgressTimer, Animation);
 	AnimTypeClass* Type; //The AnimType.
 	ObjectClass * OwnerObject; // set by AnimClass::SetOwnerObject (0x424B50)
 	DWORD unknown_D0;
@@ -127,7 +130,7 @@ public:
 	int PausedAnimFrame; // the animation value when paused
 	bool Reverse; // anim is forced to be played from end to start
 	DWORD unknown_124;
-	BounceClass Bounce;
+	DECLARE_PROPERTY(BounceClass, Bounce);
 	BYTE TranslucencyLevel; // on a scale of 1 - 100
 	bool TimeToDie; // or something to that effect, set just before UnInit
 	BulletClass* AttachedBullet;
@@ -147,7 +150,7 @@ public:
 	bool Invisible; // don't draw, but Update state anyway
 	bool PowerOff; // powered animation has no power
 	PROTECTED_PROPERTY(BYTE, unused_19F);
-	AudioController Audio3;
-	AudioController Audio4;
+	DECLARE_PROPERTY(AudioController, Audio3);
+	DECLARE_PROPERTY(AudioController, Audio4);
 };
 static_assert(sizeof(AnimClass) == 0x1C8);

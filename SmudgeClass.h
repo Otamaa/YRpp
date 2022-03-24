@@ -5,8 +5,9 @@
 #pragma once
 
 #include <ObjectClass.h>
-#include <SmudgeTypeClass.h>
 
+struct CoordStruct;
+class SmudgeTypeClass;
 class NOVTABLE SmudgeClass : public ObjectClass
 {
 public:

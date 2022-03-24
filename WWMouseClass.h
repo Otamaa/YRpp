@@ -1,12 +1,11 @@
 #pragma once
 
 #include <GeneralDefinitions.h>
-#include <GeneralStructures.h>
-#include <Drawing.h>
 #include <Helpers/CompileTime.h>
+#include <RectangleStruct.h>
 
 struct SHPStruct;
-
+struct CoordStruct;
 class WWMouseClass
 {
 public:
@@ -66,39 +65,11 @@ public:
 	virtual void func_44(int *arg1, int *arg2)
 		{ JMP_THIS(0x7B9D90); }
 
-	/*
-	static CoordStruct GetCoordsUnderCursor()
-	{
-		CoordStruct nbuffer{ -1,-1,-1 };
-		Point2D nBuffer2D;
-		WWMouseClass::Instance()->GetCoords_NotVirtual(nBuffer2D);
-
-		if (nBuffer2D.X >= 0 && nBuffer2D.Y >= 0)
-		{
-			CellStruct nBufferCell;
-			TacticalClass::Instance()->Coordmap_viewportpos_tocellpos_Click_Cell_Calc(nBufferCell, nBuffer2D);
-			nbuffer.X = nBufferCell.X * 256;
-			nbuffer.Y = nBufferCell.Y * 256;
-			nbuffer.Z = 0;
-		}
-
-		return nbuffer;
-	}
-
-	static CellStruct GetCellUnderCursor()
-	{
-		CellStruct nbuffer{ -1,-1 };
-		Point2D nBuffer2D;
-		WWMouseClass::Instance()->GetCoords(&nBuffer2D);
-
-		if (nBuffer2D.X >= 0 && nBuffer2D.Y >= 0)
-			TacticalClass::Instance()->Coordmap_viewportpos_tocellpos_Click_Cell_Calc(nbuffer, nBuffer2D);
-
-		return nbuffer;
-	}*/
+	static CoordStruct GetCoordsUnderCursor();
+	static CellStruct GetCellUnderCursor();
 
 	Point2D* GetCoords_NotVirtual(Point2D& buffer)
-		{ JMP_THIS(0x7BA360); }
+	{ JMP_THIS(0x7BA360); }
 
 	Point2D GetCoords_NotVirtual()
 	{

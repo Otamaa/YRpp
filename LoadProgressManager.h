@@ -12,16 +12,7 @@ class LoadProgressManager
 public:
 	static constexpr reference<LoadProgressManager*, 0xABC9BCu> const Instance{};
 
-	static void DrawText(const wchar_t* pText, int X, int Y, DWORD dwColor)
-	{
-		if (auto pManager = LoadProgressManager::Instance())
-		{
-			if (auto pSurface = pManager->ProgressSurface)
-			{
-				pSurface->DrawText_Old(pText, X, Y, dwColor);
-			}
-		}
-	}
+	static void DrawText(const wchar_t *pText, int X, int Y, DWORD dwColor);
 
 	LoadProgressManager()
 		{ JMP_THIS(0x552A40); }

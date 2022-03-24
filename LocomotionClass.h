@@ -7,6 +7,7 @@
 #include <Helpers/ComPtr.h>
 #include <Helpers/CompileTime.h>
 
+class FootClass;
 class LocomotionClass : public IPersistStream, public ILocomotion
 {
 public:
@@ -110,22 +111,7 @@ public:
 	static void AddRef2(LocomotionClass** Loco)
 	{ SET_REG32(ECX, Loco); CALL(0x6CE270); }
 
-	static void ChangeLocomotorTo(FootClass* Object, const CLSID& clsid)
-	{
-		// remember the current one
-		YRComPtr<ILocomotion> Original(Object->Locomotor);
-
-		// create a new locomotor and link it
-		auto NewLoco = CreateInstance(clsid);
-		NewLoco->Link_To_Object(Object);
-
-		// get piggy interface and piggy original
-		YRComPtr<IPiggyback> Piggy(NewLoco);
-		Piggy->Begin_Piggyback(Original.get());
-
-		// replace the current locomotor
-		Object->Locomotor = std::move(NewLoco);
-	}
+	static void ChangeLocomotorTo(FootClass *Object, const CLSID &clsid);
 
 	// creates a new instance by class ID. returns a pointer to ILocomotion
 	static YRComPtr<ILocomotion> CreateInstance(const CLSID& rclsid)
@@ -136,32 +122,7 @@ public:
 
 	// finds out whether a locomotor is currently piggybacking and restores
 	// the original locomotor. this function ignores Is_Ok_To_End().
-	static bool End_Piggyback(YRComPtr<ILocomotion>& pLoco)
-	{
-		if (!pLoco)
-		{
-			Game::RaiseError(E_POINTER);
-		}
-
-		if (YRComPtr<IPiggyback> pPiggy = pLoco)
-		{
-			if (pPiggy->Is_Piggybacking())
-			{
-				// this frees the current locomotor
-				pLoco.reset(nullptr);
-
-				// this restores the old one
-				auto res = pPiggy->End_Piggyback(pLoco.pointer_to());
-				if (FAILED(res))
-				{
-					Game::RaiseError(res);
-				}
-				return (res == S_OK);
-			}
-		}
-
-		return false;
-	}
+	static bool End_Piggyback(YRComPtr<ILocomotion> &pLoco);
 
 	//Constructors
 	LocomotionClass(LocomotionClass& another) { JMP_THIS(0x55A6C0); }
@@ -178,7 +139,7 @@ public:
 	FootClass* LinkedTo;
 	bool Powered;
 	bool Dirty;
-	LONG RefCount;
+	int RefCount;
 };
 
 static_assert(sizeof(LocomotionClass) == 0x18);

@@ -24,8 +24,11 @@ public:
 	virtual ~FootClass() RX;
 
 	//AbstractClass
+	virtual void Update() override JMP_THIS(0x4DA530);
+
 	//ObjectClass
 	//MissionClass
+	virtual void Override_Mission(Mission mission, AbstractClass* tarcom = nullptr, AbstractClass* navcom = nullptr) override JMP_THIS(0x4D8F40);
 	//TechnoClass
 	virtual void Destroyed(ObjectClass *Killer) RX;
 	virtual bool ForceCreate(CoordStruct& coord, DWORD dwUnk = 0) R0;
@@ -52,25 +55,25 @@ public:
 		DWORD dwUnk13, DWORD dwUnk14, DWORD dwUnk15, DWORD dwUnk16) RX;
 
 	virtual void Draw_A_VXL(
-		VoxelStruct *VXL, int HVAFrameIndex, int Flags, SomeVoxelCache *Cache, RectangleStruct *Rectangle,
+		VoxelStruct *VXL, int HVAFrameIndex, int Flags, IndexClass<int, int> *Cache, RectangleStruct *Rectangle,
 		Point2D *CenterPoint, Matrix3D *Matrix, DWORD dwUnk8, DWORD DrawFlags, DWORD dwUnk10) RX;
 
-	virtual void vt_entry_514() RX;
+	virtual void MakeBezerkPermanent() RX;
 	virtual void Panic() RX;
 	virtual void UnPanic() RX; //never
 	virtual void PlayIdleAnim(int nIdleAnimNumber) RX;
 	virtual DWORD vt_entry_524() R0;
-	virtual DWORD vt_entry_528 ( DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3 ) const R0;
-	virtual DWORD vt_entry_52C(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3, DWORD dwUnk4) const R0;
-	virtual DWORD vt_entry_530(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3) const R0;
+	virtual TechnoClass* FindDockingBayInVector(DynamicVectorClass<TechnoTypeClass*>* pVec, int unusedarg3, bool bForced) const R0;
+	virtual TechnoClass* FindDockingBayByType(TechnoTypeClass* pDock, int unusedarg3, bool bForced, int* curidx) const R0;
+	virtual TechnoClass* FindDockingBay(TechnoTypeClass* pDock, int unusedarg3, bool bForced) const R0;
 	virtual void vt_entry_534(DWORD dwUnk, DWORD dwUnk2) RX;
 	virtual int GetCurrentSpeed() const R0;
-	virtual DWORD vt_entry_53C(DWORD dwUnk) R0;
+	virtual bool ApproachTarget(bool bSomething) R0;
 	virtual void vt_entry_540(DWORD dwUnk) RX;
 	virtual void SetSpeedPercentage(double percentage) RX;
 	virtual void vt_entry_548() RX;
 	virtual void vt_entry_54C() RX;
-	virtual bool vt_entry_550(DWORD dwUnk) R0;
+	virtual bool IsLandingZoneClear(TechnoClass* pBay) R0;
 
 	bool CanBeRecruited(HouseClass *ByWhom) const
 		{ JMP_THIS(0x4DA230); }
@@ -127,22 +130,16 @@ public:
 	bool MoveToWeed(int radius)
 		{ JMP_THIS(0x4DDB90); }
 
-	bool LiberateMember(int idx = -1, byte count = 0u)
-	{
-		if (this->BelongsToATeam())
-		{
-			this->Team->LiberateMember(this, idx, count);
-			return true;
-		}
+	bool LiberateMember(int idx = -1, byte count = 0u);
 
-		return false;
-	}
 	CellStruct GetRandomDirection(FootClass* pFoot);
 
+	void AI() const //this is basicly update function , put it here for direct adress call
+		{ JMP_THIS(0x4DA530) }
+
 	//Constructor
-	FootClass(HouseClass* owner) noexcept
-		: FootClass(noinit_t())
-	{ JMP_THIS(0x4D31E0); }
+	FootClass(HouseClass* pOwner) noexcept : FootClass(noinit_t())
+		{ JMP_THIS(0x4D31E0); }
 
 protected:
 	explicit __forceinline FootClass(noinit_t) noexcept
@@ -156,18 +153,19 @@ protected:
 public:
 
 	int             PlanningPathIdx; // which planning path am I following?
-	short           unknown_short_524;
-	short           unknown_short_526;
-	short           unknown_short_528;
-	short           unknown_short_52A;
-	DWORD           unknown_52C;	//unused?
-	DWORD           ThreatAvoidanceCoefficient; //530
-	DWORD           unknown_534;
+	//short           unknown_short_524;
+	//short           unknown_short_526;
+	CellStruct        cell524;
+	//short           unknown_short_528;
+	//short           unknown_short_52A;
+	CellStruct        cell528;
+	PROTECTED_PROPERTY(DWORD, unused_52C);
+	float           ThreatAvoidanceCoefficient; //530
 	int				WalkedFramesSoFar;
 	bool            __PlayingMovingSound; //53C
-	DWORD           __MovingSoundDelay; //540
+	int           __MovingSoundDelay; //540
 
-	AudioController Audio7;
+	DECLARE_PROPERTY(AudioController, Audio7);
 
 	CellStruct      CurrentMapCoords;
 	CellStruct      LastMapCoords; // ::UpdatePosition uses this to remove threat from last occupied cell, etc
@@ -177,11 +175,11 @@ public:
 	PROTECTED_PROPERTY(DWORD,   unused_574);
 	double          SpeedPercentage;
 	double          SpeedMultiplier;
-	DynamicVectorClass<AbstractClass*> NavQueue2; //unknown_abstract_array_588
+	DECLARE_PROPERTY(DynamicVectorClass<AbstractClass*>, unknown_abstract_array_588);
 	DWORD           unknown_5A0;
-	AbstractClass*  Destination; // possibly other objects as well
-	AbstractClass*  LastDestination;
-	DynamicVectorClass<AbstractClass*> NavQueue; //unknown_abstract_array_5AC
+	AbstractClass*  Destination; //navcom possibly other objects as well
+	AbstractClass*  LastDestination; //suspendednavcom
+	DECLARE_PROPERTY(DynamicVectorClass<AbstractClass*>, unknown_abstract_array_5AC);
 	int             state5C4;
 	DWORD           target5C8_CandidateTarget;
 	DWORD           ___CandidateTarget_5CC;
@@ -191,15 +189,15 @@ public:
 	FootClass*      NextTeamMember;        //next unit in team
 	DWORD           unknown_5DC;
 	int             PathDirections[24]; // list of directions to move in next, like tube directions
-	TimerStruct     PathDelayTimer;
+	DECLARE_PROPERTY(TimerStruct, PathDelayTimer); //CDTimerClass
 	int             TryTryAgain; //64C
-	TimerStruct     BaseAttackTimer; //650
-	TimerStruct       SightTimer;
-	TimerStruct       BlockagePathTimer;
-	YRComPtr<ILocomotion> Locomotor;
+	DECLARE_PROPERTY(TimerStruct, unknown_timer_650); //BaseAttackTimer  CDTimerClass
+	DECLARE_PROPERTY(TimerStruct, SightTimer);
+	DECLARE_PROPERTY(TimerStruct, BlockagePathTimer);
+	DECLARE_PROPERTY(YRComPtr<ILocomotion>, Locomotor);
 	CoordStruct       __HeadTo; //_678
 	signed char       TubeIndex;	//I'm in this tunnel
-	bool              unknown_bool_685;
+	signed char       CurrentDirectionOnTube;
 	signed char       WaypointIndex; // which waypoint in my planning path am I following?
 	bool              IsToScatter; //678
 	bool              IsScanLimited; //688
@@ -212,15 +210,14 @@ public:
 	bool              ShouldEnterAbsorber; // orders the unit to enter the closest bio reactor
 	bool              ShouldEnterOccupiable; // orders the unit to enter the closest battle bunker
 	bool              ShouldGarrisonStructure; // orders the unit to enter the closest neutral building
+	PROTECTED_PROPERTY(BYTE, align69_2_3[2]);
 	FootClass*        ParasiteEatingMe; // the tdrone/squid that's eating me
 	DWORD             __ParasiteFireBlock_698;
 	ParasiteClass*    ParasiteImUsing;	// my parasitic half, nonzero for, eg, terror drone or squiddy
-	TimerStruct       ParalysisTimer; // for squid victims
+	DECLARE_PROPERTY(TimerStruct, ParalysisTimer); // for squid victims
 	bool              unknown_bool_6AC;
-	bool              IsAttackedByLocomotor; // the unit's locomotor is jammed by a magnetron
-	bool              IsLetGoByLocomotor; // a magnetron attacked this unit and let it go. falling, landing, or sitting on the ground
-	//byte              byte6AD;//
-	//byte			  byte6AE; //
+	bool              IsAttackedByLocomotor; //6AD, the unit's locomotor is jammed by a magnetron
+	bool              IsLetGoByLocomotor; //6AE a magnetron attacked this unit and let it go. falling, landing, or sitting on the ground
 	bool              IsRotating; //6AF
 	bool              IsUnloading; //6B0
 	bool              IsNavQueueLoop;//6B1
@@ -231,6 +228,6 @@ public:
 	bool              FrozenStill; // frozen in first frame of the proper facing - when magnetron'd or warping
 	bool              IsPathBlocked; //6B7
 	bool              removed;//6B8
-	PROTECTED_PROPERTY(DWORD,   unused_6BC);	//???
+	PROTECTED_PROPERTY(BYTE, align_B9[7]);	//???
 };
 static_assert(sizeof(FootClass) == 0x6C0);

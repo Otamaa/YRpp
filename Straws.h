@@ -61,7 +61,7 @@ class BufferStraw : public Straw
 public:
 	explicit BufferStraw() = delete;
 	explicit BufferStraw(void* pBuffer, size_t nLength) : Straw {}, Buffer { pBuffer,nLength }
-	{
+	{ 
 	}
 
 	virtual ~BufferStraw() override final
@@ -89,7 +89,7 @@ public:
 	}
 
 	MemoryBuffer Buffer;
-	int Index { 0 };
+	int Index {0};
 
 private:
 	BufferStraw(BufferStraw& rvalue) = delete;
@@ -129,7 +129,7 @@ public:
 	int Counter;
 	void* Buffer;
 	void* Buffer2;
-	int BlockSize;
+	size_t BlockSize;
 	int SafetyMargin;
 	short BlockHeader_CompCount;
 	short BlockHeader_UncompCount;

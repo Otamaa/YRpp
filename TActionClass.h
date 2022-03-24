@@ -1,6 +1,8 @@
 #pragma once
 
 #include <AbstractClass.h>
+#include <GeneralDefinitions.h>
+#include <RectangleStruct.h>
 
 //forward declarations
 class SuperClass;
@@ -8,6 +10,9 @@ class TechnoClass;
 class TagTypeClass;
 class TriggerTypeClass;
 class TriggerClass;
+class TeamTypeClass;
+class HouseClass;
+class ObjectClass;
 
 class NOVTABLE TActionClass : public AbstractClass
 {

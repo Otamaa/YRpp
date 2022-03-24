@@ -8,6 +8,7 @@
 
 //forward declarations
 class AnimTypeClass;
+class HouseClass;
 
 class NOVTABLE OverlayTypeClass : public ObjectTypeClass
 {

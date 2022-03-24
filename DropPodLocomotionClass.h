@@ -9,7 +9,7 @@ enum DropPodDirType : BYTE
 	DPOD_DIR_SW,
 };
 
-class __declspec(uuid("4A582745-9839-11d1-B709-00A024DDAFD1")) DropPodLocomotionClass : public LocomotionClass, public IPiggyback
+class NOVTABLE __declspec(uuid("4A582745-9839-11d1-B709-00A024DDAFD1")) DropPodLocomotionClass : public LocomotionClass, public IPiggyback
 {
 public:
 	// TODO stub virtuals implementations

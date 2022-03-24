@@ -75,6 +75,12 @@ public:
 		this->Add(&value, sizeof(T));
 	}
 
+	template <typename T>
+	Checksummer& AddValue(T&& value) {
+		this->Add(value);
+		return *this;
+	}
+
 	static DWORD Process(const void* data, size_t size, DWORD initial) {
 		auto bytes = reinterpret_cast<const BYTE*>(data);
 		auto ret = ~initial;

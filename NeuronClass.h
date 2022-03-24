@@ -5,6 +5,7 @@
 #pragma once
 
 #include <AbstractClass.h>
+#include <ArrayClasses.h>
 
 class NOVTABLE NeuronClass : public AbstractClass
 {

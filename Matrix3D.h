@@ -3,7 +3,7 @@
 #include <YRPPCore.h>
 #include <GeneralStructures.h>
 
-class NOVTABLE Matrix3D
+class Matrix3D
 {
 public:
 
@@ -28,10 +28,10 @@ public:
 
 	// column vector ctor
 	Matrix3D(
-		Vector3D<float> const& X,
-		Vector3D<float> const& Y,
-		Vector3D<float> const& Z,
-		Vector3D<float> const& npos)
+		Vector3D<float> const &X,
+		Vector3D<float> const &Y,
+		Vector3D<float> const &Z,
+		Vector3D<float> const &npos)
 	{
 		JMP_THIS(0x5AE690);
 	}
@@ -54,6 +54,16 @@ public:
 		Row[1] = m.Row[1];
 		Row[2] = m.Row[2];
 		return *this;
+	}
+
+	Matrix3D &operator*(const Matrix3D &another)
+	{
+		MatrixMultiply(this, this, &another);
+		return *this;
+	}
+	void operator*=(const Matrix3D& another)
+	{
+		(*this)* another;
 	}
 	// Non virtual
 
@@ -123,88 +133,51 @@ public:
 		MatrixMultiply(&buffer, &mat, &vec);
 		return buffer;
 	}
-	static Matrix3D* __fastcall sub_5AFC20(Matrix3D* inv, Matrix3D* A) { JMP_STD(0x5AFC20); }
+	static Matrix3D *__fastcall sub_5AFC20(Matrix3D *inv, Matrix3D *A) { JMP_STD(0x5AFC20); }
 
-	static Vector3D<float>* Inverse_Rotate_Vector(const Matrix3D &tm, const Vector3D<float> &in)
+	static Vector3D<float> *Inverse_Rotate_Vector(const Matrix3D &tm, const Vector3D<float> &in)
 	{
-		Vector3D<float> tmp;
-		Vector3D<float>* v;
-		Vector3D<float>* out;
+		Vector3D<float> *v = (Vector3D<float> *) & in;
+		Vector3D<float> out = { 0.0f ,0.0f ,0.0f };
 
-		if (out == &in)
-		{
-			tmp = in;
-			v = &tmp;
-		}
-		else
-		{
-			v = (Vector3D<float> *)&in;
-		}
-		out->X = (tm[0][0] * v->X + tm[1][0] * v->Y + tm[2][0] * v->Z);
-		out->Y = (tm[0][1] * v->X + tm[1][1] * v->Y + tm[2][1] * v->Z);
-		out->Z = (tm[0][2] * v->X + tm[1][2] * v->Y + tm[2][2] * v->Z);
+		out.X = (tm[0][0] * v->X + tm[1][0] * v->Y + tm[2][0] * v->Z);
+		out.Y = (tm[0][1] * v->X + tm[1][1] * v->Y + tm[2][1] * v->Z);
+		out.Z = (tm[0][2] * v->X + tm[1][2] * v->Y + tm[2][2] * v->Z);
 
-		return out;
+		return &out;
 	}
 
-	static Vector3D<float>* Inverse_Transform_Vector(const Matrix3D &tm, const Vector3D<float> &in)
+	static Vector3D<float> *Inverse_Transform_Vector(const Matrix3D &tm, const Vector3D<float> &in)
 	{
-		Vector3D<float> tmp;
-		Vector3D<float> *v;
-		Vector3D<float>* out;
-
-		if (out == &in) {
-			tmp = in;
-			v = &tmp;
-		}
-		else {
-			v = (Vector3D<float> *)&in;
-		}
-
+		Vector3D<float> *v = (Vector3D<float> *) & in;
+		Vector3D<float> out = { 0.0f ,0.0f ,0.0f };
 		Vector3D<float> diff{ v->X - tm[0][3], v->Y - tm[1][3], v->Z - tm[2][3] };
 
 		return Inverse_Rotate_Vector(tm, diff);
 	}
 
-	static Vector3D<float>* Rotate_Vector(const Matrix3D &tm, const Vector3D<float> &in)
+	static Vector3D<float> *Rotate_Vector(const Matrix3D &tm, const Vector3D<float> &in)
 	{
-		Vector3D<float> tmp;
-		Vector3D<float> *v;
-		Vector3D<float>* out;
+		Vector3D<float> *v = (Vector3D<float> *) & in;
+		Vector3D<float> out = { 0.0f ,0.0f ,0.0f };
 
-		if (out == &in) {
-			tmp = in;
-			v = &tmp;
-		}
-		else {
-			v = (Vector3D<float> *)&in;
-		}
+		out.X = (tm[0][0] * v->X + tm[0][1] * v->Y + tm[0][2] * v->Z);
+		out.Y = (tm[1][0] * v->X + tm[1][1] * v->Y + tm[1][2] * v->Z);
+		out.Z = (tm[2][0] * v->X + tm[2][1] * v->Y + tm[2][2] * v->Z);
 
-		out->X = (tm[0][0] * v->X + tm[0][1] * v->Y + tm[0][2] * v->Z);
-		out->Y = (tm[1][0] * v->X + tm[1][1] * v->Y + tm[1][2] * v->Z);
-		out->Z = (tm[2][0] * v->X + tm[2][1] * v->Y + tm[2][2] * v->Z);
-
-		return out;
+		return &out;
 	}
 
-	static Vector3D<float>* Transform_Vector(const Matrix3D &tm, const Vector3D<float> &in)
+	static Vector3D<float> *Transform_Vector(const Matrix3D &tm, const Vector3D<float> &in)
 	{
-		Vector3D<float> tmp;
-		Vector3D<float> *v;
-		Vector3D<float>* out;
+		Vector3D<float> *v = (Vector3D<float> *) & in;
+		Vector3D<float> out = { 0.0f ,0.0f ,0.0f };
 
-		if (out == &in) {
-			tmp = in;
-			v = &tmp;
-		}
-		else {
-			v = (Vector3D<float> *)&in;
-		}
+		out.X = (tm[0][0] * v->X + tm[0][1] * v->Y + tm[0][2] * v->Z + tm[0][3]);
+		out.Y = (tm[1][0] * v->X + tm[1][1] * v->Y + tm[1][2] * v->Z + tm[1][3]);
+		out.Z = (tm[2][0] * v->X + tm[2][1] * v->Y + tm[2][2] * v->Z + tm[2][3]);
 
-		out->X = (tm[0][0] * v->X + tm[0][1] * v->Y + tm[0][2] * v->Z + tm[0][3]);
-		out->Y = (tm[1][0] * v->X + tm[1][1] * v->Y + tm[1][2] * v->Z + tm[1][3]);
-		out->Z = (tm[2][0] * v->X + tm[2][1] * v->Y + tm[2][2] * v->Z + tm[2][3]);
-		return out;
+		return &out;
 	}
 
 	static const Matrix3D Identity()

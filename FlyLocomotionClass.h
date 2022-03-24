@@ -4,7 +4,7 @@
 
 #include <LocomotionClass.h>
 
-class __declspec(uuid("4A582746-9839-11d1-B709-00A024DDAFD1")) FlyLocomotionClass : public LocomotionClass
+class NOVTABLE __declspec(uuid("4A582746-9839-11d1-B709-00A024DDAFD1")) FlyLocomotionClass : public LocomotionClass
 {
 public:
 	//IUnknown

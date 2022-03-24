@@ -24,8 +24,6 @@ public:
 	//global array
 	static constexpr constant_ptr<DynamicVectorClass<ConvertClass*>, 0x89ECF8u> const Array{};
 
-	//static ConvertClass* FindOrAllocate(const char* pFilename);
-
 	static void __fastcall CreateFromFile(const char* pFilename, BytePalette* &pPalette, ConvertClass* &pDestination)
 		{ JMP_STD(0x72ADE0); }
 
@@ -73,12 +71,14 @@ public:
 	RLEBlitterCore* RLEBlitters[39];
 	size_t ShadeCount;
 	void* BufferA; // new(ShadeCount * 8 * BytesPerPixel) - gets filled with palette values on CTOR
-	void* Midpoint; // points to the middle of BufferA above, ??
+	WORD* MidPoint;
 	void* BufferB; // if(BytesPerPixel == 1) { BufferB = new byte[0x100]; }
 	DWORD CurrentZRemap; // set right before drawing
 	DWORD HalfColorMask; // for masking colors right-shifted by 1
 	DWORD QuarterColorMask; // for masking colors right-shifted by 2
 };
+
+static_assert(sizeof(ConvertClass) == 0x188);
 
 class LightConvertClass : public ConvertClass
 {

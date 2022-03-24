@@ -5,6 +5,8 @@
 #pragma once
 
 #include <ObjectTypeClass.h>
+#include <ColorStruct.h>
+#include <GeneralDefinitions.h>
 
 //forward declarations
 
@@ -75,3 +77,5 @@ public:
 	bool     Laser;
 	bool     OneFrameLight;
 };
+
+static_assert(sizeof(ParticleSystemTypeClass) == 0x310);

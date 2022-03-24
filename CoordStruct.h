@@ -61,11 +61,23 @@ private:
 	{ JMP_THIS(0x413A30); }
 public:
 
+	const char* As_String() const
+	{
+		static char _buffer[8 + 8 + 8];
+		std::snprintf(_buffer, sizeof(_buffer), "%d,%d,%d", X, Y, Z);
+		return _buffer;
+	}
+
 	CellStruct TocellStruct()
 	{
 		CellStruct nBuffer;
 		ToCellStruct(nBuffer);
 		return nBuffer;
+	}
+
+	operator bool() const
+	{
+		return X || Y || Z;
 	}
 
 	CoordStruct operator+(const CoordStruct& nThat) const
@@ -137,15 +149,22 @@ public:
 
 	int MagnitudeInt() const
 	{ return (int)(Magnitude() * 0.00390625);}
-	
+
 	double MagnitudeSquared() const
 	{
 		CoordStruct nBufff = *this * *this;
 		return ((double)nBufff.X + (double)nBufff.Y + (double)nBufff.Z);
 	}
 
+	int Length() const {
+		return (int)Math::sqrt((double)X * (double)X + (double)Y * (double)Y + (double)Z * (double)Z);
+	}
+
 	double DistanceFrom(const CoordStruct& nThat) const
 	{ return (*this - nThat).Magnitude(); }
+
+	inline int DistanceFromI(const CoordStruct& nThat) const
+	{ return (int)(*this - nThat).Magnitude(); }
 
 	static const  CoordStruct Empty;
 
@@ -229,7 +248,7 @@ public:
 
 	CoordStruct CrossProduct(const CoordStruct& nThat) const
 	{
-		return 
+		return
 		{
 			Y * nThat.Z - Z * nThat.Y,
 			Z * nThat.X - X * nThat.Z,
@@ -247,7 +266,7 @@ public:
 		{
 			return r;
 		}
-		else 
+		else
 		{
 			//the vectors are not collinear, return NaN!
 			unsigned long NaN[2] = { 0xFFFFFFFF,0x7FFFFFFF };
@@ -259,7 +278,7 @@ public:
 	{
 		double Mag = (nThat).Magnitude();
 		double MagT = this->Magnitude();
-		double Dot = (this->X * nThat.X) + (this->Y * nThat.Y) + (this->Z * nThat.Z);
+		double Dot = (double)((this->X * nThat.X) + (this->Y * nThat.Y) + (this->Z * nThat.Z));
 		double v = Dot / (Mag * MagT);
 
 		v = fmax(v, -1.0);
@@ -325,15 +344,15 @@ public:
 
 	CoordStruct Normalize()
 	{
-		CoordStruct buffer;
+		CoordStruct buffer {0,0,0};
 		double len2 = static_cast<double>(X * X + Y * Y + Z * Z);
 
 		if (len2 != 0.0)
 		{
-			double oolen = static_cast<double>(Math::Q_invsqrt(static_cast<float>(len2)));
-			buffer.X *= oolen;
-			buffer.Y *= oolen;
-			buffer.Z *= oolen;
+			double oolen = (double)(Math::Q_invsqrt(static_cast<float>(len2)));
+			buffer.X = X*oolen;
+			buffer.Y = Y*oolen;
+			buffer.Z = Z*oolen;
 		}
 
 		return buffer;
@@ -393,14 +412,14 @@ public:
 
 	void Cap_Absolute_To(const CoordStruct& nThat)
 	{
-		if (X > 0) 
+		if (X > 0)
 		{
 			if (nThat.X < X)
 			{
 				X = nThat.X;
 			}
 		}
-		else 
+		else
 		{
 			if (-nThat.X > X)
 			{
@@ -408,14 +427,14 @@ public:
 			}
 		}
 
-		if (Y > 0) 
+		if (Y > 0)
 		{
-			if (nThat.Y < Y) 
+			if (nThat.Y < Y)
 			{
 				Y = nThat.Y;
 			}
 		}
-		else 
+		else
 		{
 			if (-nThat.Y > Y)
 			{
@@ -423,16 +442,16 @@ public:
 			}
 		}
 
-		if (Z > 0) 
+		if (Z > 0)
 		{
 			if (nThat.Z < Z)
 			{
 				Z = nThat.Z;
 			}
 		}
-		else 
+		else
 		{
-			if (-nThat.Z > Z) 
+			if (-nThat.Z > Z)
 			{
 				Z = -nThat.Z;
 			}

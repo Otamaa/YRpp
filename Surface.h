@@ -177,9 +177,7 @@ public:
 	virtual short GetPixelClip(Point2D* pPoint, RectangleStruct* pRect) R0;
 
 	bool SetPixel(Point2D* pPoint, COLORREF nColor) override
-	{
-		JMP_THIS(0x7BAEB0);
-	}
+	{ JMP_THIS(0x7BAEB0); }
 
 	int LockLevel;
 	int BytesPerPixel;
@@ -188,13 +186,13 @@ public:
 class NOVTABLE BSurface : public XSurface
 {
 public:
-	static constexpr constant_ptr<BSurface, 0xB2D928> VoxelSurface{};
+	static constexpr constant_ptr<BSurface, 0xB2D928> VoxelSurface {};
 
 	int Get_Bytes_Per_Pixel() { JMP_THIS(0x411630); }
 	int Get_Pitch() { JMP_THIS(0x411640); }
-	//	void* Lock(int X = 0, int Y = 0) { JMP_THIS(0x4115F0); }
+//	void* Lock(int X = 0, int Y = 0) { JMP_THIS(0x4115F0); }
 
-	BSurface() : XSurface(), nBuffer{ this->Width * this->Height * 2 }
+	BSurface() : XSurface(), nBuffer { this->Width * this->Height * 2 }
 	{ BytesPerPixel = 2; (VTABLE_SET(this, 0x7E2070)); }
 
 	MemoryBuffer nBuffer;
@@ -202,69 +200,74 @@ public:
 
 #pragma warning(push)
 #pragma warning(disable : 4505)
-namespace CommonFunction
+#pragma region CommonFunction
+
+// Used for linetrail
+static bool __fastcall Surface_4BEAC0_Blit(Surface* Surface, RectangleStruct& nRect, Point2D& nPoint1, Point2D& nPoint2, int& nSomeval, unsigned nSomeval2, int nAdjust_1, int nAdjust2)
 {
-	// Used for linetrail
-	static bool __fastcall Surface_4BEAC0_Blit(Surface* Surface, RectangleStruct& nRect, Point2D& nPoint1, Point2D& nPoint2, int& nSomeval, unsigned nSomeval2, int nAdjust_1, int nAdjust2)
-	{
-		JMP_STD(0x4BEAC0);
-	}
+	JMP_STD(0x4BEAC0);
+}
 
-	static RectangleStruct* __fastcall Funt_4A59E0(RectangleStruct* pRet, char* text, int xpos, int ypos, TextPrintType flag, int x_offset, int y_offset)
-	{
-		JMP_STD(0x4A59E0);
-	}
+static RectangleStruct* __fastcall GetTextBox(RectangleStruct* pRet, char* text, int xpos, int ypos, TextPrintType flag, int x_offset, int y_offset)
+{
+	JMP_STD(0x4A59E0);
+}
 
-	// Comments from thomassneddon
-	static void __fastcall CC_Draw_Shape(Surface* Surface, ConvertClass* Palette, SHPStruct* SHP, int FrameIndex,
-		const Point2D* const Position, const RectangleStruct* const Bounds, BlitterFlags Flags,
-		int Remap,
-		int ZAdjust, // + 1 = sqrt(3.0) pixels away from screen
-		ZGradient ZGradientDescIndex,
-		int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
-		int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
-	{
-		JMP_STD(0x4AED70);
-	}
+// Comments from thomassneddon
+static void __fastcall CC_Draw_Shape(Surface* Surface, ConvertClass* Palette, SHPStruct* SHP, int FrameIndex,
+	const Point2D* const Position, const RectangleStruct* const Bounds, BlitterFlags Flags,
+	int Remap,
+	int ZAdjust, // + 1 = sqrt(3.0) pixels away from screen
+	ZGradient ZGradientDescIndex,
+	int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
+	int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
+{
+	JMP_STD(0x4AED70);
+}
 
-	static void __fastcall CC_Draw_Shape(Surface* Surface, ConvertClass* Palette, SHPStruct* SHP, int FrameIndex,
-		const Point2D* const Position, const RectangleStruct* const Bounds, DWORD Flags,
-		int Remap,
-		int ZAdjust, // + 1 = sqrt(3.0) pixels away from screen
-		DWORD ZGradientDescIndex, //
-		int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
-		int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
-	{
-		JMP_STD(0x4AED70);
-	}
+static void __fastcall CC_Draw_Shape(Surface* Surface, ConvertClass* Palette, SHPStruct* SHP, int FrameIndex,
+	const Point2D* const Position, const RectangleStruct* const Bounds, DWORD Flags,
+	int Remap,
+	int ZAdjust, // + 1 = sqrt(3.0) pixels away from screen
+	DWORD ZGradientDescIndex, //
+	int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
+	int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
+{
+	JMP_STD(0x4AED70);
+}
 
-	static Point2D* Fancy_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
-		Point2D* Location, unsigned int ForeColor, unsigned int BackColor, TextPrintType Flag, ...)
-	{
-		JMP_STD(0x4A60E0);
-	}
+static Point2D* Fancy_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
+	Point2D* Location, unsigned int ForeColor, unsigned int BackColor, TextPrintType Flag, ...)
+{
+	JMP_STD(0x4A60E0);
+}
 
-	static Point2D* Fancy_Text_Print_Wide_REF(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
-		Point2D* Location, COLORREF ForeColor, COLORREF BackColor, TextPrintType Flag, ...)
-	{
-		JMP_STD(0x4A60E0);
-	}
+static Point2D* Fancy_Text_Print_Wide_REF(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
+	Point2D* Location, COLORREF ForeColor, COLORREF BackColor, TextPrintType Flag, ...)
+{
+	JMP_STD(0x4A60E0);
+}
 
-	static Point2D* Fancy_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
-		Point2D* Location, ColorScheme* fore, unsigned int BackColor, TextPrintType Flag, ...)
-	{
-		JMP_STD(0x4A61C0);
-	}
+static Point2D* Fancy_Text_Print_Wide(const Point2D& retBuffer, const wchar_t* Text, Surface* Surface, const RectangleStruct& Bounds,
+	const Point2D& Location, ColorScheme* ForeScheme, ColorScheme* BackScheme, TextPrintType Flag, ...)
+{
+	JMP_STD(0x4A61C0);
+}
 
-	//
-	static Point2D* __fastcall Simple_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
-		Point2D* Location, COLORREF ForeColor, COLORREF BackColor, TextPrintType Flag, bool bUkn)
-	{
-		JMP_STD(0x4A5EB0);
-	}
+static Point2D* Fancy_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
+	Point2D* Location, ColorScheme* fore, unsigned int BackColor, TextPrintType Flag, ...)
+{
+	JMP_STD(0x4A61C0);
+}
+
+//
+static Point2D* __fastcall Simple_Text_Print_Wide(Point2D* RetVal, const wchar_t* Text, Surface* Surface, RectangleStruct* Bounds,
+	Point2D* Location, COLORREF ForeColor, COLORREF BackColor, TextPrintType Flag, bool bUkn)
+{
+	JMP_STD(0x4A5EB0);
 }
 #pragma warning(pop)
-
+#pragma endregion CommonFunction
 class NOVTABLE DSurface : public XSurface
 {
 public:
@@ -302,7 +305,7 @@ public:
 		int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
 		int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
 	{
-		CommonFunction::CC_Draw_Shape(this, Palette, SHP, FrameIndex, Position, Bounds, Flags, Remap, ZAdjust,
+		CC_Draw_Shape(this, Palette, SHP, FrameIndex, Position, Bounds, Flags, Remap, ZAdjust,
 			ZGradientDescIndex, Brightness, TintColor, ZShape, ZShapeFrame, XOffset, YOffset);
 	}
 
@@ -313,7 +316,7 @@ public:
 		int Brightness, // 0~2000. Final color = saturate(OriginalColor * Brightness / 1000.0f)
 		int TintColor, SHPStruct* ZShape, int ZShapeFrame, int XOffset, int YOffset)
 	{
-		CommonFunction::CC_Draw_Shape(this, Palette, SHP, FrameIndex, Position, Bounds, Flags, Remap, ZAdjust,
+		CC_Draw_Shape(this, Palette, SHP, FrameIndex, Position, Bounds, Flags, Remap, ZAdjust,
 			ZGradient(ZGradientDescIndex), Brightness, TintColor, ZShape, ZShapeFrame, XOffset, YOffset);
 	}
 
@@ -322,7 +325,7 @@ public:
 	{
 		Point2D tmp = { 0, 0 };
 
-		CommonFunction::Fancy_Text_Print_Wide_REF(&tmp, pText, this, pBounds, pLocation, ForeColor, BackColor, Flag);
+		Fancy_Text_Print_Wide_REF(&tmp, pText, this, pBounds, pLocation, ForeColor, BackColor, Flag);
 	}
 
 	void DrawText(const wchar_t* pText, Point2D* pLoction, COLORREF Color)
@@ -331,7 +334,7 @@ public:
 		this->GetRect(&rect);
 
 		Point2D tmp{ 0,0 };
-		CommonFunction::Fancy_Text_Print_Wide_REF(&tmp, pText, this, &rect, pLoction, Color, 0, TextPrintType::NoShadow);
+		Fancy_Text_Print_Wide_REF(&tmp, pText, this, &rect, pLoction, Color, 0, TextPrintType::NoShadow);
 	}
 
 	void DrawText(const wchar_t* pText, int X, int Y, COLORREF Color)
@@ -347,7 +350,7 @@ public:
 			| unsigned((g >> GreenRight) << GreenLeft));
 	}
 
-	static void Pixel_To_RGBA(unsigned pixel, unsigned* red, unsigned* green, unsigned* blue)
+	static void Pixel_To_RGBA(unsigned pixel, unsigned *red, unsigned *green, unsigned *blue)
 	{
 		*red = ((pixel >> RedLeft) << RedRight);
 		*green = ((pixel >> GreenLeft) << GreenRight);
@@ -374,5 +377,5 @@ public:
 	bool IsInVideoRam;
 	PROTECTED_PROPERTY(char, field_1A[2]);
 	IDirectDrawSurface* VideoSurfacePtr;
-	DDSURFACEDESC2* VideoSurfaceDescription; //SurfDesc
+	DDSURFACEDESC2* VideoSurfaceDescription;
 };

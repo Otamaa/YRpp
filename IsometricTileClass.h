@@ -1,9 +1,11 @@
 #pragma once
 
 #include <ObjectClass.h>
+#include <GeneralStructures.h>
 
 //forward declarations
 class IsometricTileTypeClass;
+struct RectangleStruct;
 
 class NOVTABLE IsometricTileClass : public ObjectClass
 {

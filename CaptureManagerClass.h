@@ -11,9 +11,11 @@ class TechnoClass;
 
 struct ControlNode
 {
+	explicit ControlNode() noexcept { }
+
 	TechnoClass* Unit;
 	HouseClass* OriginalOwner;
-	TimerStruct LinkDrawTimer;
+	DECLARE_PROPERTY(TimerStruct, LinkDrawTimer);
 };
 
 static_assert(sizeof(ControlNode) == 0x14);
@@ -41,17 +43,15 @@ public:
 	virtual int Size() const R0;
 
 	//non-virtual
-	bool CaptureUnit(TechnoClass* pUnit)
+	bool CaptureUnit(TechnoClass* pTarget) const
 		{ JMP_THIS(0x471D40); }
-	bool FreeUnit(TechnoClass* pUnit)
+	bool FreeUnit(TechnoClass* pTarget) const
 		{ JMP_THIS(0x471FF0); }
-	void FreeAll()
+	void FreeAll() const
 		{ JMP_THIS(0x472140); }
-
 	int NumControlNodes() const
 		{ return ControlNodes.Count; }
-
-	bool CanCapture(TechnoClass *Target) const
+	bool CanCapture(TechnoClass * pTarget) const
 		{ JMP_THIS(0x471C90); }
 	bool CannotControlAnyMore() const
 		{ JMP_THIS(0x4722A0); }
@@ -59,23 +59,21 @@ public:
 		{ JMP_THIS(0x4722C0); }
 	bool IsOverloading(bool *wasDamageApplied) const
 		{ JMP_THIS(0x4726C0); }
-	void HandleOverload()
+	void HandleOverload() const
 		{ JMP_THIS(0x471A50); }
 	bool NeedsToDrawLinks() const
 		{ JMP_THIS(0x472640); }
-	bool DrawLinks()
+	bool DrawLinks() const
 		{ JMP_THIS(0x472160); }
-	void DecideUnitFate(TechnoClass *Unit)
+	void DecideUnitFate(TechnoClass* pTarget) const
 		{ JMP_THIS(0x4723B0); }
-	HouseClass* GetOriginalOwner(TechnoClass *Unit) const
+	HouseClass* GetOriginalOwner(TechnoClass* pTarget) const
 		{ JMP_THIS(0x4722F0); }
-	bool DetachTarget(TechnoClass* pTarget)
+	bool DetachTarget(TechnoClass* pTarget) const
 		{ JMP_THIS(0x471F90); }
-	int ControlCount()
-		{ return ControlNodes.Count; }
-	bool CanControlOnlyOne()
+	bool CanControlOnlyOne() const
 		{ return MaxControlNodes == 1; }
-	bool SetOriginalOwnerToCivilian()
+	bool SetOriginalOwnerToCivilian() const
 		{ JMP_THIS(0x472330); }
 
 	//Constructor

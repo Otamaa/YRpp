@@ -1,12 +1,14 @@
 #pragma once
 
-#include <TeamTypeClass.h>
+#include <AbstractClass.h>
 
 class HouseClass;
 class FootClass;
 class CellClass;
 class ScriptClass;
 class TagClass;
+class TeamTypeClass;
+class TechnoTypeClass;
 
 class NOVTABLE TeamClass : public AbstractClass
 {
@@ -29,8 +31,9 @@ public:
 	// fills dest with all types needed to complete this team. each type is
 	// included as often as it is needed.
 	void GetTaskForceMissingMemberTypes(DynamicVectorClass<TechnoTypeClass *>& dest) const { JMP_THIS(0x6EF4D0); }
-	bool IsLeavingMap() const { JMP_THIS(0x6EC300); }
-	void LiberateMember(FootClass* pFoot, int idx=-1, byte count=0) { JMP_THIS(0x6EA870); }
+	bool Is_LeavingMap() const { JMP_THIS(0x6EC300); }
+	void LiberateMember(FootClass* pFoot, int idx=-1, byte count=0) const { JMP_THIS(0x6EA870); }
+	bool Add(FootClass* pFoot, bool bArg) const { JMP_THIS(0x6EA500); }
 	FootClass* FetchLeader() const { JMP_THIS(0x6EC3D0); }
 
 	//AbstractClass
@@ -58,7 +61,7 @@ public:
 	HouseClass*    Owner;
 	HouseClass*    Target;
 	CellClass*     SpawnCell;
-	DWORD          unknown_38;
+	FootClass*	   ClosestMember;
 	AbstractClass* QueuedFocus;
 	AbstractClass* Focus;
 	int            unknown_44;
@@ -66,33 +69,30 @@ public:
 	int            TotalThreatValue;
 	int            CreationFrame;
 	FootClass *    FirstUnit;
-	TimerStruct GuardAreaTimer;
-	TimerStruct SuspendTimer;
+	TimerStruct	   GuardAreaTimer;
+	TimerStruct	   SuspendTimer;
 	TagClass*      Tag;
-	bool           unknown_74;
-	bool           unknown_75;
-	bool           unknown_76;
-	bool           unknown_77;
+	bool           IsTransient;
+	bool           NeedsReGrouping;
+	bool           GuardSlowerIsNotUnderStrength;
+	bool           IsForcedActive;
 
-	bool           unknown_78;
-	bool           unknown_79;
-	bool           unknown_7A;
-	bool           unknown_7B;
+	bool           IsHasBeen;
+	bool           IsFullStrength;
+	bool           IsUnderStrength;
+	bool           IsReforming;
 
-	bool           unknown_7C;
+	bool           IsLagging;
 	bool           NeedsToDisappear;
-	bool           unknown_7E;
-	bool           unknown_7F;
+	bool           JustDisappeared;
+	bool           IsMoving;
 
 	bool           StepCompleted; // can proceed to the next step of the script
-	bool           unknown_81;
-	bool           unknown_82;
+	bool           TargetNotAssigned;
+	bool           IsLeavingMap;
 	bool           IsSuspended;
 
 	bool           AchievedGreatSuccess; // executed script action 49, 0
-	bool           unknown_85;
-	bool           unknown_86;
-	bool           unknown_87;
 
 	int CountObjects [6]; // counts of each object specified in the Type
 };

@@ -88,7 +88,7 @@ public:
 	//ObjectTypeClass
 
 	//TechnoTypeClass
-	virtual bool vt_entry_A0() R0;
+	virtual bool CanUseWaypointMode() R0;
 	virtual bool CanAttackMove() const R0;
 	virtual bool CanCreateHere(const CellStruct& mapCoords, HouseClass* pOwner) const R0;
 	virtual int GetCost() const R0;
@@ -140,10 +140,10 @@ public:
 		{ JMP_THIS(0x712130); }
 
 	// weapon related
-	WeaponStruct& GetWeapon(size_t const index, bool const elite) 
+	WeaponStruct& GetWeapon(size_t const index, bool const elite)
 		{ return elite ? this->GetEliteWeapon(index) : this->GetWeapon(index); }
 
-	WeaponStruct const& GetWeapon(size_t const index, bool const elite) const 
+	WeaponStruct const& GetWeapon(size_t const index, bool const elite) const
 		{ return elite ? this->GetEliteWeapon(index) : this->GetWeapon(index); }
 
 	WeaponStruct& GetWeapon(size_t const index)
@@ -499,7 +499,7 @@ public:
 	int             ZFudgeTunnel;
 	int             ZFudgeBridge;
 	char            PaletteFile[0x20];
-	void*           Palette; //no... idea....
+	DynamicVectorClass<ColorScheme*>*           Palette; //no... idea....
 	DWORD           align_DF4;
 };
 static_assert(sizeof(TechnoTypeClass) == 0xDF8);

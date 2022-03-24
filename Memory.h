@@ -213,6 +213,16 @@ struct GameDeleter {
 	}
 };
 
+struct DLLDeleter
+{
+	template <typename T>
+	void operator ()(T* ptr) noexcept {
+			if (ptr) {
+			DLLDelete(ptr);
+		}
+	}
+};
+
 //#define GAME_ALLOC(TT, var, ...) \
 //	var = GameCreate<TT>(__VA_ARGS__);
 //

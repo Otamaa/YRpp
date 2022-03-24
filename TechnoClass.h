@@ -5,16 +5,10 @@
 #pragma once
 
 #include <RadioClass.h>
-#include <RadBeam.h>
 #include <TechnoTypeClass.h>
-#include <CaptureManagerClass.h>
-#include <SlaveManagerClass.h>
-#include <TeamClass.h>
-#include <TemporalClass.h>
-#include <LaserDrawClass.h>
 #include <Helpers/Template.h>
 #include <ProgressTimer.h>
-#include <PlanningTokenClass.h>
+#include <TransitionTimer.h>
 
 //forward declarations
 class AirstrikeClass;
@@ -32,9 +26,13 @@ class SpawnManagerClass;
 class WaveClass;
 class EBolt;
 struct NetworkEvent;
-
-#include <TransitionTimer.h>
-
+class SlaveManagerClass;
+class CaptureManagerClass;
+class RadBeam;
+class PlanningTokenClass;
+class LaserDrawClass;
+class TemporalClass;
+class TeamClass;
 struct VeterancyStruct
 {
 	VeterancyStruct() = default;
@@ -56,6 +54,13 @@ struct VeterancyStruct
 		}
 
 		this->Veterancy = static_cast<float>(val);
+	}
+
+	void Add_Fix(double value) noexcept
+	{
+		auto nVal = (float)(this->Veterancy + abs(value));
+
+		this->Veterancy = Math::clamp(nVal, 0.0f, 0.2f);
 	}
 
 	Rank GetRemainingLevel() const noexcept {
@@ -181,6 +186,12 @@ public:
 	//Destructor
 	virtual ~TechnoClass() RX;
 
+	//AbstractClass
+	virtual void Update() override JMP_THIS(0x6F9E50);
+
+	//MissionClass
+	virtual void Override_Mission(Mission mission, AbstractClass* tarcom = nullptr, AbstractClass* navcom = nullptr) override JMP_THIS(0x7013A0); //Vt_1F4
+
 	//TechnoClass
 	virtual bool IsUnitFactory() const R0;
 	virtual bool IsCloakable() const R0;
@@ -215,7 +226,7 @@ public:
 	virtual CellStruct* vt_entry_2FC(CellStruct* Buffer, DWORD dwUnk2, DWORD dwUnk3) const R0;
 	virtual CoordStruct * vt_entry_300(CoordStruct * Buffer, DWORD dwUnk2) const R0;
 	virtual DWORD vt_entry_304(DWORD dwUnk, DWORD dwUnk2) const R0;
-	virtual DirStruct* GetRealFacing(DirStruct* pBuffer) const R0;
+	virtual FacingStruct* GetRealFacing(FacingStruct* pBuffer) const R0;
 	virtual InfantryTypeClass* GetCrew() const R0;
 	virtual bool vt_entry_310() const R0;
 	virtual bool CanDeploySlashUnload() const R0;
@@ -286,7 +297,7 @@ public:
 	virtual void UpdateCloak(bool bUnk = 1) RX;
 	virtual void CreateGap() RX;
 	virtual void DestroyGap() RX;
-	virtual void RockingAI(Vector3D<double>* pVelocity, float bFactor = 0.5f, bool bHalf = false) RX;//virtual void vt_entry_41C() RX;
+	virtual void RockingAI(DWORD dwUnk, float bFactor = 0.5f, bool bHalf = false) RX;//virtual void vt_entry_41C() RX;
 	virtual void Sensed() RX;
 	virtual void Reload() RX;
 	virtual void vt_entry_428() RX;
@@ -296,11 +307,9 @@ public:
 	virtual void DrawActionLines(bool Force, DWORD dwUnk2) RX;
 	virtual DWORD GetDisguiseFlags(DWORD existingFlags) const R0;
 	virtual bool IsClearlyVisibleTo(HouseClass *House) const R0; // can House see right through my disguise?
-
-	//nooooooooooooooooooooooooooooooo (vader-style)
-	//thought 666 is the number of the beast? in hex it's 444 D=
-	virtual void vt_entry_444(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3, DWORD dwUnk4, DWORD dwUnk5,
-		DWORD dwUnk6, DWORD dwUnk7, DWORD dwUnk8, DWORD dwUnk9, DWORD dwUnk10) RX;
+	virtual void DrawVoxel(const VoxelStruct& Voxel, DWORD dwUnk2, short Facing,
+		const IndexClass<int, int>& VoxelIndex, const RectangleStruct& Rect, const Point2D& nLocation,
+		const Matrix3D& Matrix, int Intensity, DWORD dwUnk9, DWORD dwUnk10) RX;
 	virtual void vt_entry_448(DWORD dwUnk, DWORD dwUnk2) RX;
 	virtual void DrawHealthBar(Point2D *pLocation, RectangleStruct *pBounds, bool bUnk3) const RX;
 	virtual void DrawPipScalePips(Point2D *pLocation, Point2D *pOriginalLocation, RectangleStruct *pBounds) const RX;
@@ -317,7 +326,7 @@ public:
 	virtual void vt_entry_47C(DWORD dwUnk) RX;
 	virtual void SetDestination(AbstractClass* pDest, bool bUnk) RX;
 	virtual bool EnterIdleMode(bool Initial, int nUnknown) R0;//virtual bool vt_entry_484(DWORD dwUnk, DWORD dwUnk2) R0;
-	virtual void UpdateSight(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3, DWORD dwUnk4, DWORD dwUnk5) RX;
+	virtual void UpdateSight(bool Incremental, int unusedarg3, bool UseThisHouseInstead, HouseClass* dwUnk4, int OverrideSight) RX;
 	virtual void vt_entry_48C(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3, DWORD dwUnk4) RX;
 	virtual bool ForceCreate(CoordStruct& coord, DWORD dwUnk = 0) R0;
 	virtual void RadarTrackingStart() RX;
@@ -338,17 +347,6 @@ public:
 	virtual bool vt_entry_4D0() R0;
 
 	//non-virtual
-
-		// technically it takes an ecx<this> , but it's not used and ecx is immediately overwritten on entry
-	// draws the mind control line when unit is selected
-	static void DrawALinkTo(int src_X, int src_Y, int src_Z, int dst_X, int dst_Y, int dst_Z, ColorStruct color)
-	{
-		PUSH_VAR32(color); PUSH_VAR32(dst_Z); PUSH_VAR32(dst_Y); PUSH_VAR32(dst_X);
-		PUSH_VAR32(src_Z); PUSH_VAR32(src_Y); PUSH_VAR32(src_X); CALL(0x704E40);
-	}
-
-	void BecomeUntargetable()
-	{ JMP_THIS(0x70D4A0); }
 
 	// (re-)starts the reload timer
 	void StartReloading()
@@ -460,37 +458,16 @@ public:
 	void FireDeathWeapon(int additionalDamage)
 		{ JMP_THIS(0x70D690); }
 
-	bool HasAbility(Ability ability) const
+	bool HasAbility(AbilityType ability) const
 		{ JMP_THIS(0x70D0D0); }
 
 	void ClearSidebarTabObject() const
 		{ JMP_THIS(0x734270); }
 
 	int GetIonCannonValue(AIDifficulty difficulty) const;
-
-	int GetIonCannonValue(AIDifficulty difficulty, int maxHealth) const {
-		// what TS does
-		if(maxHealth > 0 && this->Health > maxHealth) {
-			return (this->WhatAmI() == AbstractType::Building) ? 3 : 1;
-		}
-
-		return this->GetIonCannonValue(difficulty);
-	}
-
-	MissionControlClass* GetCurrentMissionControl() const
-	{
-		auto test = this->GetCurrentMission();
-		auto name = MissionControlClass::FindName(test);
-		return MissionControlClass::Find(name);
-	}
-
-	double GetCurrentMissionRate() const
-	{
-		auto control = this->GetCurrentMissionControl();
-		auto const doubleval = 900.0; // 0x7E27F8
-		return control->Rate * doubleval;
-
-	}
+	int GetIonCannonValue(AIDifficulty difficulty, int maxHealth) const;
+	MissionControlClass* GetCurrentMissionControl() const;
+	double GetCurrentMissionRate() const;
 
 	//70BCB0
 	CoordStruct* GetTargetCoords(CoordStruct* pBuffer)
@@ -510,14 +487,14 @@ public:
 		return ret;
 	}
 
-	DirStruct GetRealFacing() const {
-		DirStruct ret;
+	FacingStruct GetRealFacing() const {
+		FacingStruct ret;
 		this->GetRealFacing(&ret);
 		return ret;
 	}
 
-	BulletClass* FireAt(AbstractClass* aTarget, int nWhich) const
-	{ JMP_THIS(0x6FDD50); }
+//	BulletClass* FireAt(AbstractClass* aTarget, int nWhich) const
+//	{ JMP_THIS(0x6FDD50); }
 
 	int CombatDamage(int nWhich = -1) const
 	{ JMP_THIS(0x6F3970); }
@@ -531,30 +508,10 @@ public:
 	void ImbueLocomotor(FootClass* pTarget, _GUID LocoId)const
 	{ JMP_THIS(0x710000); }
 
-	void ReleaseCaptureManager() const
-	{
-		if (auto pManager = this->CaptureManager)
-			pManager->FreeAll();
-	}
-
-	void SuspendWorkSlaveManager() const
-	{
-		if (auto pManager = this->SlaveManager)
-			pManager->SuspendWork();
-	}
-
-	void ResumeWorkSlaveManager() const
-	{
-		if (auto pManager = this->SlaveManager)
-			pManager->ResumeWork();
-	}
-
-	void DetechMyTemporal() const
-	{
-		if (this->IsWarpingSomethingOut())
-			if (auto pTemporal = this->TemporalImUsing)
-				pTemporal->LetGo();
-	}
+	void ReleaseCaptureManager() const;
+	void SuspendWorkSlaveManager() const;
+	void ResumeWorkSlaveManager() const;
+	void DetechMyTemporal() const;
 
 	InfantryTypeClass* GetCrewType() const
 	{ JMP_THIS(0x707D20); }
@@ -596,6 +553,9 @@ public:
 	void DrawExtraInfo(Point2D const& location, Point2D const* originalLocation, RectangleStruct const* bounds)
 	{ DrawExtraInfo(location,*originalLocation,*bounds); }
 
+	void Techno_70E280(AbstractClass* pTarget) const
+	{ JMP_THIS(0x70E280); }
+
 	//Constructor
 	TechnoClass(HouseClass* pOwner) noexcept
 		: TechnoClass(noinit_t())
@@ -612,9 +572,9 @@ protected:
 
 public:
 
-	FlashData        Flashing;
-	ProgressTimer    Animation; // how the unit animates
-	PassengersClass  Passengers;
+	DECLARE_PROPERTY(FlashData, Flashing);
+	DECLARE_PROPERTY(ProgressTimer, Animation); // how the unit animates
+	DECLARE_PROPERTY(PassengersClass, Passengers);
 	TechnoClass*     Transporter; // unit carrying me
 	int              __LastGuardAreaTargetingFrame_120;
 	int              CurrentTurretNumber; // for IFV/gattling/charge turrets
@@ -622,55 +582,62 @@ public:
 	AnimClass*       BehindAnim;
 	AnimClass*       DeployAnim;
 	bool             InAir;
+	PROTECTED_PROPERTY(BYTE, align15_4_5_6[3]);
 	int              CurrentWeaponNumber; // for IFV/gattling 138
 	Rank             CurrentRanking; // only used for promotion detection
 	int              CurrentGattlingStage;
 	int              GattlingValue; // sum of RateUps and RateDowns
-	DWORD            __TurretAnimFrame; //148
+	int              TurretAnimFrame;
 	HouseClass*      InitialOwner; // only set in ctor
-	VeterancyStruct  Veterancy;
+	DECLARE_PROPERTY(VeterancyStruct, Veterancy);
 	PROTECTED_PROPERTY(DWORD, align_154);
 	double           ArmorMultiplier;
 	double           FirepowerMultiplier;
-	TimerStruct      IdleActionTimer; // MOO
-	TimerStruct      RadarFlashTimer;
-	TimerStruct      TargetingTimer; //Duration = 45 on init!
-	TimerStruct      IronCurtainTimer;
-	TimerStruct      IronTintTimer; // how often to alternate the effect color
+	DECLARE_PROPERTY(TimerStruct, IdleActionTimer); // MOO CDTimerClass
+	DECLARE_PROPERTY(TimerStruct, RadarFlashTimer);  //FrameTimerClass
+	DECLARE_PROPERTY(TimerStruct, TargetingTimer); //Duration = 45 on init!
+	DECLARE_PROPERTY(TimerStruct, IronCurtainTimer);
+	DECLARE_PROPERTY(TimerStruct, IronTintTimer); // how often to alternate the effect color
 	int              IronTintStage; // ^
-	TimerStruct      AirstrikeTimer;
-	TimerStruct      AirstrikeTintTimer; // tracks alternation of the effect color
+	DECLARE_PROPERTY(TimerStruct, AirstrikeTimer);
+	DECLARE_PROPERTY(TimerStruct, AirstrikeTintTimer); // tracks alternation of the effect color
 	DWORD            AirstrikeTintStage; //  ^
 	int              ForceShielded;	//0 or 1, NOT a bool - is this under ForceShield as opposed to IC?
 	bool             Deactivated; //Robot Tanks without power for instance
+	PROTECTED_PROPERTY(BYTE, align1C_9_A_B[3]);
 	TechnoClass*     DrainTarget; // eg Disk -> PowerPlant, this points to PowerPlant
 	TechnoClass*     DrainingMe;  // eg Disk -> PowerPlant, this points to Disk
 	AnimClass*       DrainAnim;
 	bool             Disguised;
+	PROTECTED_PROPERTY(BYTE, align1D_9_A_B[3]);
 	DWORD            DisguiseCreationFrame;
-	TimerStruct      InfantryBlinkTimer; // Rules->InfantryBlinkDisguiseTime , detects mirage firing per description
-	TimerStruct      DisguiseBlinkTimer; // disguise disruption timer
-	bool            __UnlimboingInfantry_1F8;
-	TimerStruct      ReloadTimer;
-	DWORD            unknown_208;
-	DWORD            unknown_20C;
+	DECLARE_PROPERTY(TimerStruct, InfantryBlinkTimer); // Rules->InfantryBlinkDisguiseTime , detects mirage firing per description
+	DECLARE_PROPERTY(TimerStruct, DisguiseBlinkTimer); // disguise disruption timer
+	bool             UnlimboingInfantry; //1F8
+	PROTECTED_PROPERTY(BYTE, align1F_9_A_B[3]);
+	DECLARE_PROPERTY(TimerStruct, ReloadTimer);//CDTimerClass
+	//DWORD            unknown_208;
+	//DWORD            unknown_20C;
+	Point2D			__RadarPos;
 
 	// WARNING! this is actually an index of HouseTypeClass es, but it's being changed to fix typical WW bugs.
-	IndexBitfield<HouseClass *> DisplayProductionTo; // each bit corresponds to one player on the map, telling us whether that player has (1) or hasn't (0) spied this building, and the game should display what's being produced inside it to that player. The bits are arranged by player ID, i.e. bit 0 refers to house #0 in HouseClass::Array, 1 to 1, etc.; query like ((1 << somePlayer->ArrayIndex) & someFactory->DisplayProductionToHouses) != 0
+	DECLARE_PROPERTY(IndexBitfield<HouseClass *>, DisplayProductionTo); // each bit corresponds to one player on the map, telling us whether that player has (1) or hasn't (0) spied this building, and the game should display what's being produced inside it to that player. The bits are arranged by player ID, i.e. bit 0 refers to house #0 in HouseClass::Array, 1 to 1, etc.; query like ((1 << somePlayer->ArrayIndex) & someFactory->DisplayProductionToHouses) != 0
 
 	int              Group; //0-9, assigned by CTRL+Number, these kinds // also set by aimd TeamType->Group !
 	AbstractClass*   Focus; // when told to guard a unit or such; distinguish undeploy and selling
 	HouseClass*      Owner;
 	CloakState       CloakState;
-	ProgressTimer    CloakProgress; // phase from [opaque] -> [fading] -> [transparent] , [General]CloakingStages= long
-	TimerStruct      CloakDelayTimer; // delay before cloaking again
+	DECLARE_PROPERTY(ProgressTimer, CloakProgress); //StageClass, phase from [opaque] -> [fading] -> [transparent] , [General]CloakingStages= long
+	DECLARE_PROPERTY(TimerStruct, CloakDelayTimer); // delay before cloaking again
 	float            WarpFactor; // don't ask! set to 0 in CTOR, never modified, only used as ((this->Fetch_ID) + this->WarpFactor) % 400 for something in cloak ripple
 	bool             unknown_bool_250;
+	PROTECTED_PROPERTY(BYTE, align25_1_2_3[3]);
 	CoordStruct      LastSightCoords;
 	int              LastSightRange;
 	int              LastSightHeight;
 	bool             GapSuperCharged; // GapGenerator, when SuperGapRadiusInCells != GapRadiusInCells, you can deploy the gap to boost radius
 	bool             GeneratingGap; // is currently generating gap
+	PROTECTED_PROPERTY(BYTE, align26_A_B[2]);
 	int              GapRadius;
 	bool             BeingWarpedOut; // is being warped by CLEG
 	bool             WarpingOut; // phasing in after chrono-jump
@@ -678,16 +645,18 @@ public:
 	BYTE             unused_273;
 	TemporalClass*   TemporalImUsing; // CLEG attacking Power Plant : CLEG's this
 	TemporalClass*   TemporalTargetingMe; 	// CLEG attacking Power Plant : PowerPlant's this
-	bool             IsImmobilized; // by chrono aftereffects
+	bool             IsImmobilized; // by chrono aftereffects ,27C
+	PROTECTED_PROPERTY(BYTE, align27_D_E_F[3]);
 	DWORD            unknown_280;
 	int              ChronoLockRemaining; // countdown after chronosphere warps things around
 	CoordStruct      ChronoDestCoords; // teleport loco and chsphere set this
 	AirstrikeClass*  Airstrike; //Boris
 	bool             Berzerk;
+	PROTECTED_PROPERTY(BYTE, align29_9_A_B[3]);
 	DWORD            BerzerkDurationLeft;
 	DWORD            SprayOffsetIndex; // hardcoded array of xyz offsets for sprayattack, 0 - 7, see 6FE0AD
 	bool             Uncrushable; // DeployedCrushable fiddles this, otherwise all 0
-
+	PROTECTED_PROPERTY(BYTE, align2A_5_6_7[3]);
  // unless source is Pushy=
  // abs_Infantry source links with abs_Unit target and vice versa - can't attack others until current target flips
  // no checking whether source is Infantry, but no update for other types either
@@ -695,11 +664,12 @@ public:
 	FootClass*       DirectRockerLinkedUnit;
 	FootClass*       LocomotorTarget; // mag->LocoTarget = victim
 	FootClass*       LocomotorSource; // victim->LocoSource = mag
-	AbstractClass*   Target; //if attacking
-	AbstractClass*   LastTarget;
+	AbstractClass*   Target; //if attacking ,tarcom
+	AbstractClass*   LastTarget; //suspendedtarcom
 	CaptureManagerClass* CaptureManager; //for Yuris
 	TechnoClass*     MindControlledBy;
 	bool             MindControlledByAUnit;
+	PROTECTED_PROPERTY(BYTE, align2C_5_6_7[3]);
 	AnimClass*       MindControlRingAnim;
 	HouseClass*      MindControlledByHouse; //used for a TAction
 	SpawnManagerClass* SpawnManager;
@@ -712,10 +682,10 @@ public:
 	TechnoClass*     BunkerLinkedItem;
 
 	float            PitchAngle; // not exactly, and it doesn't affect the drawing, only internal state of a dropship
-	TimerStruct      DiskLaserTimer;
+	DECLARE_PROPERTY(TimerStruct, ArmTimer); //DiskLaserTimer
 	DWORD            __ROFCounter_2F8;
 	int              Ammo;
-	int              Value; // set to actual cost when this gets queued in factory, updated only in building's 42C
+	int              Value; //,PurchasePrice set to actual cost when this gets queued in factory, updated only in building's 42C
 
 
 	ParticleSystemClass* FireParticleSystem;
@@ -741,16 +711,16 @@ public:
 
 	int              HijackerInfantryType; // mutant hijacker
 
-	OwnedTiberiumStruct Tiberium;
+	DECLARE_PROPERTY(StorageClass, Tiberium);
 	DWORD            unknown_34C;
 
-	TransitionTimer  UnloadTimer; // times the deploy, unload, etc. cycles
+	DECLARE_PROPERTY(TransitionTimer, UnloadTimer); // times the deploy, unload, etc. cycles ,DoorClass
 
-	FacingStruct     BarrelFacing;
-	FacingStruct     PrimaryFacing;
-	FacingStruct     SecondaryFacing;
+	DECLARE_PROPERTY(FacingStruct, BarrelFacing);
+	DECLARE_PROPERTY(FacingStruct, PrimaryFacing);
+	DECLARE_PROPERTY(FacingStruct, SecondaryFacing);
 	int              CurrentBurstIndex;
-	TimerStruct      TargetLaserTimer;
+	DECLARE_PROPERTY(TimerStruct, TargetLaserTimer); //FrameTimerClass
 	short            weapon_sound_number_3C8;
 	WORD             __shipsink_3CA;
 	bool             CountedAsOwned; // is this techno contained in OwningPlayer->Owned... counts?
@@ -758,13 +728,15 @@ public:
 	bool             WasSinkingAlready; // if(IsSinking && !WasSinkingAlready) { play SinkingSound; WasSinkingAlready = 1; }
 	bool             __ProtectMe_3CF;
 	bool             IsUseless; //3D0
-	bool             HasBeenAttacked; // ReceiveDamage when not HouseClass_IsAlly
-	bool             Cloakable;
-	bool             IsPrimaryFactory; // doubleclicking a warfac/barracks sets it as primary
-	bool             Spawned;
+	bool			 IsTickedOff;
+	bool			 IsCloakable_;
+	bool			 IsPrimaryFactory;
+	bool			 IsLoaner; //
+	bool			 IsLocked;
+	bool			 Spawned;
 	bool             IsInPlayfield;
-	RecoilData       TurretRecoil;
-	RecoilData       BarrelRecoil;
+	DECLARE_PROPERTY(RecoilData, TurretRecoil);
+	DECLARE_PROPERTY(RecoilData, BarrelRecoil);
 	bool             IsTethered; //418
 	bool             RADIO_26_27_419;
 	bool             IsHumanControlled;
@@ -791,42 +763,48 @@ public:
 	bool             CountedAsOwnedSpecial; // for absorbers, infantry uses this to manually control OwnedInfantry count
 	bool             Absorbed; // in UnitAbsorb/InfantryAbsorb or smth, lousy memory
 	bool             forceattackforcemovefirendlytarget_bool_43A;
+	PROTECTED_PROPERTY(BYTE, align_4CB);
 	DWORD            __RadialFireCounter_43C;
-	DynamicVectorClass<int> CurrentTargetThreatValues;
-	DynamicVectorClass<AbstractClass*> CurrentTargets;
+	DECLARE_PROPERTY(DynamicVectorClass<int>, CurrentTargetThreatValues);
+	DECLARE_PROPERTY(DynamicVectorClass<AbstractClass*>, CurrentTargets);
 
  // if DistributedFire=yes, this is used to determine which possible targets should be ignored in the latest threat scan
-	DynamicVectorClass<AbstractClass*> AttackedTargets;
+	DECLARE_PROPERTY(DynamicVectorClass<AbstractClass*>, AttackedTargets);
 
-	AudioController  Audio3;
+	DECLARE_PROPERTY(AudioController, Audio3);
 
 	DWORD            unknown_49C;
 	DWORD            __IsTurretTurning_4A0;
 
-	AudioController  Audio4;
+	DECLARE_PROPERTY(AudioController, Audio4);
 
 	bool             GattlingAudioPlayed; //4B8
+	PROTECTED_PROPERTY(BYTE, align4B_9_A_B[3]);
 	DWORD            unknown_4BC;
 
-	AudioController  Audio5;
+	DECLARE_PROPERTY(AudioController, Audio5);
 
 	bool             gattlingsound_4D4;
+	PROTECTED_PROPERTY(BYTE, align4D_9_A_B[3]);
 	DWORD            unknown_4D8;
 
-	AudioController  Audio6;
+	DECLARE_PROPERTY(AudioController, Audio6);
 
 	DWORD            QueuedVoiceIndex;
 	DWORD            __LastVoicePlayed; //4F4
 	bool             deploy_bool_4F8;
+	PROTECTED_PROPERTY(BYTE, align4F_9_A_B[3]);
 	DWORD            __creationframe_4FC;	//gets initialized with the current Frame, but this is NOT a TimerStruct!
 	BuildingClass*   LinkedBuilding; // 500 BuildingClass*
 	DWORD            EMPLockRemaining;
 	DWORD            ThreatPosed; // calculated to include cargo etc
-	DWORD            ShouldLoseTargetNow;
+	bool            ShouldLoseTargetNow;
+	PROTECTED_PROPERTY(BYTE, align50_D_E_F[3]);
 	RadBeam*         FiringRadBeam;
 	PlanningTokenClass* PlanningToken;
 	ObjectTypeClass* Disguise;
 	HouseClass*      DisguisedAsHouse;
 };
 
+//COMPILE_TIME_SIZEOF(TechnoClass)
 static_assert(sizeof(TechnoClass) == 0x520);

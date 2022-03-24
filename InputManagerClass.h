@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GameOptionsClass.h>
-
+#include <YRPPCore.h>
 #include <Helpers/CompileTime.h>
 
 class InputManagerClass {

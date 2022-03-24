@@ -102,7 +102,7 @@ public:
 	DynamicVectorClass<SpawnNode*> SpawnedNodes;
 	TimerStruct UpdateTimer;
 	TimerStruct SpawnTimer;
-	AbstractClass* Target;
-	AbstractClass* NewTarget;
+	AbstractClass* Target; //dest
+	AbstractClass* NewTarget; //target
 	SpawnManagerStatus Status;
 };

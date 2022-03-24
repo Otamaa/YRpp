@@ -25,6 +25,9 @@ public:
 	virtual AbstractType WhatAmI() const RT(AbstractType);
 	virtual int	Size() const R0;
 
+	//FootClass
+	virtual bool ApproachTarget(bool bSomething) override JMP_THIS(0x522340);
+
 	//InfantryClass
 	virtual bool IsDeployed() const R0;
 	virtual bool PlayAnim(DoType index, bool force = false, bool randomStartFrame = false) R0; //0x51D6F0 `InfantryClass::Do_Action
@@ -32,22 +35,13 @@ public:
 	bool IsDoingDeploy()
 		{ JMP_THIS(0x522510); }
 
-	void UnslaveMe()
-	{
-		if (auto pSlave = this->SlaveOwner)
-		{
-			if (auto pManager = pSlave->SlaveManager)
-			{
-				pManager->LostSlave(this);
-			}
-		}
-	}
-
+	void UnslaveMe();
 	void RemoveMe_FromGunnerTransport();
+
 	void ForceHarvest() const
 		{ JMP_THIS(0x522D00); }
 
-	bool IsHarvesting() const 
+	bool IsHarvesting() const
 		{ JMP_THIS(0x522FC0); }
 
 	//Constructor

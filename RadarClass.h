@@ -1,7 +1,9 @@
 #pragma once
 
 #include <DisplayClass.h>
+#include <RectangleStruct.h>
 
+class Surface;
 class NOVTABLE RadarClass : public DisplayClass
 {
 public:

@@ -5,8 +5,8 @@
 //Unfinised
 
 class TechnoClass;
-class PlanningMemberClass{ };
-class PlanningBranchClass{ };
+class PlanningMemberClass;
+class PlanningBranchClass;
 
 class PlanningNodeClass
 {
@@ -14,10 +14,10 @@ public:
 ~PlanningNodeClass() { JMP_THIS(0x633D30); }
  PlanningNodeClass(int nDword18) { JMP_THIS(0x633CC0) ;}
 public:
-	DynamicVectorClass<PlanningMemberClass*> MemberVector;
+	DECLARE_PROPERTY(DynamicVectorClass<PlanningMemberClass*>, MemberVector);
 	DWORD dword18;
 	DWORD field_1C;
-	DynamicVectorClass<PlanningBranchClass*> BranchVector;
+	DECLARE_PROPERTY(DynamicVectorClass<PlanningBranchClass*>, BranchVector);
 	char byte38[0x6F];
 	DWORD dwordA8;
     DWORD dwordAC;

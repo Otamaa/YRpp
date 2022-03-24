@@ -4,7 +4,8 @@
 
 class HouseClass;
 class InfantryClass;
-
+class InfantryTypeClass;
+class TechnoClass;
 enum class SlaveManagerStatus : unsigned int {
 	Ready = 0,
 	Scanning = 1,

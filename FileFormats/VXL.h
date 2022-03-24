@@ -5,7 +5,7 @@ class CCFileClass;
 
 struct VoxelSectionHeader;
 struct VoxelSectionTailer;
-
+class Surface;
 class VoxLib {
 public:
 	bool Initialized;

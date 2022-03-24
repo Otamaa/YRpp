@@ -2,7 +2,9 @@
 
 #include <FootClass.h>
 #include <Helpers/Cast.h>
+
 #include <cmath>
+
 // Enumerates the objects in a linked list.
 /*
 	The next element is retrieved eagerly, thus this enumerator supports

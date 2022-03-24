@@ -4,8 +4,8 @@
 #include <atlbase.h>
 #include <GeneralDefinitions.h>
 #include <CoordStruct.h>
-#include <comdef.h>
 #include <unknwn.h>
+#include <comdef.h>
 
 DECLARE_INTERFACE_IID_(ISwizzle , IUnknown, "5FF0CA70-8B12-11D1-B708-00A024DDAFD1")
 {
@@ -36,6 +36,12 @@ __interface INoticeSource
 __interface INoticeSink
 {
 	virtual bool __stdcall INoticeSink_Unknown(DWORD dwUnknown) PURE;
+};
+
+DECLARE_INTERFACE_IID_(IAIHouse, IUnknown, "96F02EC4-6FE8-11D1-B6FD-00A024DDAFD1")
+{
+	virtual void __stdcall Link_House(void* unknown) const PURE;
+	virtual void __stdcall AI(int* unknown) PURE;
 };
 
 DECLARE_INTERFACE_IID_(IRTTITypeInfo , IUnknown , "170DAC82-12E4-11D2-8175-006008055BB5")

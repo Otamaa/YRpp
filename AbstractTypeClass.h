@@ -76,7 +76,6 @@ public:
 	//Static
 	ABSTRACTTYPE_ARRAY_NOALLOC(AbstractTypeClass, 0xA8E968u);
 
-
 	//Destructor
 	virtual ~AbstractTypeClass() RX;
 

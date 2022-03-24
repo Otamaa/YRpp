@@ -22,10 +22,19 @@ public:
 			: LaserDrawClass(source, target, 0, 1, innerColor, outerColor, outerSpread, duration)
 	{ }
 
-	LaserDrawClass(CoordStruct source, CoordStruct target, int zAdjust, BYTE unknown,
-		ColorStruct innerColor, ColorStruct outerColor, ColorStruct outerSpread,
-		int duration, bool blinks = false, bool fades = true,
-		float startIntensity = 1.0f, float endIntensity = 0.0f)
+	LaserDrawClass
+	(CoordStruct source, CoordStruct target,
+		int zAdjust = 0,
+		BYTE unknown = 1u,
+		ColorStruct innerColor = ColorStruct::Empty,
+		ColorStruct outerColor = ColorStruct::Empty,
+		ColorStruct outerSpread = ColorStruct::Empty,
+		int duration = 0,
+		bool blinks = false,
+		bool fades = true,
+		float startIntensity = 1.0f,
+		float endIntensity = 0.0f
+	)
 		{ JMP_THIS(0x54FE60); }
 
 	~LaserDrawClass()
@@ -35,7 +44,7 @@ public:
 	//===== Properties ==========================================================
 	//===========================================================================
 public:
-	ProgressTimer Progress;
+	DECLARE_PROPERTY(ProgressTimer, Progress);
 	int Thickness; // only respected if IsHouseColor
 	bool IsHouseColor;
 	bool IsSupported; // this changes the values for InnerColor (false: halve, true: double), HouseColor only
@@ -56,3 +65,5 @@ public:
 	float StartIntensity;
 	float EndIntensity;
 };
+
+static_assert(sizeof(LaserDrawClass) == 0x5C);

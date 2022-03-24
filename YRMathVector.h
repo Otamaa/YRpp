@@ -37,15 +37,15 @@ public:
 	//substraction
 	Vector2D operator-(const Vector2D& a) const
 	{
-		return Vector2D{ X - a.X,Y - a.Y };
+		return Vector2D{ X - a.X, Y - a.Y };
 	}
-
 	//substraction
 	Vector2D& operator-=(const Vector2D& a)
 	{
-		return *this - a;
+		X -= a.X;
+		Y -= a.Y;
+		return *this;
 	}
-
 	//negation
 	Vector2D operator-() const
 	{
@@ -66,6 +66,7 @@ public:
 	{
 		return Vector2D{ static_cast<T>(X * r), static_cast<T>(Y * r) };
 	}
+
 	//scalar multiplication
 	Vector2D& operator*=(double r)
 	{
@@ -82,14 +83,17 @@ public:
 	{
 		return static_cast<double>(X) * a.X + static_cast<double>(Y) * a.Y;
 	}
+
 	bool operator!() const
 	{
 		return (*this == Vector2D<T>::Empty);
 	}
+
 	operator bool() const
 	{
 		return !(*this == Vector2D<T>::Empty);
 	}
+
 	//magnitude
 	double Magnitude() const
 	{
@@ -114,7 +118,7 @@ public:
 		return (a - *this).MagnitudeSquared();
 	}
 
-	//and do sqrt when needed only 
+	//and do sqrt when needed only
 	double DistanceFromAutoMethod(const Vector2D& a, bool nQuick = false) const
 	{
 		if (nQuick)
@@ -133,12 +137,12 @@ public:
 	double FindScalar(const Vector2D& a) const
 	{
 		double r = static_cast<double>(a.X) / static_cast<double>(X);
-		if (static_cast<T>(r * Y) == a.Y) {
+		if(static_cast<T>(r * Y) == a.Y) {
 			return r;
 		}
 		else {
 			//the vectors are not collinear, return NaN!
-			unsigned long NaN[2] = { 0xFFFFFFFF,0x7FFFFFFF };
+			unsigned long NaN[2] = {0xFFFFFFFF,0x7FFFFFFF};
 			return *reinterpret_cast<double*>(NaN);
 		}
 	}
@@ -372,7 +376,7 @@ private:
 };
 
 template <typename T>
-const Vector2D<T> Vector2D<T>::Empty = { T(), T() };
+const Vector2D<T> Vector2D<T>::Empty = {T(), T()};
 
 /*==========================================
 ============ 3D Vector =====================
@@ -384,7 +388,7 @@ public:
 	static const Vector3D Empty;
 
 	//no constructor, so this class stays aggregate and can be initialized using the curly braces {}
-	T X, Y, Z;
+	T X,Y,Z;
 
 	//operator overloads
 	//addition
@@ -508,17 +512,15 @@ public:
 	{
 		return CrossProduct(a).MagnitudeSquared() == 0;
 	}
-
 	//find scalar
 	double FindScalar(const Vector3D& a) const
 	{
 		double r = static_cast<double>(a.X) / static_cast<double>(X);
-		if ((static_cast<T>(r * Y) == a.Y) && (static_cast<T>(r * Z) == a.Z)) {
+		if((static_cast<T>(r * Y) == a.Y) && (static_cast<T>(r * Z) == a.Z)) {
 			return r;
-		}
-		else {
+		} else {
 			//the vectors are not collinear, return NaN!
-			unsigned long NaN[2] = { 0xFFFFFFFF,0x7FFFFFFF };
+			unsigned long NaN[2] = {0xFFFFFFFF,0x7FFFFFFF};
 			return *reinterpret_cast<double*>(NaN);
 		}
 	}

@@ -6,6 +6,7 @@
 
 #include <AbstractTypeClass.h>
 
+class CCINIClass;
 struct ScriptActionNode
 {
 public:

@@ -13,6 +13,7 @@
 class StageClass : public IFlyControl{ };
 class FlasherClass : public StageClass{ };
 
+class BulletClass;
 //AircraftClass
 class NOVTABLE AircraftClass : public FootClass, public FlasherClass
 {
@@ -45,15 +46,29 @@ public:
 	//AbstractClass
 	virtual AbstractType WhatAmI() const RT(AbstractType);
 	virtual int	Size() const R0;
+	virtual void Update() override JMP_THIS(0x414BB0);
 
 	//Destructor
 	virtual ~AircraftClass() RX;
+
+	//MissionClass
+	virtual void Override_Mission(Mission mission, AbstractClass* tarcom = nullptr, AbstractClass* navcom = nullptr) override JMP_THIS(0x41BB30);
+
+	//Techno Class
+	virtual BulletClass* Fire(AbstractClass* pTarget, int nWeaponIndex) override JMP_THIS(0x415EE0);
+
+	//FootClass
+	virtual TechnoClass* FindDockingBayInVector(DynamicVectorClass<TechnoTypeClass*>* pVec, int unusedarg3, bool bForced) const override JMP_THIS(0x41BBD0);
+
 	//some stuffs here may from FootClass::vtable , which is missing
 	CellClass* GoodLandingZone() const { JMP_THIS(0x41A160); }
 	CellClass* NewLandingZone(CellClass* pOldCell) { JMP_THIS(0x418E20); }
 	void GoodTargetLoc(AbstractClass* pTarget) const { JMP_THIS(0x4197C0); }
 	bool CellSeemsOk(CellStruct& nCell, bool bStrich) { JMP_THIS(0x419B00); }
-	void DropOffCargo() const { JMP_THIS(0x416AF0); }
+
+	void DropOffCarryAllCargo() const { JMP_THIS(0x416AF0); }
+	void DropOffParadropCargo() const { JMP_THIS(0x415C60); }
+
 	void Tracker_4134A0() { AircraftTracker_4134A0(this); }
 
 	static void AircraftTracker_4134A0(AircraftClass* pThis)
@@ -87,7 +102,7 @@ public:
 	bool unknown_bool_6D0;
 	bool unknown_bool_6D1;
 	bool unknown_bool_6D2;
-	char ___paradrop_attempts; //6D3
+	BYTE ___paradrop_attempts; //6D3
 	bool carrayall6D4;
 	bool retreating_idle; //6D5
 };

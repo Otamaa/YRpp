@@ -52,5 +52,5 @@ protected:
 public:
 	int ScreenShakeX;
 	int ScreenShakeY;
-	int unknown_int_0C;	//default is 2
+	int Bitfield;	//default is 2
 };

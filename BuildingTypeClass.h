@@ -64,6 +64,9 @@ public:
 	unsigned int GetDeployFacing_() const
 		{ JMP_THIS(0x465D70); }
 
+	bool FlushPlacement(CellStruct* pCell ,HouseClass* pWho) const
+	{ JMP_THIS(0x45EE70); }
+
 	short GetFoundationWidth() const
 		{ JMP_THIS(0x45EC90); }
 	short GetFoundationHeight(bool bIncludeBib) const
@@ -74,6 +77,9 @@ public:
 
 	bool IsUndeployable() const
 		{ JMP_THIS(0x465D40); }
+		
+	bool CanPlaceHere(CellStruct* cell, HouseClass* owner) const
+		{ JMP_THIS(0x464AC0); }
 
 	//
 	void UnInitUnderRoofDoorAnim() const

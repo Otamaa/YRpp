@@ -8,6 +8,7 @@
 #include <ParticleSystemTypeClass.h>
 #include <ParticleClass.h>
 
+class HouseClass;
 class NOVTABLE ParticleSystemClass : public ObjectClass
 {
 public:
@@ -44,10 +45,10 @@ public:
 	ParticleSystemClass(
 		ParticleSystemTypeClass* pParticleSystemType,
 		const CoordStruct& coords,
-		AbstractClass* pTarget,
-		ObjectClass* pOwner,
-		const CoordStruct& targetCoords,
-		HouseClass* pOwnerHouse) noexcept : ParticleSystemClass(noinit_t())
+		AbstractClass* pTarget = nullptr,
+		AbstractClass* pOwner = nullptr,
+		const CoordStruct& targetCoords = CoordStruct::Empty,
+		HouseClass* pOwnerHouse = nullptr) noexcept : ParticleSystemClass(noinit_t())
 			{ JMP_THIS(0x62DC50); }
 
 protected:
@@ -65,7 +66,7 @@ public:
 	CoordStruct  SpawnDistanceToOwner;
 	DynamicVectorClass<ParticleClass*> Particles;
 	CoordStruct TargetCoords;
-	TechnoClass* Owner;
+	AbstractClass* Owner;
 	AbstractClass* Target; // CellClass or TechnoClass
 	int          SpawnFrames; //from ParSysTypeClass
 	int          Lifetime; //from ParSysTypeClass
@@ -75,3 +76,5 @@ public:
 	bool         unknown_bool_F9;
 	HouseClass*  OwnerHouse;
 };
+
+static_assert(sizeof(ParticleSystemClass) == 0x100);

@@ -9,8 +9,7 @@ class Quaternion
 {
 public:
 	//Constructor
-	Quaternion() = default;
-	Quaternion(float x, float y, float z, float w) : X(x), Y(y), Z(z), W(w) {}
+	Quaternion(float x = 0.0f, float y = 0.0f, float z = 0.0f, float w = 0.0f) : X(x), Y(y), Z(z), W(w) {}
 
 	void Normalize() { JMP_THIS(0x645C70); }
 	//

@@ -5,9 +5,10 @@
 #pragma once
 
 #include <ObjectClass.h>
-#include <TerrainTypeClass.h>
 #include <ProgressTimer.h>
+#include <RectangleStruct.h>
 
+class TerrainTypeClass;
 class NOVTABLE TerrainClass : public ObjectClass
 {
 public:

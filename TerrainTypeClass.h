@@ -5,6 +5,7 @@
 #pragma once
 
 #include <ObjectTypeClass.h>
+#include <ColorStruct.h>
 
 class NOVTABLE TerrainTypeClass : public ObjectTypeClass
 {

@@ -3,10 +3,11 @@
 #include <PowerClass.h>
 #include <ProgressTimer.h>
 #include <ControlClass.h>
+#include <RectangleStruct.h>
 
 class ColorScheme;
 class FactoryClass;
-
+struct SHPStruct;
 // SidebarClass::StripClass::BuildType
 struct BuildType
 {
@@ -44,6 +45,32 @@ struct BuildType
 // SidebarClass::StripClass
 struct StripClass
 {
+	static void __stdcall LoadDarkenShapeOnce(int nArgs) { JMP_STD(0x6A8160); }
+
+	SHPStruct* GetSuperWeaponTypeCameo(int nIndex) const { JMP_THIS(0x6A8180); }
+	void Clear() const { JMP_THIS(0x6A81B0); }
+	void InitIndex(int nIndex) const { JMP_THIS(0x6A8220); }
+	bool Activate() const { JMP_THIS(0x6A8330); }
+	void Deactivate() const { JMP_THIS(0x6A83E0); }
+	void Add(AbstractType AbsType, int nIndex) const { JMP_THIS(0x6A87F0); }
+	void Add_(AbstractType AbsType, int nIndex) const { JMP_THIS(0x6A8710); }
+	bool ScrollBy(bool bUpward, int nBy) const { JMP_THIS(0x6A8860); }
+	bool Func_6A8920(bool bUpward) const { JMP_THIS(0x6A8920); }
+	bool Func_6A89E0(bool bUpward) const { JMP_THIS(0x6A89E0); }
+	void Redraw() const { JMP_THIS(0x6A8B10); }
+	void AI(int* nKeyNumType, Point2D& nPos) const { JMP_THIS(0x6A8B30); }
+	wchar_t* HelpText(int nArgs2) const { JMP_THIS(0x6A92E0); }
+	bool Func_6A93F0_GScreenAddButton() const { JMP_THIS(0x6A93F0); }
+	bool Func_6A94B0_GScreenRemoveButton() const { JMP_THIS(0x6A94B0); }
+	int Inlined_6A94F0(int nArgs2) const { JMP_THIS(0x6A94F0); }
+	void DrawIt(int nArgs1) const { JMP_THIS(0x6A9540); }
+	bool Recalc() const { JMP_THIS(0x6AA600); }
+	bool Factory(FactoryClass* pFactory, AbstractType AbsType, int nIndex) const { JMP_THIS(0x6ABA60); }
+	bool HasCameos() const { JMP_THIS(0x6ABAC0); }
+	bool Func_6ABB60(FactoryClass* pFactory) const { JMP_THIS(0x6ABB60); }
+	void Func_6AC740(int nIndex, int nDuration) const { JMP_THIS(0x6AC740); }
+
+public:
 	ProgressTimer     Progress;
 	bool              AllowedToDraw; // prevents redrawing when layouting the list
 	PROTECTED_PROPERTY(BYTE, align_1D[3]);
@@ -109,6 +136,8 @@ public:
 
 	void ChangeTab(int nStrip) const { JMP_THIS(0x6A7590); }
 
+	void Recalc() const { JMP_THIS(0x6A7D20); }
+
 protected:
 	//Constructor
 	SidebarClass() {}	//don't need this
@@ -157,7 +186,7 @@ public:
 	virtual ~SelectClass() RX;
 
 	//GadgetClass
-	// 
+	//
 	//ControlClass
 
 	void SetOwner(StripClass* pStrip, int nIdx) const { JMP_THIS(0x6AACE0); }

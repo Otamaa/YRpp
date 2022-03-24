@@ -1,7 +1,7 @@
 #pragma once
 
 #include <LoadOptionsClass.h>
-
+#include <ArrayClasses.h>
 #include <Helpers/CompileTime.h>
 
 //Random map generator
@@ -13,7 +13,8 @@ protected:
 
 public:
 	static constexpr reference<MapSeedClass, 0xABDFD8u> const Instance{};
-
+	static constexpr reference<MapSeedClass, 0xABDFD8u> const Global{};
+	
 	virtual ~MapSeedClass()
 		{ JMP_THIS(0x5AC270); }
 
@@ -43,9 +44,6 @@ public:
 	virtual const wchar_t* GetUIString_GameSaved() const
 		{ JMP_THIS(0x597FE0); }
 
-	static MapSeedClass* Global()
-		{ return reinterpret_cast<MapSeedClass*>(0xABDFD8); }
-	
 	//Properties
 public:
 	int Theater;

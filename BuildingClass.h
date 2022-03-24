@@ -11,6 +11,7 @@
 class FactoryClass;
 class InfantryClass;
 class LightSourceClass;
+class FoggedObjectClass;
 
 enum class BStateType : unsigned int
 {
@@ -54,7 +55,7 @@ public:
 	virtual int vt_entry_4D8(ObjectClass* pObj) const R0;
 	virtual void Place(bool captured) RX;
 	virtual void UpdateConstructionOptions() RX;
-	virtual void vt_entry_4E4(DWORD dwUnk, DWORD dwUnk2) RX;
+	virtual void DrawFogged(const Point2D& point, const RectangleStruct& rect) RX;
 	virtual CellStruct* vt_entry_4E8(CellStruct* pCellStruct, DWORD dwUnk) const R0;
 	virtual void vt_entry_4EC(DWORD dwUnk, DWORD dwUnk2, DWORD dwUnk3, DWORD dwUnk4) RX;
 	virtual bool TogglePrimaryFactory() R0;
@@ -68,10 +69,13 @@ public:
 
 	int GetCurrentFrame() { JMP_THIS(0x43EF90); }
 
-	bool IsBuildingFogged() { JMP_THIS(0x457A10); }
+	bool IsAllFogged() const { JMP_THIS(0x457A10); }
 
 	void SetRallypoint(CellStruct* pTarget, bool bPlayEVA)
 		{ JMP_THIS(0x443860); }
+
+	void FreezeInFog(DynamicVectorClass<FoggedObjectClass*>* pFoggedArray, CellClass* pCell, bool Visible)
+		{ JMP_THIS(0x457AA0); }
 
 	// power up
 	void GoOnline()
@@ -185,6 +189,9 @@ public:
 	bool CheckFog()
 		{ JMP_THIS(0x457A10); }
 
+	Matrix3D* GetVoxelBarrelOffsetMatrix(Matrix3D& ret)
+		{ JMP_THIS(0x458810); }
+
 	// returns false if this is a gate that is closed, true otherwise
 	bool IsTraversable() const { JMP_THIS(0x4525F0); }
 
@@ -250,9 +257,14 @@ public:
 	BuildingClass* GetNearbyLaserFence(CoordStruct* pCoord, bool Unk = true, int threatrange = -1) const
 	{ JMP_THIS(0x452BB0); }
 
+	void PlayNthAnim(BuildingAnimSlot nWhich ,bool bIsDamage , bool bIsGarrisoned , int nDelay) const
+	{ JMP_THIS(0x451750); }
+
 	bool Absorber() const { JMP_THIS(0x4598A0); }
 	bool ClearFactoryBib() const { JMP_THIS(0x449540); }
-	
+
+	void GarrisonAI() const { JMP_THIS(0x458200); }
+
 	//Constructor
 	BuildingClass(BuildingTypeClass* pType, HouseClass* pOwner) noexcept
 		: BuildingClass(noinit_t())
@@ -354,7 +366,7 @@ public:
 	char GateStage;
 	PrismChargeState PrismStage;
 	CoordStruct PrismTargetCoords;
-	DWORD DelayBeforeFiring;
+	DWORD DelayBeforeFiring; //714
 
 	int BunkerState; // used in UpdateBunker and friends
 };

@@ -12,8 +12,7 @@ class TechnoClass;
 class HouseClass;
 class Checksummer;
 
-//--- OwnedTiberiumStruct - holds info about how much of each tiberium type is held.
-struct OwnedTiberiumStruct
+struct StorageClass
 {
 	static const size_t Size = 4;
 
@@ -117,6 +116,8 @@ public:
 	static void __fastcall AnnounceExpiredPointer(AbstractClass* pAbstract, bool removed = true)
 		{ JMP_THIS(0x7258D0); }
 
+	static void __fastcall RemoveAllInactive() JMP_STD(0x725C70);
+
 	void AnnounceExpiredPointer(bool removed = true) {
 		AnnounceExpiredPointer(this, removed);
 	}
@@ -143,11 +144,14 @@ public:
 	bool operator < (const AbstractClass &rhs) const {
 		return this->UniqueID < rhs.UniqueID;
 	}
+
 	bool _IsEqualTo(const AbstractClass& rhs) const { JMP_THIS(0x588C10); }
 	bool _IsEqualTo(const AbstractClass * rhs) const { JMP_THIS(0x588C10); }
 
-	static void __fastcall RemoveAllInactive() JMP_STD(0x725C70);
 	static int __fastcall GetbuildCat(AbstractType abstractID, int idx) JMP_STD(0x5004E0);
+
+	TechnoClass* AsTechno() const
+		{ JMP_THIS(0x40DD70); }
 
 	//Constructor
 	AbstractClass() noexcept

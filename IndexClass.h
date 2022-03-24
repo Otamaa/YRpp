@@ -16,12 +16,16 @@ public:
 	IndexClass(void);
 	~IndexClass(void);
 
-	bool AddIndex(TKey id, TValue data);
+	constexpr bool AddIndex(TKey id, const TValue& data);
+	bool AddIndex(TKey id, TValue&& data);
 	bool RemoveIndex(TKey id);
 	bool IsPresent(TKey id) const;
 	int Count() const;
-	TValue FetchIndex(TKey id) const;
+	const TValue& FetchIndex(TKey id) const;
+	TValue& FetchIndex(TKey id);
 	void Clear();
+	bool Reverse(int nAmount);
+	inline void Sort();
 
 	struct NodeElement
 	{
@@ -37,6 +41,10 @@ public:
 	PROTECTED_PROPERTY(char, padding[3]);
 	NodeElement* Archive;
 
+	// ranged for support
+	NodeElement* begin() const { return IndexTable; }
+	NodeElement* end() const { return &IndexTable[IndexCount]; }
+
 private:
 	bool IncreaseTableSize(int nAmount);
 	bool IsArchiveSame(TKey id) const;
@@ -44,7 +52,7 @@ private:
 	void SetArchive(NodeElement const* pNode);
 	NodeElement const* SearchForNode(TKey id) const;
 
-	static int search_compfunc(void const * ptr, void const * ptr2);
+	static int __cdecl search_compfunc(void const * ptr, void const * ptr2);
 };
 
 template<typename TKey, typename TValue>
@@ -97,6 +105,24 @@ bool IndexClass<TKey, TValue>::IncreaseTableSize(int amount)
 }
 
 template<typename TKey, typename TValue>
+bool IndexClass<TKey, TValue>::Reverse(int amount)
+{
+	Clear();
+	return IncreaseTableSize(amount);
+}
+
+template<typename TKey, typename TValue>
+inline void IndexClass<TKey, TValue>::Sort()
+{
+	if (!IsSorted)
+	{
+		qsort(&this->IndexTable[0], this->IndexCount, sizeof(this->IndexTable[0]), this->search_compfunc);
+		InvalidateArchive();
+		IsSorted = true;
+	}
+}
+
+template<typename TKey, typename TValue>
 int IndexClass<TKey, TValue>::Count() const
 {
 	return this->IndexCount;
@@ -123,9 +149,21 @@ bool IndexClass<TKey, TValue>::IsPresent(TKey id) const
 }
 
 template<typename TKey, typename TValue>
-TValue IndexClass<TKey, TValue>::FetchIndex(TKey id) const
+const TValue& IndexClass<TKey, TValue>::FetchIndex(TKey id) const
 {
 	return this->IsPresent(id) ? this->Archive->Data : TValue();
+}
+
+template<typename TKey, typename TValue>
+TValue& IndexClass<TKey, TValue>::FetchIndex(TKey id)
+{
+	if (!this->IsPresent(id))
+	{
+		this->AddIndex(id, TValue());
+		this->IsPresent(id);
+	}
+
+	return this->Archive->Data;
 }
 
 template<typename TKey, typename TValue>
@@ -143,18 +181,33 @@ void IndexClass<TKey, TValue>::InvalidateArchive()
 template<typename TKey, typename TValue>
 void IndexClass<TKey, TValue>::SetArchive(NodeElement const* node)
 {
-	this->Archive = node;
+	this->Archive = const_cast<NodeElement*>(node);
 }
 
 template<typename TKey, typename TValue>
-bool IndexClass<TKey, TValue>::AddIndex(TKey id, TValue data)
+constexpr bool IndexClass<TKey, TValue>::AddIndex(TKey id, const TValue& data)
 {
 	if (this->IndexCount + 1 > this->IndexSize)
-		if (!this->Increase_Table_Size(this->IndexSize == 0 ? 10 : this->IndexSize))
+		if (!this->IncreaseTableSize(this->IndexSize == 0 ? 10 : this->IndexSize))
 			return false;
 
-	this->IndexTable[IndexCount].ID = id;
-	this->IndexTable[IndexCount].Data = data;
+	this->IndexTable[IndexCount].ID = std::move(id);
+	this->IndexTable[IndexCount].Data = std::move(data);
+	++this->IndexCount;
+	this->IsSorted = false;
+
+	return true;
+}
+
+template<typename TKey, typename TValue>
+bool IndexClass<TKey, TValue>::AddIndex(TKey id, TValue&& data)
+{
+	if (this->IndexCount + 1 > this->IndexSize)
+		if (!this->IncreaseTableSize(this->IndexSize == 0 ? 10 : this->IndexSize))
+			return false;
+
+	this->IndexTable[IndexCount].ID = std::move(id);
+	this->IndexTable[IndexCount].Data = std::move(data);
 	++this->IndexCount;
 	this->IsSorted = false;
 
@@ -168,7 +221,7 @@ bool IndexClass<TKey, TValue>::RemoveIndex(TKey id)
 	for (int i = 0; i < this->IndexCount; ++i)
 		if (this->IndexTable[i].ID == id)
 		{
-			found_index = id;
+			found_index = i;
 			break;
 		}
 
@@ -178,10 +231,7 @@ bool IndexClass<TKey, TValue>::RemoveIndex(TKey id)
 			IndexTable[i - 1] = IndexTable[i];
 		--IndexCount;
 
-		NodeElement fake;
-		fake.ID = 0;
-		fake.Data = TValue();
-		IndexTable[IndexCount] = fake;
+		IndexTable[IndexCount] = std::move(NodeElement(TKey(), TValue()));		// zap last (now unused) element
 
 		this->InvalidateArchive();
 		return true;
@@ -191,7 +241,7 @@ bool IndexClass<TKey, TValue>::RemoveIndex(TKey id)
 }
 
 template<typename TKey, typename TValue>
-int IndexClass<TKey, TValue>::search_compfunc(void const* ptr1, void const* ptr2)
+int __cdecl IndexClass<TKey, TValue>::search_compfunc(void const* ptr1, void const* ptr2)
 {
 	if (*(int const*)ptr1 == *(int const*)ptr2)
 	{
@@ -210,12 +260,7 @@ typename IndexClass<TKey, TValue>::NodeElement const* IndexClass<TKey, TValue>::
 	if (!this->IndexCount)
 		return 0;
 
-	if (!this->IsSorted)
-	{
-		qsort(&this->IndexTable[0], this->IndexCount, sizeof(this->IndexTable[0]), this->search_compfunc);
-		const_cast<IndexClass<TKey, TValue>*>(this)->Invalidate_Archive();
-		const_cast<IndexClass<TKey, TValue>*>(this)->IsSorted = true;
-	}
+	const_cast<IndexClass<TKey, TValue>*>(this)->Sort();
 
 	NodeElement node;
 	node.ID = id;

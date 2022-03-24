@@ -2,6 +2,7 @@
 
 #include <YRPPCore.h>
 #include <Helpers/CompileTime.h>
+#include <d3d9.h>
 
 //We don't want YR++ to depend on the DirectX7 SDK (yet), so
 //here are a few definitions taken from the MSDN:

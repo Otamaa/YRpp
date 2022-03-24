@@ -13,6 +13,15 @@
 // used for particle ColorList
 //using RGBClass = ColorStruct; // <pd> wuhaha
 
+struct HSVClass
+{
+	char Hue;
+	char Sat;
+	char Val;
+};
+
+static_assert(sizeof(HSVClass) == 0x3);
+
 struct Color16Struct;
 #pragma pack(push, 1)
 struct ColorStruct
@@ -97,10 +106,10 @@ struct ColorStruct
 		return nRet;
 	}
 
-	ColorStruct* Lerp(ColorStruct& lower, ColorStruct& upper, float adjust)
+	ColorStruct* Lerp(ColorStruct& lower, ColorStruct& upper, float adjust) const
 	{ JMP_THIS(0x661020); }
 
-	unsigned int ToInit()
+	unsigned int ToInit() const
 	{ JMP_THIS(0x63DAD0); }
 
 	void Adjust(int adjust, const ColorStruct& that)
@@ -108,6 +117,9 @@ struct ColorStruct
 
 	int Difference(const ColorStruct& that) const
 	{ JMP_THIS(0x661350); }
+
+	HSVClass* ConstructHSV(HSVClass* ret) const
+	{ JMP_THIS(0x6613A0); }
 
 	enum { MAX_VALUE = 255 };
 

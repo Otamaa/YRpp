@@ -1,10 +1,10 @@
 #pragma once
 
 #include <GeneralDefinitions.h>
-#include <LoadProgressManager.h>
-#include <FileFormats/SHP.h>
 #include <Helpers/CompileTime.h>
 
+class LoadProgressManager;
+struct SHPStruct;
 class ProgressScreenClass {
 public:
 

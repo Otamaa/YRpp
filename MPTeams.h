@@ -2,6 +2,8 @@
 
 // these classes handle alliances between players, eg Team:A B C D in the frontend
 
+#include <ASMMacros.h>
+
 class MPTeam
 {
 public:

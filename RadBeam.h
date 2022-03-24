@@ -1,8 +1,8 @@
 #pragma once
 
 #include <GeneralDefinitions.h>
-
 #include <Helpers/CompileTime.h>
+#include <CoordStruct.h>
 
 class TechnoClass;
 

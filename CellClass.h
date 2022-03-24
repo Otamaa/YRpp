@@ -6,6 +6,13 @@
 
 #include <AbstractClass.h>
 #include <RectangleStruct.h>
+#include <array>
+
+struct TileTypeData
+{
+	TileType Type;
+	DWORD Data;
+};
 
 //forward declarations
 class ObjectClass;
@@ -33,7 +40,7 @@ public:
 	// the height of a bridge in leptons
 	static constexpr int BridgeLevels = 4;
 	static constexpr int BridgeHeight = BridgeLevels * Unsorted::LevelHeight;
-	static constexpr constant_ptr<CellClass,0xABDC50> const Instance{};
+	static constexpr constant_ptr<CellClass,0xABDC50u> const Instance{};
 	//IPersist
 	virtual HRESULT __stdcall GetClassID(CLSID* pClassID) R0;
 
@@ -48,7 +55,50 @@ public:
 	virtual AbstractType WhatAmI() const RT(AbstractType);
 	virtual int Size() const R0;
 
+	virtual CoordStruct* GetAltCoords(CoordStruct* pCrd) const override JMP_THIS(0x486890); //GetCoords__
 	// non-virtual
+	static constexpr std::array<const TileTypeData, 21> TileArray
+	{ {
+		{TileType::Unk, 0x0},
+		{TileType::Tunnel, 0x484AB0},
+		{TileType::Water, 0x485060},
+		{TileType::Blank, 0x486380},
+		{TileType::Ramp, 0x4863A0},
+		{TileType::Cliff, 0x4863D0},
+		{TileType::Shore, 0x4865B0},
+		{TileType::Wet, 0x4865D0},
+		{TileType::MiscPave, 0x486650},
+		{TileType::Pave, 0x486670},
+		{TileType::DirtRoad, 0x486690},
+		{TileType::PavedRoad, 0x4866D0},
+		{TileType::PavedRoadEnd, 0x4866F0},
+		{TileType::PavedRoadSlope, 0x486710},
+		{TileType::Median, 0x486730},
+		{TileType::Bridge, 0x486750},
+		{TileType::WoodBridge, 0x486770},
+		{TileType::ClearToSandLAT, 0x486790},
+		{TileType::Green, 0x4867B0},
+		{TileType::NotWater, 0x4867E0},
+		{TileType::DestroyableCliff, 0x486900},
+	}};
+
+	bool TileIs(TileType tileType) const
+	{
+		if (tileType != TileType::Unk && ((int)tileType <= 21))
+		{
+			for (const auto& nTile : TileArray)
+			{
+				if (nTile.Type == tileType)
+				{
+					auto nAddr = nTile.Data;
+					EPILOG_THISCALL;
+					JMP(nAddr);
+				}
+			}
+		}
+
+		return true;
+	}
 
 	// get content objects
 	TechnoClass* FindTechnoNearestTo(Point2D const& offsetPixel, bool alt, TechnoClass const* pExcludeThis = nullptr) const
@@ -83,6 +133,12 @@ public:
 	void SetWallOwner()
 		{ JMP_THIS(0x47D210); }
 
+	void IncreaseShroudCounter()
+		{ JMP_THIS(0x487690); }
+
+	void ReduceShroudCounter()
+		{ JMP_THIS(0x487630); }
+
 	bool IsShrouded() const
 		{ JMP_THIS(0x487950); }
 
@@ -101,6 +157,9 @@ public:
 
 	bool IsFogged() // Check Fog maybe?
 		{ JMP_THIS(0x4879B0); }
+
+	void FogCell()
+		{ JMP_THIS(0x486A70); }
 
 	void CleanFog()
 		{ JMP_THIS(0x486BF0); }
@@ -195,17 +254,17 @@ public:
 	// used by ambient waves and stuff
 	CoordStruct* Get3DCoords3(CoordStruct* result)
 		{ JMP_THIS(0x480A30); }
-		
+
 	int GetFloorHeight(Point2D const& subcoords) const
 		{ JMP_THIS(0x47B3A0); }
 
-	// in leptons
+	// used by ambient waves and stuff in leptons
 	CoordStruct* GetCenterCoords(CoordStruct* pOutBuffer) const
 		{ JMP_THIS(0x486840); }
-		
+
 	CoordStruct* GetCellCoords(CoordStruct* pOutBuffer) const
 		{ JMP_THIS(0x480A30); }
-		
+
 	CoordStruct GetCenterCoords() const
 	{
 		CoordStruct buffer;
@@ -213,7 +272,6 @@ public:
 		return buffer;
 	}
 
-	//
 	void ActivateVeins()
 		{ JMP_THIS(0x486920); }
 
@@ -278,10 +336,10 @@ public:
 
 	// helper
 	bool ContainsBridge() const
-		{ return (this->Flags & cf_Bridge) != 0; }
+		{ return static_cast<bool>(this->Flags & CellFlags::Bridge); }
 
-	bool ContainsSlide() const 
-		{ return (this->Flags & 0x400) != 0; }
+	bool ContainsBridgeEx() const
+		{ return this->Flags & CellFlags::Bridge || this->Flags & CellFlags::Bridge_400; }
 
 	// helper mimicking game's behaviour
 	ObjectClass* GetContent() const
@@ -289,32 +347,6 @@ public:
 
 	int GetLevel() const
 		{ return this->Level + (this->ContainsBridge() ? BridgeLevels : 0); }
-
-	// tilesets
-#define ISTILE(tileset, addr) \
-	bool Tile_Is_ ## tileset() const \
-		{ JMP_THIS(addr); }
-
-	ISTILE(Tunnel, 0x484AB0);
-	ISTILE(Water, 0x485060);
-	ISTILE(Blank, 0x486380);
-	ISTILE(Ramp, 0x4863A0);
-	ISTILE(Cliff, 0x4863D0);
-	ISTILE(Shore, 0x4865B0);
-	ISTILE(Wet, 0x4865D0);
-	ISTILE(MiscPave, 0x486650);
-	ISTILE(Pave, 0x486670);
-	ISTILE(DirtRoad, 0x486690);
-	ISTILE(PavedRoad, 0x4866D0);
-	ISTILE(PavedRoadEnd, 0x4866F0);
-	ISTILE(PavedRoadSlope, 0x486710);
-	ISTILE(Median, 0x486730);
-	ISTILE(Bridge, 0x486750);
-	ISTILE(WoodBridge, 0x486770);
-	ISTILE(ClearToSandLAT, 0x486790);
-	ISTILE(Green, 0x4867B0);
-	ISTILE(NotWater, 0x4867E0);
-	ISTILE(DestroyableCliff, 0x486900);
 
 	static CoordStruct Cell2Coord(const CellStruct &cell, int z = 0)
 	{
@@ -388,12 +420,12 @@ public:
 		int nAmbient = 0, int Red1 = 1000, int Green1 = 1000, int Blue1 = 1000)
 		{ JMP_THIS(0x483E30); }
 
-	void DrawOverlay(Point2D& Location, RectangleStruct& Bound)
+	void DrawOverlay(const Point2D& Location, const RectangleStruct& Bound)
 		{ JMP_THIS(0x47F6A0); }
 
-	void DrawOverlayShadow(Point2D& Location, RectangleStruct& Bound)
+	void DrawOverlayShadow(const Point2D& Location, const RectangleStruct& Bound)
 		{ JMP_THIS(0x47F510); }
-		
+
 	bool IsBuildable() const
 		{ JMP_THIS(0x487C10); }
 
@@ -434,7 +466,7 @@ public:
 		return nBuff;
 	}
 
-	bool HasTiberium() const 
+	bool HasTiberium() const
 		{ JMP_THIS(0x487DF0); }
 
 	bool HasWeed() const
@@ -487,7 +519,7 @@ public:
 	// use Sensors_ funcs above
 
 	// Is this cell in range of some DetectDisguise= equipment? One Word(!) per House, ++ and -- per unit.
-	PROTECTED_PROPERTY(unsigned short, DisguiseSensorsOfHouses[0x18]);// ! 24 houses instead of 32 like cloakgen	
+	PROTECTED_PROPERTY(unsigned short, DisguiseSensorsOfHouses[0x18]);// ! 24 houses instead of 32 like cloakgen
 	// use DisguiseSensors_ funcs above
 
 	DWORD              BaseSpacerOfHouses; // & (1 << HouseX->ArrayIndex) == base spacing dummy for HouseX
@@ -504,8 +536,8 @@ public:
 	int                OccupyHeightsCoveringMe;
 	DWORD              Intensity;
 	WORD               Ambient;
-	WORD               Color1_Red;
-	WORD               Color1_Green;
+	WORD			   Intensity_Normal;
+	WORD               Intensity_Terrain;
 	WORD               Color1_Blue;
 //	wRGB			   Color1; //10A-10E
 	WORD               Color2_Red;
@@ -535,14 +567,14 @@ public:
 	DWORD              OccupationFlags;
 	DWORD              AltOccupationFlags;
 
-	eCellFlags_12C     CopyFlags;	// related to Flags below
+	AltCellFlags	   AltFlags;	// related to Flags below
 	int                ShroudCounter;
 	DWORD              GapsCoveringThisCell; // actual count of gapgens in this cell, no idea why they need a second layer
 	bool               VisibilityChanged;
 	PROTECTED_PROPERTY(BYTE,     align_139[0x3]);
 	DWORD              unknown_13C;
 
-	eCellFlags         Flags;	//Various settings.
+	CellFlags          Flags;	//Various settings.
 	PROTECTED_PROPERTY(BYTE,     padding_144[4]);
 };
 

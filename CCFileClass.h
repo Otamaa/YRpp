@@ -9,7 +9,7 @@ enum class FileAccessMode : unsigned int {
 	None = 0,
 	Read = 1,
 	Write = 2,
-	ReadWrite = 3
+	ReadWrite = Read | Write
 };
 
 enum class FileSeekMode : unsigned int {
@@ -375,10 +375,11 @@ protected:
 	//Properties
 public:
 	MemoryBuffer Buffer;
-	DWORD Position;	// unknown_64; 
-	DWORD __availablity;	// unknown_68;
+	DWORD Position;	// unknown_64;
+	DWORD Availablility;	// unknown_68;
 };
 static_assert(sizeof(CCFileClass) == 0x6C);
+
 //--------------------------------------------------------------------
 //Files in RAM
 //--------------------------------------------------------------------

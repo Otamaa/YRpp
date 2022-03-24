@@ -1,9 +1,10 @@
 #pragma once
 
 #include <GeneralDefinitions.h>
+#include <ObjectClass.h>
 
+class CellClass;
 class TechnoClass;
-
 class NOVTABLE WaveClass : public ObjectClass
 {
 public:
@@ -79,7 +80,6 @@ public:
 
 	Matrix3D* DrawMag(const CoordStruct& xyzFrom, const CoordStruct& xyzTo) const
 		{ JMP_THIS(0x762070); }
-
 
 	//Constructor
 	WaveClass(

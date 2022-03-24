@@ -5,11 +5,20 @@
 #include <ArrayClasses.h>
 #include <TechnoTypeClass.h>
 #include <Helpers/CompileTime.h>
+#include <CCINIClass.h>
+#include <TagClass.h>
 
 struct Variable
 {
 	char Name[40];
 	char Value;
+};
+
+struct LightingStruct
+{
+	TintStruct Tint;
+	int Ground; // all these are stored as ini value * 100 + 0.01
+	int Level; // this one is stored as ini value * 1000 + 0.01
 };
 
 struct ScenarioFlags
@@ -79,6 +88,9 @@ public:
 
 	static bool __fastcall SaveGame(const char* FileName, const wchar_t* Description, bool BarGraph = false)
 		{ JMP_STD(0x67CEF0); }
+
+	void ReadStartPoints(INIClass &ini)
+		{ JMP_THIS(0x689D30); }
 
 	// valid range [0..701]
 	bool IsDefinedWaypoint(int idx)
@@ -201,43 +213,27 @@ public:
 	int AmbientOriginal; // set at map creation
 	int AmbientCurrent; // current ambient
 	int AmbientTarget; // target ambient (while changing)
-	int Red;
-	int Green;
-	int Blue;
-	int Ground; // all these are stored as ini value * 100 + 0.01
-	int Level; // this one is stored as ini value * 1000 + 0.01
+	LightingStruct NormalLighting;
 
 	//Ion lighting
 	int IonAmbient;
-	int IonRed;
-	int IonGreen;
-	int IonBlue;
-	int IonGround;
-	int IonLevel;
+	LightingStruct IonLighting;
 
 	//Nuke flash lighting
 	int NukeAmbient;
-	int NukeRed;
-	int NukeGreen;
-	int NukeBlue;
-	int NukeGround;
-	int NukeLevel;
+	LightingStruct NukeLighting;
 	int NukeAmbientChangeRate;
 
 	//Dominator lighting
 	int DominatorAmbient;
-	int DominatorRed;
-	int DominatorGreen;
-	int DominatorBlue;
-	int DominatorGround;
-	int DominatorLevel;
+	LightingStruct DominatorLighting;
 	int DominatorAmbientChangeRate;
 
 	DWORD unknown_3598;
 	int InitTime;
 	short Stage;
-	bool unknown_35A2;
-	BYTE unknown_35A3;
+	bool UserInputLocked;
+	bool unknown_35A3; //unknown_35A2
 	int ParTimeEasy;
 	int ParTimeMedium;
 	int ParTimeDifficult;
@@ -255,3 +251,5 @@ public:
 	char LS800BkgdName [0x40];
 	char LS800BkgdPal [0x40];
 };
+
+static_assert(sizeof(ScenarioClass) == 0x3740);

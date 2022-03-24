@@ -17,7 +17,7 @@ public:
 	int ScrollRate;
 	bool AutoScroll;
 	int DetailLevel;
-	BYTE SidebarSide;
+	bool SidebarMode; // True -> right False -> left
 	bool SidebarCameoText;
 	bool UnitActionLines;
 	bool ShowHidden;

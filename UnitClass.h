@@ -32,6 +32,9 @@ public:
 	virtual AbstractType WhatAmI() const RT(AbstractType);
 	virtual int Size() const R0;
 
+	//FootClass
+	virtual bool ApproachTarget(bool bSomething) override JMP_THIS(0x7414E0);
+
 	//UnitClass
 	// main drawing functions - Draw() calles one of these, they call parent's Draw_A_smth
 	virtual void DrawAsVXL(Point2D Coords, RectangleStruct BoundingRect, DWORD dwUnk7, DWORD dwUnk8)
@@ -45,31 +48,41 @@ public:
 	bool IsDeactivated() const
 		{ JMP_THIS(0x70FBD0); }
 
-	void Explode() const 
-		{ JMP_THIS(0x738680); }
-	
-	void Firing_AI() const 
-		{JMP_THIS(0x736DF0);}
+	void UpdateTube() JMP_THIS(0x7359F0);
+	void UpdateRotation() JMP_THIS(0x736990);
+	void UpdateEdgeOfWorld() JMP_THIS(0x736C10); // inlined in game
+	void UpdateFiring() JMP_THIS(0x736DF0);
+	void UpdateVisceroid() JMP_THIS(0x737180);
+	void UpdateDisguise() JMP_THIS(0x7468C0);
+	void Update() JMP_THIS(0x7360C0);
 
-	bool TryToDeploy() const
-		{ JMP_THIS(0x7393C0); }
+	void Explode() JMP_THIS(0x738680);
 
-	void UnDeploy() const
-		{ JMP_THIS(0x739CD0); }
+	bool GotoClearSpot() JMP_THIS(0x738D30);
+	bool TryToDeploy() JMP_THIS(0x7393C0);
+	void Deploy() JMP_THIS(0x739AC0);
+	void Undeploy() JMP_THIS(0x739CD0);
 
-	void Deploy() const
-		{ JMP_THIS(0x739AC0); }
+	bool Harvesting() JMP_THIS(0x73D450);
 
-	void RotationAI()const
-		{ JMP_THIS(0x736990); }
+	bool FlagAttach(int nHouseIdx) JMP_THIS(0x740DF0);
+	bool FlagRemove() JMP_THIS(0x740E20);
 
-	bool GotoClearSpot() const
-		{ JMP_THIS(0x738D30); }
+	void APCCloseDoor() JMP_THIS(0x740E60); // inlined in game
+	void APCOpenDoor() JMP_THIS(0x740E80); // inlined in game
+
+	static void __fastcall ReadINI(CCINIClass* pINI) JMP_STD(0x743270);
+	static void __fastcall WriteINI(CCINIClass* pINI) JMP_STD(0x7436E0);
+
+	bool ShouldCrashIt(TechnoClass* pTarget) JMP_THIS(0x7438F0);
+
+	AbstractClass* AssignDestination_7447B0(AbstractClass* pTarget) JMP_THIS(0x7447B0);
+	bool AStarAttempt(const CellStruct& cell1, const CellStruct& cell2) JMP_THIS(0x746000);
+
 
 	//Constructor
-	UnitClass(UnitTypeClass* pType, HouseClass* pOwner) noexcept
-		: UnitClass(noinit_t())
-	{ JMP_THIS(0x7353C0); }
+	UnitClass(UnitTypeClass* pType, HouseClass* pOwner) noexcept : UnitClass(noinit_t())
+		{ JMP_THIS(0x7353C0); }
 
 protected:
 	explicit __forceinline UnitClass(noinit_t) noexcept

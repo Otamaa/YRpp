@@ -7,6 +7,8 @@
 #include <AbstractTypeClass.h>
 #include <FileSystem.h>
 
+#include <IndexClass.h>
+
 //forward declarations
 class TechnoTypeClass;
 class HouseTypeClass;
@@ -112,5 +114,5 @@ public:
 	PROTECTED_PROPERTY(BYTE, align_23E[2]);
 	int            LineTrailColorDecrement;
 
-	SomeVoxelCache VoxelCaches [4]; //These don't even seem to be of any use...
+	IndexClass<int, int> VoxelCaches [4]; //These don't even seem to be of any use...
 };

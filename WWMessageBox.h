@@ -1,6 +1,5 @@
 #pragma once
 
-#include <YRPPCore.h>
 #include <StringTable.h>
 #include <Helpers/CompileTime.h>
 

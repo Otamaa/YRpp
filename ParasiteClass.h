@@ -1,6 +1,7 @@
 #pragma once
 
 #include <AbstractClass.h>
+#include <CoordStruct.h>
 
 class AnimClass;
 class FootClass;

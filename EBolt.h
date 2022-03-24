@@ -6,8 +6,7 @@
 
 #include <GeneralDefinitions.h>
 
-class UnitClass;
-
+class TechnoClass;
 class EBolt
 {
 public:
@@ -20,7 +19,7 @@ public:
 	~EBolt()
 		{ JMP_THIS(0x4C2C10); }
 
-	void SetOwner(UnitClass* pOwner, int idxWeapon)
+	void SetOwner(TechnoClass* pOwner, int idxWeapon)
 		{ JMP_THIS(0x4C2BD0); }
 
 	void ClearOwner()
@@ -35,7 +34,10 @@ public:
 		return buffer;
 	}
 
-	void Fire(CoordStruct P1, CoordStruct P2, DWORD arg18)
+	static void __fastcall DrawAll()
+	{ JMP_STD(0x4C2830); }
+
+	void Fire(CoordStruct P1, CoordStruct P2, int _ZAdjust)
 		{ JMP_THIS(0x4C2A60); }
 
 //	static void DeleteAll()

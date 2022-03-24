@@ -5,6 +5,8 @@
 #pragma once
 
 #include <ObjectTypeClass.h>
+#include <CoordStruct.h>
+#include <ColorStruct.h>
 
 //forward declarations
 class WarheadTypeClass;

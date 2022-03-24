@@ -35,6 +35,10 @@ class MissionControlClass
 		void LoadFromINI(CCINIClass* pINI)
 			{ JMP_THIS(0x5B3760); }
 
+		const char* GetName()
+			{ JMP_THIS(0x5B3740); }
+
+
 public:
 		int ArrayIndex; //MissionType
 		bool NoThreat;
@@ -62,8 +66,8 @@ public:
 
 	virtual void Override_Mission(Mission mission, AbstractClass* tarcom = nullptr, AbstractClass* navcom = nullptr) RX; //Vt_1F4
 	virtual bool Mission_Revert() R0; //Restore_Mission
-	virtual bool Mission_Overriden() const R0;//vt_1FC
-	virtual bool Ready_To_Commence() const R0; //200
+	virtual bool MissionIsOverriden() const R0;//vt_1FC
+	virtual bool ReadyToNextMission() const R0; //200
 
 	virtual int Mission_Sleep() R0;
 	virtual int Mission_Harmless() R0;
@@ -125,7 +129,7 @@ public:
 	int      MissionStatus;
 	int      CurrentMissionStartTime;	//in frames
 	DWORD    unknown_C4;
-	TimerStruct UpdateTimer;
+	DECLARE_PROPERTY(TimerStruct, UpdateTimer);
 };
 
 static_assert(sizeof(MissionClass) == 0xD4);

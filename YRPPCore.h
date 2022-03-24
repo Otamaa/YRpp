@@ -18,6 +18,19 @@ typedef unsigned long DWORD;
 #include <wchar.h>
 #include <cstdio>
 
+//Avoid default CTOR trick
+#define DECLARE_PROPERTY(type,name)\
+union{\
+	type name; \
+	char __##name[sizeof(type)]; \
+}
+
+#define DECLARE_PROPERTY_ARRAY(type,name,cnt)\
+union{\
+	type name[cnt]; \
+	char __##name[sizeof(type) * cnt]; \
+}
+
 //Not gettable/settable members
 #define PROTECTED_PROPERTY(type,name)\
 	protected:\

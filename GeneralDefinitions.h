@@ -28,6 +28,31 @@ enum class AbstractFlags : unsigned int {
 
 MAKE_ENUM_FLAGS(AbstractFlags);
 
+enum TileType : int
+{
+	Unk = 0,
+	Tunnel,
+	Water,
+	Blank,
+	Ramp,
+	Cliff,
+	Shore,
+	Wet,
+	MiscPave,
+	Pave,
+	DirtRoad,
+	PavedRoad,
+	PavedRoadEnd,
+	PavedRoadSlope,
+	Median,
+	Bridge,
+	WoodBridge,
+	ClearToSandLAT,
+	Green,
+	NotWater,
+	DestroyableCliff,
+};
+
 enum class AbstractType : unsigned int {
 	None = 0,
 	Unit = 1,
@@ -103,6 +128,13 @@ enum class AbstractType : unsigned int {
 	Airstrike = 71,
 	SlaveManager = 72,
 	DiskLaser = 73
+};
+
+enum class RecordFlag : unsigned int
+{
+	Write = 0x1, // I am recording the game now
+	Read = 0x2, // I am playing a recorded game now
+	Attract = 0x4 // Recording enabled by commmand line
 };
 
 enum class Action : unsigned int {
@@ -181,7 +213,7 @@ enum class Action : unsigned int {
 	PsychicReveal = 72
 };
 
-enum class Ability : int {
+enum class AbilityType : int {
 	Faster = 0,
 	Stronger = 1,
 	Firepower = 2,
@@ -230,12 +262,14 @@ enum class TextPrintType : int
 	LightShadow = 0x80,
 	Center = 0x100,
 	Right = 0x200,
+	unk400 = 0x400,
 	MediumColor = 0x1000,
 	BrightColor = 0x2000,
 	UseGradPal = 0x4000,
 	UnknownColor = 0x8000,
 	GradAll = 0xF000,
 };
+
 MAKE_ENUM_FLAGS(TextPrintType);
 
 enum class TriggerPersistence : unsigned int {
@@ -458,6 +492,65 @@ enum class TriggerAction : unsigned int {
 	JumpCameraHome = 0x91
 };
 
+enum class TriggerAttachType : int {
+	Global = 0x1,
+	Object = 0x2,
+	Map = 0x4,
+	House = 0x8,
+	Logic = 0x10
+};
+
+enum class LogicNeedType : int {
+	None = 0,
+	Theme,
+	Movie,
+	Sound,
+	Speech,
+	Infantry,
+	Unit,
+	Aircraft,
+	Structure,
+	Waypoint,
+	Number,
+	Trigger,
+	Team,
+	House,
+	Time,
+	Quarry,
+	Bool,
+	Special,
+	Mission,
+	Cell,
+	Script,
+	Rectangle,
+	Global,
+	AnimNWaypoint,
+	WaypointNWeapon,
+	LightBehavior,
+	Tag,
+	MeteorSize,
+	RadarEventNWaypoint,
+	Local,
+	VelocityNWaypoint,
+	ShowerNWaypoint,
+	Velocity,
+	Float,
+	TeamNWaypoint,
+	ParticleNWaypoint,
+	BuildingNProperty,
+	SplitType,
+	SoundNWaypoint,
+	Text,
+	Team2,
+	Anim,
+	SpeechBubble,
+	NumberNTech,
+	CrateNWaypoint,
+	BuildingNWaypoint,
+	NumberNSuper,
+	BuildingNNumber,
+};
+
 enum class AIMode : int {
 	General = 0,
 	LowOnCash = 1, // if HouseClass::AvailableMoney < 25 ! stupidly low value
@@ -512,8 +605,6 @@ enum class SpotlightFlags : unsigned int {
 	NoGreen = 0x4,
 	NoBlue = 0x8
 };
-
-MAKE_ENUM_FLAGS(SpotlightFlags);
 
 enum class BehavesLike : int {
 	Smoke = 0,
@@ -584,28 +675,68 @@ enum class Category : int {
 	AirLift = 10
 };
 
+enum class CellFlags : unsigned int
+{
+	Empty = 0x0,
+	CenterRevealed = 0x1,
+	EdgeRevealed = 0x2,
+	IsWaypoint = 0x4,
+	Explored = 0x8, // this means no shroud
+	FlagPresent = 0x10,
+	FlagToShroud = 0x20,
+	IsPlot = 0x40,
+	Bridge_80 = 0x80,
+	Bridge = 0x100,
+	Unknown_200 = 0x200,
+	Bridge_400 = 0x400,
+	Bridge_800 = 0x800,
+	Unknown_1000 = 0x1000,
+	Unknown_2000 = 0x2000,
+	Unknown_4000 = 0x4000,
+	Unknown_8000 = 0x8000,
+	Unknown_10000 = 0x10000,
+	VeinsPresent = 0x20000,
+	Unknown_40000 = 0x40000,
+	EMPPresent = 0x80000,
+	Unknown_100000 = 0x100000,
+	Unknown_200000 = 0x200000,
+	Fogged = 0x400000,
 
-typedef int eCellFlags;
+	Revealed = CenterRevealed | EdgeRevealed
+};
 
-#define cf_CenterRevealed	0x01
-#define cf_EdgeRevealed		0x02
-#define	cf_IsWaypoint		0x04
-#define	cf_Explored			0x08 //this means no shroud
-#define	cf_FlagPresent		0x10
-#define cf_HasShroudCounter	0x20
-#define cf_IsPlot			0x40
-#define cf_Bridge			0x100
-#define	cf_VeinsPresent		0x20000
-#define	cf_EMPPresent		0x80000
-#define	cf_Fogged			0x400000
+MAKE_ENUM_FLAGS(CellFlags);
 
+enum class AltCellFlags : unsigned int
+{
+	Unknown_1 = 0x1,
+	ContainsBuilding = 0x2,
+	Unknown_4 = 0x4, // 47EED4 PlaceShape related
+	Mapped = 0x8,
+	NoFog = 0x10,
+	Unknown_20 = 0x20,
+	Unknown_40 = 0x40,
+	Unknown_80 = 0x80,
+	Unknown_100 = 0x100,
 
-typedef int eCellFlags_12C;
+	Clear = Mapped | NoFog
+};
 
-#define cf2_ContainsBuilding	0x02 // ?
-#define	cf2_NoShadow			0x08 //else tooltip is TXT_SHADOW
-#define cf2_NoFog				0x10
+MAKE_ENUM_FLAGS(AltCellFlags);
 
+enum FacingType : char
+{
+	FACING_N = 0x0,
+	FACING_NE = 0x1,
+	FACING_E = 0x2,
+	FACING_SE = 0x3,
+	FACING_S = 0x4,
+	FACING_SW = 0x5,
+	FACING_W = 0x6,
+	FACING_NW = 0x7,
+	FACING_COUNT = 0x8,
+	FACING_NONE = -1,
+};
 
 enum class CloakState : int {
 	Uncloaked = 0,
@@ -646,13 +777,21 @@ public:
 	typedef unsigned int Value;
 	enum {
 		N = 0x0,
+		North = 0x0,
 		NE = 0x1,
+		NorthEast = 0x1,
 		E = 0x2,
+		East = 0x2,
 		SE = 0x3,
+		SouthEast = 0x3,
 		S = 0x4,
+		South = 0x4,
 		SW = 0x5,
+		SouthWest = 0x5,
 		W = 0x6,
+		West = 0x6,
 		NW = 0x7,
+		NorthWest = 0x7,
 	};
 };
 
@@ -1059,7 +1198,6 @@ enum class MouseCursorType : unsigned int {
 	PsychicReveal = 0x54,
 	SpyPlane = 0x55
 };
-MAKE_ENUM_FLAGS(MouseCursorType);
 
 enum class RadBeamType : unsigned int {
 	Temporal = 0,
@@ -1281,8 +1419,6 @@ enum class SoundType : unsigned int {
 	Ambient = 0x1000
 };
 
-MAKE_ENUM_FLAGS(SoundType);
-
 enum class SoundControl : unsigned int {
 	None = 0x0,
 	Loop = 0x1,
@@ -1294,8 +1430,6 @@ enum class SoundControl : unsigned int {
 	Decay = 0x40,
 	Ambient = 0x80
 };
-
-MAKE_ENUM_FLAGS(SoundControl);
 
 enum class VoxType : int {
 	Standard = 0,
@@ -1354,8 +1488,6 @@ enum class TargetFlags : unsigned int {
 	TechCapture = 0x10000
 };
 
-MAKE_ENUM_FLAGS(TargetFlags);
-
 enum class BlitterFlags : unsigned int {
 	None = 0x0,
 	Darken = 0x1,
@@ -1381,7 +1513,6 @@ enum class BlitterFlags : unsigned int {
 };
 
 MAKE_ENUM_FLAGS(BlitterFlags);
-
 // UI
 enum class MouseEvent : unsigned char {
 	None = 0x0,
@@ -1393,8 +1524,6 @@ enum class MouseEvent : unsigned char {
 	RightHeld = 0x20,
 	RightUp = 0x40
 };
-
-MAKE_ENUM_FLAGS(MouseEvent);
 
 //control key flags
 typedef DWORD eControlKeyFlags;
@@ -1440,6 +1569,16 @@ enum class ParasiteState : int {
 	Damage = 4 // wait until rocking stops; deliver damage
 };
 
+enum class WWKey : int {
+	Shift = 0x100,
+	Ctrl = 0x200,
+	Alt = 0x400,
+	Release = 0x800,
+	VirtualKey = 0x1000,
+	DoubleClick = 0x2000,
+	Button = 0x8000,
+};
+MAKE_ENUM_FLAGS(WWKey);
 //Westwood custom messages (e.g. for SendMessage)
 #define	WW_SLIDER_GETVALUE			0x400
 
@@ -1458,3 +1597,12 @@ enum class ParasiteState : int {
 #define	WW_CB_ADDITEM				0x4C2 //wParam = int index; lParam = 0
 
 #define	WW_LB_ADDITEM				0x4CD
+
+#define		COLOR_BLACK  0x0000
+#define		COLOR_WHITE  0xFFFF
+
+#define		COLOR_RED    0xF800
+#define		COLOR_GREEN  0x07E0
+#define		COLOR_BLUE   0x001F
+
+#define		COLOR_PURPLE (COLOR_RED | COLOR_BLUE)

@@ -2,7 +2,7 @@
 
 //Locomotor = {92612C46-F71F-11d1-AC9F-006008055BB5}
 #include <LocomotionClass.h>
-class __declspec(uuid("92612C46-F71F-11d1-AC9F-006008055BB5")) JumpjetLocomotionClass : public LocomotionClass, public IPiggyback
+class NOVTABLE __declspec(uuid("92612C46-F71F-11d1-AC9F-006008055BB5")) JumpjetLocomotionClass : public LocomotionClass, public IPiggyback
 {
 public:
 	//IUnknown

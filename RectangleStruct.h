@@ -5,15 +5,14 @@
 /*
 		Otamaa : 04/08/2021
 
-		Moved to separate header due to compile error 
+		Moved to separate header due to compile error
 		Add More element known from Vinivera-TSpp
-		
 */
 //obvious
 struct RectangleStruct
 {
 public:
-	
+
 	RectangleStruct()
 		: X(0), Y(0), Width(0), Height(0)
 	{ }
@@ -122,22 +121,22 @@ public:
 	}
 
 	inline void Reset_Position() { X = 0; Y = 0; }
-	
+
 	void Move(int x, int y) { X += x; Y += y; }
 	void Move(const Point2D &point) { X += point.X; Y += point.Y; }
-	
+
 	inline int Size() const { return Width * Height; }
-	
+
 	bool Is_Valid() const { return Width > 0 && Height > 0; }
-	
+
 	__forceinline bool Is_Within(const RectangleStruct &rect) const { return (rect.X >= X && rect.X < (X + Width)) && (rect.Width >= Y && rect.Width < (Y + Height)); }
 	__forceinline bool Is_Within(int x, int y) const { return (x >= X && x < (X + Width)) && (y >= Y && y < (Y + Height)); }
 	__forceinline bool Is_Within(const Point2D &point) const { return (point.X >= X && point.X < (X + Width)) && (point.Y >= Y && point.Y < (Y + Height)); }
-	
+
 	const RectangleStruct Intersect_With(const RectangleStruct &rectangle, int *x = nullptr, int *y = nullptr) { return Intersect(*this, rectangle, x, y); }
-	
+
 	bool Intersects_With(const RectangleStruct &with) const { return (X > with.Width) || (Width < with.X) || (Y > with.Height) || (Height < with.Y); }
-	
+
 	inline RectangleStruct InvalidRect() { return RectangleStruct{0, 0, 0, 0}; }
 
 	bool Is_Overlapping(const RectangleStruct &rect)

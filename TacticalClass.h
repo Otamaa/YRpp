@@ -5,6 +5,7 @@
 #include <AbstractClass.h>
 #include <ColorScheme.h>
 #include <Helpers/CompileTime.h>
+#include <RectangleStruct.h>
 
 struct TacticalSelectableStruct
 {
@@ -40,7 +41,7 @@ public:
         this->CoordsToClient(coords, &Buffer);
         return Buffer;
     }
-	
+
 	Point2D* CoordsToScreen(Point2D* pDest, CoordStruct* pSource)
 		{ JMP_THIS(0x6D1F10); }
 
@@ -107,7 +108,7 @@ public:
 
 	void DrawWallPlacement(bool bBlit, CellStruct nLoc)
 		{ JMP_THIS(0x6D5C50); }
-	
+
 	RectangleStruct VisibleArea() const
 	{ return RectangleStruct{ TacticalPos.X ,TacticalPos.Y , LastTacticalPos.X ,LastTacticalPos.Y }; }
 
@@ -145,13 +146,13 @@ public:
 	bool field_D7C;
 	bool Redrawing; // set while redrawing - cheap mutex // TacticalPosUpdated
 	PROTECTED_PROPERTY(char, gap_D7E[2]);
-	RectangleStruct Rectangle_D80;
+	RectangleStruct ContainingMapCoords;
 	LTRBStruct Band;
 	DWORD MouseFrameIndex;
 	TimerStruct StartTime;
 	int SelectableCount;
-	Matrix3D Unused_Matrix3D;
-	Matrix3D Matrix3D_DE4;
+	Matrix3D Unused_Matrix3D; //DB4
+	Matrix3D IsoTransformMatrix; //DE4
 	DWORD field_E14;
 
 };

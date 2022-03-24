@@ -1,10 +1,8 @@
 #pragma once
 
 #include <YRPPCore.h>
-#include <math.h>
-#include <type_traits>
-#include <algorithm>
 #include <cmath>
+#include <algorithm>
 
 #define MATH_FUNC(name, address)\
 	inline NAKED double __cdecl name(double value)\
@@ -36,6 +34,7 @@ namespace Math
 	constexpr auto const SMALL_FLOAT = 0.0000001f;
 	constexpr auto const HalfPiF = 1.57079632f;
 	constexpr auto const Pi = 3.1415926535897932384626433832795;
+	constexpr auto const C_Sharp_Pi = 3.1415926535897931;
 	constexpr auto const TwoPi = 6.283185307179586476925286766559;
 	constexpr auto const HalfPi = 1.5707963267948966192313216916398;
 	constexpr auto const Sqrt2 = 1.4142135623730950488016887242097;
@@ -78,6 +77,8 @@ namespace Math
 	constexpr const float PI_INV = 1.0f / Math::PI;
 	constexpr const double DEG_TO_RAD_Double = Math::Pi / 180;
 	constexpr const double BINARY_ANGLE_MAGIC = -(360.0 / (65535 - 1)) * DEG_TO_RAD;
+	constexpr const double DEG_TO_RAD_ALTERNATE = C_Sharp_Pi / 180;
+	constexpr const double BINARY_ANGLE_MAGIC_ALTERNATE = -(360.0 / (65535 - 1)) * DEG_TO_RAD_ALTERNATE;
 
 	MATH_FUNC(sqrt,	 0x4CAC40);
 	MATH_FUNC(sin,	 0x4CACB0);
@@ -97,6 +98,8 @@ namespace Math
 	MATH_FUNC_FLOAT(atan, 0x4CB480);
 	MATH_FUNC_TWOVAL_FLOAT(atan2, 0x4CB3D0);
 
+	MATH_FUNC_TWOVAL(arctanfoo , 0x4CAE30)
+
 	//famous Quaqe 3 Fast Inverse Square Root
 	inline float Q_invsqrt(float number)
 	{
@@ -109,7 +112,7 @@ namespace Math
 		x2 = number * 0.5F;
 		y = number;
 		i = *(long *)&y;						  // evil floating point bit level hacking
-		i = 0x5f3759df - (i >> 1);               // what the fuck? 
+		i = 0x5f3759df - (i >> 1);               // what the fuck?
 		y = *(float *)&i;
 		y = y * (threehalfs - (x2 * y * y));   // 1st iteration
 	 // y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration,this can be removed
@@ -122,11 +125,21 @@ namespace Math
 		return rad * 180.0 / Pi;
 	}
 
+	inline constexpr double rad2deg_Alternate(double rad)
+	{
+		return rad * 180.0 / C_Sharp_Pi;
+	}
+
 	template <typename T>
 	inline double stdsqrt(T val) { return std::sqrt(val); }
 	inline constexpr double deg2rad(double deg)
 	{
 		return deg * Pi / 180.0;
+	}
+
+	inline constexpr double deg2rad_Alternate(double deg)
+	{
+		return deg * C_Sharp_Pi / 180.0;
 	}
 
 	template <typename T>
@@ -139,55 +152,48 @@ namespace Math
 	using value_return_t = std::remove_cv_t<std::remove_reference_t<T>>;
 
 	template<class T>
-	inline T min(T a, T b)
+	inline constexpr T min(T a, T b)
 	{
 		if (a < b) return(a);
 		return(b);
 	}
 
 	template<class T>
-	inline T LessOrEqualTo(T a, T b)
+	inline constexpr T LessOrEqualTo(T a, T b)
 	{
 		if (a <= b) return(a);
 		return(b);
 	}
 
 	template<class T>
-	inline T MoreOrEqualTo(T a, T b)
+	inline constexpr T MoreOrEqualTo(T a, T b)
 	{
 		if (a >= b) return(a);
 		return(b);
 	}
 
 	template<class T>
-	inline T max(T a, T b)
+	inline constexpr T max(T a, T b)
 	{
 		if (a > b) return(a);
 		return(b);
 	}
 
-	inline auto limit(int value, int limit)
+	inline constexpr auto limit(int value, int limit)
 	{
 		if (limit <= 0)
 		{
 			return max(value, -limit);
 		}
-		else 
+		else
 		{
 			return min(value, limit);
 		}
 	}
 
 	template <typename T, typename TMin, typename TMax>
-	inline auto clamp(T&& value, TMin&& min, TMax&& max)
+	inline constexpr auto clamp(T&& value, TMin&& min, TMax&& max)
 	{
 		return std::clamp(value, min, max);
 	}
-
-	template<class T>
-	inline void swap(T &value1, T &value2)
-	{
-		return std::swap(value1, value2);
-	}
-	
 };

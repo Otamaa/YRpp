@@ -3,13 +3,15 @@
 #include <GeneralDefinitions.h>
 
 #include <Helpers/CompileTime.h>
+#include <CoordStruct.h>
 
 struct LineTrailNode
 {
 	CoordStruct Position;
-	DWORD unknown;
+	int Value;
 };
 
+class ObjectClass;
 class LineTrail
 {
 public:
@@ -52,7 +54,7 @@ public:
 
 	ColorStruct Color;
 	ObjectClass* Owner;
-	DWORD Decrement;
-	DWORD ActiveSlot;
-	LineTrailNode Trails [32];
+	int Decrement;
+	int ActiveSlot;
+	LineTrailNode Trails[32];
 };
